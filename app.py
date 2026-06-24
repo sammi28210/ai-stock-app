@@ -4,11 +4,11 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 # 保持大器寬版配置
-st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
+st.set_page_config(page_title="台股AI全鏈监控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
 st.caption("雲端純淨完全體：手機版獨立排版優化 × 內建日均量籌碼動向解密 × 雙軌智慧導航艙")
 
-# --- 【核心新增】持股監控記憶體初始化 ---
+# --- 🎯【智慧升級】持股監控初始化（已移除 .TW，以後直接輸入純數字） ---
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
         {"代號": "2356", "買入成本": 70.57, "監控均線": "20MA"},
@@ -121,8 +121,7 @@ def calculate_historical_win_rate(df_d):
         
         l9, h9 = df_b['Low'].rolling(window=9).min(), df_b['High'].rolling(window=9).max()
         df_b['RSV'] = (((df_b['Close'] - l9) / (h9 - l9)) * 100).fillna(50)
-        df_b['K'] = df_b['RSV'].ewm(alpha=1/3, adjust=False).mean()
-        df_b['D'] = df_b['K'].ewm(alpha=1/3, adjust=False).mean()
+        df_b['K'] = df_b['RSV'].ewm(alpha=1/3, adjust=False).mean(); df_b['D'] = df_b['K'].ewm(alpha=1/3, adjust=False).mean()
         
         e12 = df_b['Close'].ewm(span=12, adjust=False).mean()
         e26 = df_b['Close'].ewm(span=26, adjust=False).mean()
@@ -153,7 +152,7 @@ def calculate_historical_win_rate(df_d):
 
 st.sidebar.header("🎯 AI 供應鏈群組過濾")
 all_available_groups = sorted(list(set([v['group'] for v in AI_STOCKS_DICT.values()])))
-selected_groups = st.sidebar.multiselect("選擇監控群組：", options=all_available_groups, default=all_available_groups)
+selected_groups = st.sidebar.multiselect("選擇监控群組：", options=all_available_groups, default=all_available_groups)
 FILTERED_STOCKS_DICT = {k: v for k, v in AI_STOCKS_DICT.items() if v['group'] in selected_groups}
 FILTERED_TICKERS = list(FILTERED_STOCKS_DICT.keys())
 
@@ -164,15 +163,26 @@ def fetch_all_data(tickers):
         import requests
         clean_session = requests.Session()
         clean_session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
-        # 核心升級：自動連同監控持股一起下載，保證不脫節
+        
+        # 💡【智慧轉換】自動將使用者輸入的純數字轉為 yfinance 格式進行下載
         portfolio_tickers = st.session_state.my_portfolio['代號'].dropna().tolist()
-        all_fetch = list(set(tickers + portfolio_tickers))
+        yf_portfolio_tickers = []
+        for t in portfolio_tickers:
+            t_str = str(t).strip().upper()
+            if t_str:
+                if not t_str.endswith('.TW') and not t_str.endswith('.TWO'):
+                    matched = [k for k in AI_STOCKS_DICT.keys() if k.startswith(t_str + '.')]
+                    if matched: yf_portfolio_tickers.append(matched[0])
+                    else: yf_portfolio_tickers.append(t_str + '.TW')  # 預設為上市
+                else:
+                    yf_portfolio_tickers.append(t_str)
+                    
+        all_fetch = list(set(tickers + yf_portfolio_tickers))
         hourly = yf.download(all_fetch, period="2mo", interval="1h", group_by='ticker', progress=False, threads=False, session=clean_session)
         daily = yf.download(all_fetch, period="8mo", interval="1d", group_by='ticker', progress=False, threads=False, session=clean_session)
         return hourly, daily
     except: return None, None
 
-# 🛠️ 修正紅框錯誤：刪除不支援的 placeholder 參數
 MOBILE_TABLE_CONFIG = {
     "代號": st.column_config.TextColumn("代號", width="small"),
     "名稱": st.column_config.TextColumn("名稱", width="small"),
@@ -193,7 +203,7 @@ if FILTERED_TICKERS:
         hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
     
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
-        # 🛡️ 移至最上層對齊：強制定義 7 個頁籤，徹底解決 tab object does not exist 崩潰
+        # 頁籤頂格定義
         tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
             "🚀 今日實戰精選買入名單", "🔥 60分線 666 戰法", "🛡️ 均線防守 & 低檔反彈選股", 
             "💎 個股智慧狀態診斷", "📊 AI大軍量能與趨勢排行", "💰 族群資金輪動监控", "📱 持股防守艙"
@@ -203,7 +213,6 @@ if FILTERED_TICKERS:
         # ＝＝＝＝＝＝＝＝＝＝ Tab 0 ＝＝＝＝＝＝＝＝＝＝
         with tab0:
             st.markdown("### 🦅 台股 AI 雙軌高期望值量化作戰艙")
-            
             rocket_confirmed = []
             rebound_confirmed = []
             for ticker in FILTERED_TICKERS:
@@ -262,7 +271,7 @@ if FILTERED_TICKERS:
                                             "代號": ticker, "名稱": FILTERED_STOCKS_DICT[ticker]['name'], "市價": round(p_close, 2),
                                             "進場區間": f"{(tight_stop*1.002):.1f}~{(tight_stop*1.015):.1f}",
                                             "目標區": f"{target_15:.1f}~{target_20:.1f}", "勝率": stock_win_rate, "今日支撐": round(daily_support, 2), "停損價": round(tight_stop, 2),
-                                            "核心理由說明": f"標準高空強勢大飆股（類國巨、華新科）！主力極強不踩20MA。此時在 60分K 貼緊 5M/10MA 換手洗盤結束，目前距離貼身防守僅 {dist_to_stop:.1f}%，依 10MA 貼身防守切入，不踏空不追高！\n\n{chips_text}"
+                                            "核心理由說明": f"標準高空強勢大飆股！主力極強不踩20MA。此時在 60分K 貼緊 5M/10MA 換手洗盤結束，目前距離貼身防守僅 {dist_to_stop:.1f}%，依 10MA 貼身防守切入，不踏空不追高！\n\n{chips_text}"
                                         })
                 except: continue
             
@@ -270,7 +279,6 @@ if FILTERED_TICKERS:
             if rocket_confirmed:
                 r_df = pd.DataFrame(rocket_confirmed)
                 st.data_editor(r_df.drop(columns=["核心理由說明"]), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-                st.markdown("💡 **飆股即時戰術與籌碼流向指引：**")
                 for item in rocket_confirmed: st.info(f"🚀 **{item['名稱']} ({item['代號']})**：\n\n{item['核心理由說明']}")
             else: st.info("⏳ 目前強勢飆股都在半空中，沒有任何一檔『貼緊 5M/10MA 且動能折返』。")
                 
@@ -279,7 +287,6 @@ if FILTERED_TICKERS:
             if rebound_confirmed:
                 reb_df = pd.DataFrame(rebound_confirmed)
                 st.data_editor(reb_df.drop(columns=["核心理由說明"]), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-                st.markdown("💡 **黑馬即時戰術與籌碼流向指引：**")
                 for item in rebound_confirmed: st.success(f"🌱 **{item['名稱']} ({item['代號']})**：\n\n{item['核心理由說明']}")
             else: st.info("⏳ 目前盤面上暫時沒有標的剛好『黏在 20MA 防守線身邊』。")
 
@@ -428,10 +435,9 @@ if FILTERED_TICKERS:
                 st.success(f"📊 已成功解密【{selected_flow_group}】成分股明細：")
                 st.data_editor(output_detail.sort_values(by="金額億", ascending=False).reset_index(drop=True), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【完美融合的持股監控】 ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙，完美支援純數字】 ＝＝＝＝＝＝＝＝＝＝
         with tab6:
             st.subheader("📱 我的持股鋼鐵防守監控艙")
-            # 讓使用者可以動態新增/刪除/編輯持股成本與監控均線
             edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
             st.session_state.my_portfolio = edited_df
             
@@ -440,12 +446,25 @@ if FILTERED_TICKERS:
                 for idx, row in edited_df.iterrows():
                     tk = str(row["代號"]).strip().upper()
                     if not tk: continue
-                    try:
-                        # 關鍵整合：改用 hourly_data[tk] 讀取最即時的即時報價，徹底解決兩邊股價不同步的問題
-                        df_p = hourly_data[tk].dropna() if is_multi else hourly_data.dropna()
-                        price = df_p['Close'].iloc[-1]
+                    
+                    # 💡【還原機制】如果使用者輸入的是純數字，自動在後台還原成含有 .TW/.TWO 的 yfinance 格式
+                    yf_tk = tk
+                    if not tk.endswith('.TW') and not tk.endswith('.TWO'):
+                        matched = [k for k in AI_STOCKS_DICT.keys() if k.startswith(tk + '.')]
+                        if matched: yf_tk = matched[0]
+                        else: yf_tk = tk + '.TW'  # 預設比對不到則補上 .TW
                         
-                        # 同步 60分K 的 20MA 或 10MA 技術面防守位置
+                    if is_multi and yf_tk not in hourly_data.columns.levels[0]:
+                        st.warning(f"⚠️ {tk} 尚未在伺服器緩衝區建立，資料同步中...")
+                        continue
+                        
+                    try:
+                        df_p = hourly_data[yf_tk].dropna() if is_multi else hourly_data.dropna()
+                        if df_p.empty:
+                            st.warning(f"⚠️ {tk} 目前無即時交易數據...")
+                            continue
+                            
+                        price = df_p['Close'].iloc[-1]
                         ma = df_p['Close'].rolling(20).mean().iloc[-1] if row['監控均線'] == "20MA" else df_p['Close'].rolling(10).mean().iloc[-1]
                         pnl = ((price - row['買入成本']) / row['買入成本']) * 100
                         
@@ -456,7 +475,7 @@ if FILTERED_TICKERS:
                             st.error(f"{res} | {status} (當前低於 {row['監控均線']}，請執行紀律！)")
                         else:
                             st.success(f"{res} | {status} (守穩在 {row['監控均線']} 之上，安全運行中)")
-                    except:
-                        st.warning(f"⚠️ {tk} 數據同步中，請確保代號輸入正確（例: 2330）...")
+                    except Exception as e:
+                        st.warning(f"⚠️ {tk} 數據同步中...")
             else:
                 st.info("💡 正在等待雷達數據初始化同步...")
