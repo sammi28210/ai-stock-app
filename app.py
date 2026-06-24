@@ -381,7 +381,7 @@ if ALL_FETCH_TICKERS:
                 st.session_state.my_portfolio,
                 num_rows="dynamic",
                 column_config={
-                    "代號": st.column_config.TextColumn("代號 (例: 2327)", placeholder="請輸入台股代號"),
+                    "代號": st.column_config.TextColumn("代號 ( placeholder="請輸入台股代號"),
                     "買入成本": st.column_config.NumberColumn("買入成本", min_value=0.0, format="%.2f"),
                     "防守型態": st.column_config.SelectboxColumn("監控型態", options=["🛡️ 穩健防守型 (盯60分K 20MA)", "🚀 狂飆悍馬型 (盯60分K 10MA)"])
                 },
