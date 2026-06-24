@@ -97,13 +97,13 @@ AI_STOCKS_DICT = {
     '6188.TW': {'name': '廣明', 'group': '36. AI 智慧視覺 & 具身智慧機器人'},
     '2353.TW': {'name': '宏碁', 'group': '37. AI PC 品牌與終端'},
     '2357.TW': {'name': '華碩', 'group': '37. AI PC 品牌與終端'}
-}
-# --- [增加] 持股監控初始化 ---
+    # --- [增加] 持股監控初始化 ---
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
         {"代號": "2356.TW", "成本": 70.57, "防守": "20MA"},
         {"代號": "2327.TW", "成本": 1010.00, "防守": "10MA"}
-    ])
+])
+}
 
 def diagnose_trend_status(p_close, ma20, ma60):
     if p_close > ma20 and ma20 > ma60: return "🔥 多頭強攻中"
