@@ -1,4 +1,4 @@
-import streamlit as st
+9import streamlit as st
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
@@ -98,6 +98,12 @@ AI_STOCKS_DICT = {
     '2353.TW': {'name': '宏碁', 'group': '37. AI PC 品牌與終端'},
     '2357.TW': {'name': '華碩', 'group': '37. AI PC 品牌與終端'}
 }
+# --- [增加] 持股監控初始化 ---
+if 'my_portfolio' not in st.session_state:
+    st.session_state.my_portfolio = pd.DataFrame([
+        {"代號": "2356.TW", "成本": 70.57, "防守": "20MA"},
+        {"代號": "2327.TW", "成本": 1010.00, "防守": "10MA"}
+    ])
 
 def diagnose_trend_status(p_close, ma20, ma60):
     if p_close > ma20 and ma20 > ma60: return "🔥 多頭強攻中"
@@ -411,3 +417,28 @@ if FILTERED_TICKERS:
                 
                 st.success(f"📊 已成功解密【{selected_flow_group}】成分股明細：")
                 st.data_editor(output_detail.sort_values(by="金額億", ascending=False).reset_index(drop=True), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
+# --- [新增] 持股防守艙監控邏輯 ---
+with tab6: 
+    st.subheader("📱 持股防守監控艙")
+    edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
+    st.session_state.my_portfolio = edited_df
+    
+    st.markdown("---")
+    for idx, row in edited_df.iterrows():
+        tk = str(row["代號"]).strip().upper()
+        if not tk: continue
+        try:
+            df = data[tk].dropna()
+            price = df['Close'].iloc[-1]
+            # 防守線運算：根據您設定的均線選取
+            ma = df['Close'].rolling(20).mean().iloc[-1] if row['防守'] == "20MA" else df['Close'].rolling(10).mean().iloc[-1]
+            pnl = ((price - row['成本'])/row['成本'])*100
+            
+            # 使用原生顯示，避免紅框崩潰
+            res = f"**{tk}** | 現價:{price:.2f} | 損益:{pnl:+.2f}% | 防守({row['防守']}):{ma:.2f}"
+            if price < ma:
+                st.error(f"❌ {res} | ⚠️ 跌破 {row['防守']}，建議執行紀律！")
+            else:
+                st.success(f"✅ {res} | 🛡️ 安全運行")
+        except: 
+            st.write(f"⚠️ {tk} 數據同步中...")
