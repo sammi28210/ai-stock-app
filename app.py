@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
-st.caption("雲端純淨完全體：手機版文字自動換行優化 × 雙軌獨立智慧導航艙")
+st.caption("雲端純淨完全體：手機版獨立排版優化 × 修正語法錯誤 × 雙軌智慧導航艙")
 
 AI_STOCKS_DICT = {
     # ─── 基礎算力層 ───
@@ -40,9 +40,9 @@ AI_STOCKS_DICT = {
     '6223.TW': {'name': '旺矽', 'group': '13. 晶圓前段探針卡/測試介面'},
     '6510.TW': {'name': '精測', 'group': '13. 晶圓前段探針卡/測試介面'},
     '3680.TW': {'name': '家登', 'group': '14. EUV 光罩傳送盒/半導體材料'},
-    '3289.TW': {'name': '宜特', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
-    '3587.TWO': {'name': '閎康', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
-    '6830.TW': {'name': '汎銓', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
+    '3289.TW': {'name': '宜特', 'group': '15. 半導體驗證/材料 analysis (MA/RA)'},
+    '3587.TWO': {'name': '閎康', 'group': '15. 半導體驗證/材料 analysis (MA/RA)'},
+    '6830.TW': {'name': '汎銓', 'group': '15. 半導體驗證/材料 analysis (MA/RA)'},
     # ─── 數據網路與通訊 ───
     '3081.TWO': {'name': '聯亞', 'group': '16. 矽光子雷射晶片/磊晶 (DFB)'},
     '6451.TW': {'name': '訊芯-KY', 'group': '17. 矽光子/CPO 模組封裝'},
@@ -162,7 +162,7 @@ def fetch_all_data(tickers):
         return hourly, daily
     except: return None, None
 
-# 🌟 手機專用配置：極致壓縮欄位，強制長文字自動換行
+# 🌟 手機優化版寬度設定 (完全去除理由欄位，改放到下方獨立卡片以防手機斷字)
 MOBILE_TABLE_CONFIG = {
     "代號": st.column_config.TextColumn("代號", width="small"),
     "名稱": st.column_config.TextColumn("名稱", width="small"),
@@ -171,12 +171,11 @@ MOBILE_TABLE_CONFIG = {
     "目標區": st.column_config.TextColumn("15-20%目標", width="medium"),
     "勝率": st.column_config.TextColumn("歷史勝率", width="small"),
     "今日支撐": st.column_config.NumberColumn("支撐點", width="small"),
-    "停損價": st.column_config.NumberColumn("停損", width="small"),
-    "核心理由說明": st.column_config.TextColumn("🔮 進場核心理由說明", width="large") # 給予最大寬度並允許換行
+    "停損價": st.column_config.NumberColumn("停損", width="small")
 }
 
 if FILTERED_TICKERS:
-    with st.spinner("⚡ 正在優化手機排版並精算數據..."):
+    with st.spinner("⚡ 正在為您精算【強勢飆股榜】與【底部反彈榜】最新數據..."):
         hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
     
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
@@ -188,6 +187,7 @@ if FILTERED_TICKERS:
         
         with tab0:
             st.markdown("### 🦅 台股 AI 雙軌高期望值量化作戰艙")
+            st.markdown("這裡的標的全部符合您的紀律：**即使是狂飆股，系統也嚴格規定必須等到它『在60分K洗盤結束且動能折返（綠柱縮短）』才准放行！**")
             
             rocket_confirmed = []
             rebound_confirmed = []
@@ -224,6 +224,7 @@ if FILTERED_TICKERS:
                             daily_support = (2 * ((yes_d['High'] + yes_d['Low'] + yes_d['Close']) / 3)) - yes_d['High']
                             target_15 = p_close * 1.15; target_20 = p_close * 1.20
                             stock_win_rate = calculate_historical_win_rate(df_d)
+                            dist_to_defense_20 = ((p_close - tod_h['MA20']) / tod_h['MA20']) * 100
                             
                             # ── 軌道一：底部反彈名單 ──
                             if (tod_h['MA20'] * 1.002) <= p_close <= (tod_h['MA20'] * 1.015) and tod_h['K'] > tod_h['D']:
@@ -233,7 +234,7 @@ if FILTERED_TICKERS:
                                     "進場區間": f"{(tod_h['MA20']*1.002):.1f}~{(tod_h['MA20']*1.015):.1f}",
                                     "目標區": f"{target_15:.1f}~{target_20:.1f}", "勝率": stock_win_rate,
                                     "今日支撐": round(daily_support, 2), "停損價": round(tod_h['MA20'], 2),
-                                    "核心理由說明": f"穩健回踩 60分K 20MA防守牆，KD+MACD同步起漲交叉，看錯僅受1%微傷的安全好買點！"
+                                    "核心理由說明": f"該股溫和拉回 60分K 20MA 防守線身邊！此時進場風險僅 {dist_to_defense_20:.1f}%。KD ＋ MACD 綠柱在此同步出現「止跌勾頭第一根」，屬於標準的高期望值、高勝率安全起漲點！"
                                 })
                             
                             # ── 軌道二：高空飆股名單 ──
@@ -252,26 +253,36 @@ if FILTERED_TICKERS:
                                             "進場區間": f"{(tight_stop*1.002):.1f}~{(tight_stop*1.015):.1f}",
                                             "目標區": f"{target_15:.1f}~{target_20:.1f}", "勝率": stock_win_rate,
                                             "今日支撐": round(daily_support, 2), "停損價": round(tight_stop, 2),
-                                            "核心理由說明": f"火箭飆股型態！60分K貼緊 5M/10MA 換手洗盤結束，MACD綠柱首度縮短！依 10MA 貼身防守高空進場，不踏空不追高！"
+                                            "核心理由說明": f"標準高空強勢大飆股（類華新科、廣閎科、國巨）！主力極強不回踩20MA。此時在 60分K 貼緊 5M/10MA 換手洗盤結束，MACD綠柱首度扭轉縮短！目前距離防守點僅 {dist_to_stop:.1f}%，依 10MA 貼身防守切入，既不踏空也不追高！"
                                         })
                 except: continue
             
-            # ── 渲染優化後的手機表格一：高空飆股 ──
+            # ── 渲染手機排版優化：【高空飆股榜】 ──
             st.markdown("### 🔥 🔴 狂飆悍馬榜：高空接力精選名單")
             if rocket_confirmed:
                 r_df = pd.DataFrame(rocket_confirmed)
                 r_df.index += 1
-                st.data_editor(r_df, column_config=MOBILE_TABLE_CONFIG, hide_index=False, disabled=True, use_container_width=True)
+                # 表格純放數據，徹底隔絕長文字
+                st.data_editor(r_df.drop(columns=["核心理由說明"]), column_config=MOBILE_TABLE_CONFIG, hide_index=False, disabled=True, use_container_width=True)
+                
+                # 長篇文字理由單獨拿到下方，利用手機全寬自動換行，再也不會被裁切
+                st.markdown("💡 **飆股即時戰術指引：**")
+                for item in rocket_confirmed:
+                    st.info(f"🚀 **{item['名稱']} ({item['代號']})**：{item['核心理由說明']}")
             else:
                 st.info("⏳ 目前強勢飆股都在半空中，沒有任何一檔『貼緊 5M/10MA 且動能折返』。請勿盲目追高，靜待火箭回踩接你上車！")
                 
             st.markdown("---")
-            # ── 渲染優化後的手機表格二：底部反彈 ──
+            # ── 渲染手機排版優化：【底部反彈榜】 ──
             st.markdown("### 🌱 🟢 潛力黑馬榜：底部穩健反彈名單")
             if rebound_confirmed:
                 reb_df = pd.DataFrame(rebound_confirmed)
                 reb_df.index += 1
-                st.data_editor(reb_df, column_config=MOBILE_TABLE_CONFIG, hide_index=False, disabled=True, use_container_width=True)
+                st.data_editor(reb_df.drop(columns=["核心理由說明"]), column_config=MOBILE_TABLE_CONFIG, hide_index=False, disabled=True, use_container_width=True)
+                
+                st.markdown("💡 **黑馬即時戰術指引：**")
+                for item in rebound_confirmed:
+                    st.success(f"🌱 **{item['名稱']} ({item['代號']})**：{item['核心理由說明']}")
             else:
                 st.info("⏳ 目前盤面上暫時沒有標的剛好『黏在 20MA 防守線身邊』。做波段不急，我們嚴守紀律，等大戶回檔送分！")
 
@@ -295,7 +306,7 @@ if FILTERED_TICKERS:
                         matches.append({"代號": ticker, "股票名稱": AI_STOCKS_DICT[ticker]['name'], "AI細分族群": AI_STOCKS_DICT[ticker]['group'], "當前價": round(today['Close'], 2), "波段趨勢位階": trend_lbl})
                 except: continue
             if matches: st.dataframe(pd.DataFrame(matches).reset_index(drop=True), use_container_width=True)
-            else: st.info("目前無標的符合條件。")
+            else: st.info("目無標的符合條件。")
             
         with tab2:
             st.subheader("🔍 日線級別 - 中長線均線防守診斷")
@@ -347,7 +358,7 @@ if FILTERED_TICKERS:
                     st.markdown(f"**🛡️ 穩健防守底線 (60分K 20MA)：** `{df_h['MA20'].iloc[-1]:.2f} 元`")
                     st.markdown(f"**🚀 飆股貼身防守 (60分K 10MA)：** `{df_h['MA10'].iloc[-1]:.2f} 元`")
                     st.markdown(f"**📌 每日精算支撐點：** `{daily_support:.2f} 元`")
-                    st.markdown(f"**📈 歷史波段達標率：** {calculate_historical_win_rate(df_d)}")
+                    st.markdown(f"**📈 歷史波段達爆率：** {calculate_historical_win_rate(df_d)}")
             except: st.info("數據整合中...")
 
         with tab4:
@@ -385,4 +396,5 @@ if FILTERED_TICKERS:
                     elif -0.4 <= chg <= 0.4 and ratio < 0.8: return "⏳ 資金休兵觀望（縮量沉悶）"
                     else: return "🌀 橫盤量縮整理"
                 agg_df["🔮 主力資金流向診斷"] = agg_df.apply(judge_flow_status, axis=1)
-                st.dataframe(agg_df[["group", "今日總成交額 (億元)", "量能放大倍仙 (較5日)", "🔮 主力資金流向診斷"]].sort_values(by="今日總成交額 (億元)", ascending=False).reset_index(drop=True), use_container_width=True)
+                # 🌟 這裡修正了原本「量能放大倍仙」的錯字，紅色錯誤框徹底消滅！
+                st.dataframe(agg_df[["group", "今日總成交額 (億元)", "量能放大倍數 (較5日)", "🔮 主力資金流向診斷"]].sort_values(by="今日總成交額 (億元)", ascending=False).reset_index(drop=True), use_container_width=True)
