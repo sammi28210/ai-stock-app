@@ -1,9 +1,3 @@
-import asyncio
-try:
-    asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
-except:
-    pass
-
 import streamlit as st
 import yfinance as yf
 import pandas as pd
@@ -122,8 +116,8 @@ FILTERED_TICKERS = list(FILTERED_STOCKS_DICT.keys())
 @st.cache_data(ttl=900)
 def fetch_all_data(tickers):
     if not tickers: return None, None
-    hourly = yf.download(tickers, period="2mo", interval="1h", group_by='ticker', progress=False)
-    daily = yf.download(tickers, period="8mo", interval="1d", group_by='ticker', progress=False)
+    hourly = yf.download(tickers, period="2mo", interval="1h", group_by='ticker', progress=False, threads=False)
+    daily = yf.download(tickers, period="8mo", interval="1d", group_by='ticker', progress=False, threads=False)
     return hourly, daily
 
 if FILTERED_TICKERS:
@@ -296,7 +290,7 @@ if FILTERED_TICKERS:
             except: continue
             
         if volume_list: 
-            v_df = pd.DataFrame(volume_list).sort_values(by="成交張數 (張)", ascending=False).reset_index(drop=True)
+            v_df = pd.DataFrame(volume_list).sort_values(by="成交張數 (張)", INDIRECT=False).reset_index(drop=True)
             v_df.index += 1
             top_30_df = v_df.head(30)
             st.dataframe(top_30_df, use_container_width=True)
