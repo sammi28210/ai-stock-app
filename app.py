@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
-st.caption("雲端純淨完全體：手機版獨立排版優化 × 內建日均量籌碼動向解密 × 全局唯一即時價大一統監控倉")
+st.caption("雲端純淨完全體：手機版獨立排版優化 × 內建日均量籌碼動向解密 × 全局唯一精準真實市價大一統監控倉")
 
 # --- 持股監控初始化（支援純數字輸入） ---
 if 'my_portfolio' not in st.session_state:
@@ -208,11 +208,11 @@ if FILTERED_TICKERS:
         ])
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
-        # 💡【核心防線：大一統即時價字典】建立全局唯一價格快照，封死價格分歧的可能性
+        # 💡【全新防線：全局真實市價字典】改從 daily_data 撈取最精準的日K收盤價，直接繞過小時線的缺陷！
         LATEST_PRICES = {}
         for ticker in all_fetch:
             try:
-                df_ticker = hourly_data[ticker].dropna() if is_multi else hourly_data.dropna()
+                df_ticker = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
                 if not df_ticker.empty:
                     LATEST_PRICES[ticker] = df_ticker['Close'].iloc[-1]
             except: pass
@@ -240,7 +240,7 @@ if FILTERED_TICKERS:
                     df_h['HIST'] = df_h['DIF'] - df_h['MACD_Sig']
                     
                     tod_h = df_h.iloc[-1]; yes_h = df_h.iloc[-2]
-                    p_close = LATEST_PRICES.get(ticker, tod_h['Close']) # 強制對齊
+                    p_close = LATEST_PRICES.get(ticker, tod_h['Close']) # 強制使用真實市價
                     
                     if p_close > tod_h['MA60']:
                         if tod_h['HIST'] > yes_h['HIST']:
@@ -314,7 +314,7 @@ if FILTERED_TICKERS:
                         df_d = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
                         df_d['MA20'] = df_d['Close'].rolling(window=20).mean(); df_d['MA60'] = df_d['Close'].rolling(window=60).mean()
                         trend_lbl = diagnose_trend_status(df_d.iloc[-1]['Close'], df_d.iloc[-1]['MA20'], df_d.iloc[-1]['MA60'])
-                        current_p = LATEST_PRICES.get(ticker, today['Close']) # 強制對齊
+                        current_p = LATEST_PRICES.get(ticker, today['Close']) 
                         matches.append({"代號": ticker, "名稱": AI_STOCKS_DICT[ticker]['name'], "當前價": round(current_p, 2), "波段趨勢位階": trend_lbl})
                 except: continue
             if matches: st.dataframe(pd.DataFrame(matches).reset_index(drop=True), use_container_width=True)
@@ -330,7 +330,7 @@ if FILTERED_TICKERS:
                     p_today = df_d.iloc[-1]
                     if p_today['Close'] < p_today['MA20'] or p_today['Close'] < p_today['MA60']:
                         diagnose = diagnose_trend_status(p_today['Close'], p_today['MA20'], p_today['MA60'])
-                        current_p = LATEST_PRICES.get(ticker, p_today['Close']) # 強制對齊
+                        current_p = LATEST_PRICES.get(ticker, p_today['Close']) 
                         correction_list.append({"代號": ticker, "名稱": FILTERED_STOCKS_DICT[ticker]['name'], "今日收盤": round(current_p, 2), "趨勢診斷": diagnose})
                 except: continue
             if correction_list: st.dataframe(pd.DataFrame(correction_list).reset_index(drop=True), use_container_width=True)
@@ -348,7 +348,7 @@ if FILTERED_TICKERS:
                     today_r, yesterday_r = df_r.iloc[-1], df_r.iloc[-2]
                     if yesterday_r['K'] < 30 and yesterday_r['K'] <= yesterday_r['D'] and today_r['K'] > today_r['D']:
                         trend_lbl = diagnose_trend_status(today_r['Close'], today_r['MA20'], today_r['MA60'])
-                        current_p = LATEST_PRICES.get(ticker, today_r['Close']) # 強制對齊
+                        current_p = LATEST_PRICES.get(ticker, today_r['Close']) 
                         rebound_matches.append({"代號": ticker, "名稱": FILTERED_STOCKS_DICT[ticker]['name'], "目前價格": round(current_p, 2), "長線趨勢背景": trend_lbl})
                 except: continue
             if rebound_matches: st.dataframe(pd.DataFrame(rebound_matches).reset_index(drop=True), use_container_width=True)
@@ -364,7 +364,7 @@ if FILTERED_TICKERS:
                 df_d['MA20'] = df_d['Close'].rolling(window=20).mean(); df_d['MA60'] = df_d['Close'].rolling(window=60).mean()
                 df_h['MA10'] = df_h['Close'].rolling(window=10).mean(); df_h['MA20'] = df_h['Close'].rolling(window=20).mean()
                 tod_d = df_d.iloc[-1]; yes_d = df_d.iloc[-2]; tod_h = df_h.iloc[-1]
-                p_close = LATEST_PRICES.get(selected_ticker, tod_h['Close']) # 強制對齊
+                p_close = LATEST_PRICES.get(selected_ticker, tod_h['Close']) 
                 daily_support = (2 * ((yes_d['High'] + yes_d['Low'] + yes_d['Close']) / 3)) - yes_d['High']
                 st.metric(label="📊 當前即時股價", value=f"{p_close:.2f} 元", delta=f"{((p_close - yes_d['Close']) / yes_d['Close'] * 100):+.2f}%")
                 with st.container(border=True):
@@ -381,7 +381,7 @@ if FILTERED_TICKERS:
                     df_v = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
                     df_v['MA20'] = df_v['Close'].rolling(window=20).mean(); df_v['MA60'] = df_v['Close'].rolling(window=60).mean()
                     today_v = df_v.iloc[-1]; yesterday_v = df_v.iloc[-2]
-                    current_p = LATEST_PRICES.get(ticker, today_v['Close']) # 強制對齊
+                    current_p = LATEST_PRICES.get(ticker, today_v['Close']) 
                     chg_pct = ((current_p - yesterday_v['Close']) / yesterday_v['Close'] * 100)
                     volume_list.append({"代號": ticker, "名稱": FILTERED_STOCKS_DICT[ticker]['name'], "今日收盤": round(current_p, 2), "今日漲跌幅": f"{chg_pct:+.2f}%", "成交量 (張)": int(today_v['Volume'] / 1000), "🌟 當前波段趨勢": diagnose_trend_status(current_p, df_v['MA20'].iloc[-1], df_v['MA60'].iloc[-1])})
                 except: continue
@@ -399,7 +399,7 @@ if FILTERED_TICKERS:
                     df_v['Value'] = df_v['Close'] * df_v['Volume']
                     df_v['Value_MA5'] = df_v['Value'].rolling(window=5).mean(); df_v['Vol_MA5'] = df_v['Volume'].rolling(window=5).mean()
                     today_v = df_v.iloc[-1]; yesterday_v = df_v.iloc[-2]
-                    current_p = LATEST_PRICES.get(ticker, today_v['Close']) # 強制對齊
+                    current_p = LATEST_PRICES.get(ticker, today_v['Close']) 
                     chg_pct = ((current_p - yesterday_v['Close']) / yesterday_v['Close'] * 100)
                     group_flows.append({
                         "ticker": ticker, "name": AI_STOCKS_DICT[ticker]['name'], "group": FILTERED_STOCKS_DICT[ticker]['group'],
@@ -466,7 +466,7 @@ if FILTERED_TICKERS:
                         if matched: yf_tk = matched[0]
                         else: yf_tk = tk + '.TW'
                         
-                    # 💡 讀取全局唯一大一統價格，保證 2356 在各分頁數值完全鎖死，絕無落差
+                    # 💡 全新大一統機制：改抓精準日線收盤價快照，保證與真實世界的市價一模一樣
                     price = LATEST_PRICES.get(yf_tk, 0.0)
                     if price == 0.0:
                         st.warning(f"⚠️ {tk} 數據同步中...")
