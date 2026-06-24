@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
-st.caption("雲端純淨版：全面淨空圖表 × 專注即時動態篩選 × 內建次族群資金輪動雷達")
+st.caption("雲端純淨版：全面淨空圖表 × 專注即時動態篩選 × 內建次族群資金與成分股雷達")
 
 AI_STOCKS_DICT = {
     # ─── 基礎算力層 ───
@@ -131,7 +131,6 @@ if FILTERED_TICKERS:
         hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
     
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
-        # 五大分頁，全面支援純數據流
         tab1, tab2, tab3, tab4, tab5 = st.tabs([
             "🔥 60分線 666 戰法", 
             "🛡️ 均線防守 & 低檔反彈選股", 
@@ -242,7 +241,7 @@ if FILTERED_TICKERS:
                     st.markdown(f"**🎯 波段中長線趨勢：** {trend_lbl}")
                     st.markdown(f"**⏱️ 60分K戰法位階：** 目前價格 {ma_status_text}")
                     st.markdown(f"**📦 今日概估成交張數：** {int(tod_d['Volume']/1000)} 張")
-                    st.markdown(f"**📅 數據最後同步時間：** {tod_h.name.strftime('%Y-%m-%d %H:%M') if hasattr(tod_h.name, 'strftime') else tod_h.name}")
+                    st.markdown(f"**📅 數據最後同步時間：** {tod_h.name.strftime('%Y-%m-%d %H:%M') if hasattr(tod_h.name, 'strftime') else lod_h.name}")
             except:
                 st.info("該股數據整合中...")
 
@@ -266,10 +265,9 @@ if FILTERED_TICKERS:
                 top_30_df = v_df.head(30)
                 st.dataframe(top_30_df, use_container_width=True)
 
-        # ─── 💰 Tab 5：全新的族群資金輪動監控 (核心新功能) ───
+        # ─── Tab 5：族群資金流向 ＋ 🌟 新增：點擊族群成分股解密 ───
         with tab5:
             st.subheader("💰 🎯 AI 次族群資金流向與輪動警報")
-            st.markdown("透過計算各細分族群的**總成交金額**與**量能放大倍數**，一秒抓出主力資金今天在『集體點火上車』還是『拉高放量出貨』！")
             
             group_flows = []
             for ticker in FILTERED_TICKERS:
@@ -278,7 +276,6 @@ if FILTERED_TICKERS:
                     if len(df_ticker) < 5: continue
                     
                     df_v = df_ticker.copy()
-                    # 計算今日成交金額 (元) = 今日收盤價 * 今日成交股數
                     df_v['Value'] = df_v['Close'] * df_v['Volume']
                     df_v['Value_MA5'] = df_v['Value'].rolling(window=5).mean()
                     
@@ -288,29 +285,29 @@ if FILTERED_TICKERS:
                     
                     group_flows.append({
                         "ticker": ticker,
+                        "name": AI_STOCKS_DICT[ticker]['name'],
                         "group": FILTERED_STOCKS_DICT[ticker]['group'],
                         "value_today": today_v['Value'],
                         "value_ma5": today_v['Value_MA5'],
-                        "p_change": p_change
+                        "p_change": p_change,
+                        "price": today_v['Close'],
+                        "volume": today_v['Volume']
                     })
                 except: continue
                 
             if group_flows:
                 flow_df = pd.DataFrame(group_flows)
                 
-                # 將個股數據按族群進行聚合統計
                 agg_df = flow_df.groupby("group").agg({
                     "value_today": "sum",
                     "value_ma5": "sum",
-                    "p_change": "mean"  # 族群平均漲跌幅
+                    "p_change": "mean"
                 }).reset_index()
                 
-                # 計算資金流向核心指標
                 agg_df["今日成交額 (億元)"] = round(agg_df["value_today"] / 100000000, 2)
                 agg_df["量能放大倍數 (較5日)"] = round(agg_df["value_today"] / agg_df["value_ma5"], 2)
                 agg_df["族群平均漲跌"] = agg_df["p_change"].map(lambda x: f"{x:+.2f}%")
                 
-                # 自動化智慧資金診斷邏輯
                 def judge_flow_status(row):
                     chg = row["p_change"]
                     ratio = row["量能放大倍數 (較5日)"]
@@ -323,11 +320,9 @@ if FILTERED_TICKERS:
                     
                 agg_df["🔮 資金流向診斷"] = agg_df.apply(judge_flow_status, axis=1)
                 
-                # 清洗表格輸出
                 output_flow = agg_df[["group", "族群平均漲跌", "今日成交額 (億元)", "量能放大倍數 (較5日)", "🔮 資金流向診斷"]].copy()
                 output_flow.columns = ["AI 細分次族群", "族群平均漲跌", "今日總成交額 (億元)", "量能放大倍數 (較5日)", "🔮 主力資金流向診斷"]
                 
-                # 手機版特製排序篩選切換
                 sort_by = st.radio("排序依據：", ["按成交金額（看誰吸金最多）", "按量能放大倍數（看誰剛被火速點火）"], horizontal=True)
                 if "成交金額" in sort_by:
                     output_flow = output_flow.sort_values(by="今日總成交額 (億元)", ascending=False).reset_index(drop=True)
@@ -335,7 +330,32 @@ if FILTERED_TICKERS:
                     output_flow = output_flow.sort_values(by="量能放大倍數 (較5日)", ascending=False).reset_index(drop=True)
                     
                 output_flow.index += 1
+                # 秀出上半部：次族群資金大總表
                 st.dataframe(output_flow, use_container_width=True)
+                
+                # 🌟🌟🌟 下半部：全新加裝的手機版【次族群個股解密選單】🌟🌟🌟
+                st.markdown("---")
+                st.subheader("🔍 族群個股成分明細")
+                
+                available_groups = sorted(agg_df["group"].tolist())
+                selected_flow_group = st.selectbox("📱 點擊下方選擇想深入查閱成分股的 AI 族群：", options=available_groups)
+                
+                # 從個股原始資料中過濾出屬於該族群的標的
+                detail_df = flow_df[flow_df["group"] == selected_flow_group].copy()
+                detail_df["今日收盤價"] = detail_df["price"].round(2)
+                detail_df["今日漲跌幅"] = detail_df["p_change"].map(lambda x: f"{x:+.2f}%")
+                detail_df["成交量 (張)"] = (detail_df["volume"] / 1000).astype(int)
+                detail_df["個股成交額 (億元)"] = round(detail_df["value_today"] / 100000000, 2)
+                
+                output_detail = detail_df[["ticker", "name", "今日收盤價", "今日漲跌幅", "成交量 (張)", "個股成交額 (億元)"]]
+                output_detail.columns = ["股票代號", "股票名稱", "今日收盤價", "今日漲跌幅", "成交量 (張)", "個股成交額 (億元)"]
+                
+                # 依成交金額由大到小排序，一秒抓出族群龍頭
+                output_detail = output_detail.sort_values(by="個股成交額 (億元)", ascending=False).reset_index(drop=True)
+                output_detail.index += 1
+                
+                st.success(f"📊 已成功解密【{selected_flow_group}】成分股明細：")
+                st.dataframe(output_detail, use_container_width=True)
             else:
                 st.info("暫無足夠歷史數據計算流向。")
     else:
