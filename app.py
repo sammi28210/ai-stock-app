@@ -1,4 +1,4 @@
-9import streamlit as st
+import streamlit as st
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
@@ -97,12 +97,6 @@ AI_STOCKS_DICT = {
     '6188.TW': {'name': '廣明', 'group': '36. AI 智慧視覺 & 具身智慧機器人'},
     '2353.TW': {'name': '宏碁', 'group': '37. AI PC 品牌與終端'},
     '2357.TW': {'name': '華碩', 'group': '37. AI PC 品牌與終端'}
-    # --- [增加] 持股監控初始化 ---
-if 'my_portfolio' not in st.session_state:
-    st.session_state.my_portfolio = pd.DataFrame([
-        {"代號": "2356.TW", "成本": 70.57, "防守": "20MA"},
-        {"代號": "2327.TW", "成本": 1010.00, "防守": "10MA"}
-])
 }
 
 def diagnose_trend_status(p_close, ma20, ma60):
@@ -187,26 +181,11 @@ if FILTERED_TICKERS:
     with st.spinner("⚡ 雙軌飆股雷達運作中，正在加載流向與籌碼大數據..."):
         hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
     
-    # 1. 先定義好所有的分頁 (移出 if 判斷式，確保一定會被建立)
-tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "🚀 實戰名單", "🔥 60分線", "🛡️ 均線防守", "💎 個股診斷", "📊 量能排行", "💰 資金輪動", "📱 持股防守艙"
-])
-
-# 2. 接著才是您的資料處理邏輯
-if hourly_data is not None and daily_data is not None and not hourly_data.empty:
-    is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
-    
-    # 接下來就是原本的 with tab0: ... with tab5: 的內容
-    # ... (您的原有代碼) ...
-
-# 3. 最後在外面加上持股防守艙
-with tab6:
-    st.subheader("📱 我的持股鋼鐵防守監控")
-    edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
-    st.session_state.my_portfolio = edited_df
-    st.markdown("---")
-    # ... (您的持股監控邏輯) ...
-
+    if hourly_data is not None and daily_data is not None and not hourly_data.empty:
+        tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs([
+            "🚀 今日實戰精選買入名單", "🔥 60分線 666 戰法", "🛡️ 均線防守 & 低檔反彈選股", 
+            "💎 個股智慧狀態診斷", "📊 AI大軍量能與趨勢排行", "💰 族群資金輪動監控"
+        ])
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
         with tab0:
@@ -432,29 +411,3 @@ with tab6:
                 
                 st.success(f"📊 已成功解密【{selected_flow_group}】成分股明細：")
                 st.data_editor(output_detail.sort_values(by="金額億", ascending=False).reset_index(drop=True), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-
-                # --- [新增] 持股防守艙監控邏輯 ---
-      with tab6: 
-    st.subheader("📱 持股防守監控艙")
-    edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
-    st.session_state.my_portfolio = edited_df
-    
-    st.markdown("---")
-    for idx, row in edited_df.iterrows():
-        tk = str(row["代號"]).strip().upper()
-        if not tk: continue
-        try:
-            df = data[tk].dropna()
-            price = df['Close'].iloc[-1]
-            # 防守線運算：根據您設定的均線選取
-            ma = df['Close'].rolling(20).mean().iloc[-1] if row['防守'] == "20MA" else df['Close'].rolling(10).mean().iloc[-1]
-            pnl = ((price - row['成本'])/row['成本'])*100
-            
-            # 使用原生顯示，避免紅框崩潰
-            res = f"**{tk}** | 現價:{price:.2f} | 損益:{pnl:+.2f}% | 防守({row['防守']}):{ma:.2f}"
-            if price < ma:
-                st.error(f"❌ {res} | ⚠️ 跌破 {row['防守']}，建議執行紀律！")
-            else:
-                st.success(f"✅ {res} | 🛡️ 安全運行")
-        except: 
-            st.write(f"⚠️ {tk} 數據同步中...")
