@@ -3,10 +3,10 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
 
-# 恢復原本受歡迎的大器寬版配置
+# 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
-st.caption("雲端純淨版：無圖表負擔 × 專注技術面動能與量能排行 × 數據秒速下載")
+st.caption("雲端純淨版：全面淨空圖表 × 專注即時動態篩選 × 內建次族群資金輪動雷達")
 
 AI_STOCKS_DICT = {
     # ─── 基礎算力層 ───
@@ -46,7 +46,7 @@ AI_STOCKS_DICT = {
     # ─── 數據網路與通訊 ───
     '3081.TWO': {'name': '聯亞', 'group': '16. 矽光子雷射晶片/磊晶 (DFB)'},
     '6451.TW': {'name': '訊芯-KY', 'group': '17. 矽光子/CPO 模組封裝'},
-    '3363.TWO': {'name': '上詮', 'group': '17. 矽光子/CPO 模組模組封裝'},
+    '3363.TWO': {'name': '上詮', 'group': '17. 矽光子/CPO 模組封裝'},
     '3450.TW': {'name': '聯鈞', 'group': '17. 矽光子/CPO 模組封裝'},
     '6442.TW': {'name': '光聖', 'group': '18. 高階光收發模組 (800G+)'},
     '4979.TW': {'name': '華星光', 'group': '18. 高階光收發模組 (800G+)'},
@@ -123,16 +123,22 @@ def fetch_all_data(tickers):
         hourly = yf.download(tickers, period="2mo", interval="1h", group_by='ticker', progress=False, threads=False, session=clean_session)
         daily = yf.download(tickers, period="8mo", interval="1d", group_by='ticker', progress=False, threads=False, session=clean_session)
         return hourly, daily
-    except Exception as e:
-        st.error(f"❌ 雲端下載數據時發生異常: {e}")
+    except:
         return None, None
 
 if FILTERED_TICKERS:
-    with st.spinner("⚡ 正在安全抓取 100+ 檔台股大軍純數據，請稍候..."):
+    with st.spinner("⚡ 正在安全抓取 100+ 檔台股大軍數據，並啟動資金流向計算..."):
         hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
     
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
-        tab1, tab2, tab3, tab4 = st.tabs(["🔥 60分線 666 戰法", "🛡️ 均線防守 & 低檔反彈選股", "💎 個股智慧狀態診斷", "📊 AI大軍量能與趨勢排行"])
+        # 五大分頁，全面支援純數據流
+        tab1, tab2, tab3, tab4, tab5 = st.tabs([
+            "🔥 60分線 666 戰法", 
+            "🛡️ 均線防守 & 低檔反彈選股", 
+            "💎 個股智慧狀態診斷", 
+            "📊 AI大軍量能與趨勢排行",
+            "💰 族群資金輪動監控"
+        ])
         
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
@@ -159,7 +165,7 @@ if FILTERED_TICKERS:
                         matches.append({"代號": ticker, "股票名稱": AI_STOCKS_DICT[ticker]['name'], "AI細分族群": AI_STOCKS_DICT[ticker]['group'], "當前價": round(today['Close'], 2), "波段趨勢位階": trend_lbl})
                 except: continue
             if matches: 
-                st.success(f"🎯 篩選成功！共有 {len(matches)} 檔符合【60分K價格 > 60MA 且 KD金叉】動能條件。")
+                st.success(f"🎯 篩選成功！共有 {len(matches)} 檔符合條件。")
                 st.dataframe(pd.DataFrame(matches).reset_index(drop=True), use_container_width=True)
             else: st.info("目前範圍內無標的符合條件。")
             
@@ -178,7 +184,7 @@ if FILTERED_TICKERS:
                         correction_list.append({"代號": ticker, "股票名稱": FILTERED_STOCKS_DICT[ticker]['name'], "AI細分族群": FILTERED_STOCKS_DICT[ticker]['group'], "今日收盤": round(p_today['Close'], 2), "趨勢診斷": diagnose})
                 except: continue
             if correction_list: 
-                st.warning(f"⚠️ 警示：有 {len(correction_list)} 檔標的跌破月線或季線，拉回修正中：")
+                st.warning(f"⚠️ 警示：有 {len(correction_list)} 檔標的回檔修正中：")
                 st.dataframe(pd.DataFrame(correction_list).reset_index(drop=True), use_container_width=True)
             
             st.markdown("---")
@@ -198,10 +204,10 @@ if FILTERED_TICKERS:
                         rebound_matches.append({"代號": ticker, "股票名稱": FILTERED_STOCKS_DICT[ticker]['name'], "AI細分族群": FILTERED_STOCKS_DICT[ticker]['group'], "目前價格": round(today_r['Close'], 2), "長線趨勢背景": trend_lbl})
                 except: continue
             if rebound_matches: 
-                st.success(f"🚀 打底完成！目前有 {len(rebound_matches)} 檔符合【日線KD超賣區黃金交叉】準備反彈訊號！")
+                st.success(f"🚀 打底完成！目前有 {len(rebound_matches)} 檔符合【低檔準備反彈】訊號！")
                 st.dataframe(pd.DataFrame(rebound_matches).reset_index(drop=True), use_container_width=True)
 
-        # ─── Tab 3：個股智慧診斷 (完美修正語法) ───
+        # ─── Tab 3：個股大字體純數據診斷 ───
         with tab3:
             st.subheader("💎 個股當前技術面核心數據查閱")
             selector_options = {t: f"{t} {FILTERED_STOCKS_DICT[t]['name']} ({FILTERED_STOCKS_DICT[t]['group']})" for t in FILTERED_TICKERS}
@@ -225,7 +231,6 @@ if FILTERED_TICKERS:
                 
                 st.metric(label="📊 當前即時股價", value=f"{p_close:.2f} 元", delta=f"{p_change:+.2f}%")
                 
-                # 🛠️ 語法徹底修復：不在 f-string 大括號內部做嵌套與引號轉義
                 current_ma60_val = df_h['MA60'].iloc[-1]
                 if p_close > current_ma60_val:
                     ma_status_text = f"高於 60MA ({current_ma60_val:.1f}) ✅強勢"
@@ -238,7 +243,7 @@ if FILTERED_TICKERS:
                     st.markdown(f"**⏱️ 60分K戰法位階：** 目前價格 {ma_status_text}")
                     st.markdown(f"**📦 今日概估成交張數：** {int(tod_d['Volume']/1000)} 張")
                     st.markdown(f"**📅 數據最後同步時間：** {tod_h.name.strftime('%Y-%m-%d %H:%M') if hasattr(tod_h.name, 'strftime') else tod_h.name}")
-            except Exception as e:
+            except:
                 st.info("該股數據整合中...")
 
         # ─── Tab 4：量能與趨勢排行 ───
@@ -260,5 +265,78 @@ if FILTERED_TICKERS:
                 v_df.index += 1
                 top_30_df = v_df.head(30)
                 st.dataframe(top_30_df, use_container_width=True)
+
+        # ─── 💰 Tab 5：全新的族群資金輪動監控 (核心新功能) ───
+        with tab5:
+            st.subheader("💰 🎯 AI 次族群資金流向與輪動警報")
+            st.markdown("透過計算各細分族群的**總成交金額**與**量能放大倍數**，一秒抓出主力資金今天在『集體點火上車』還是『拉高放量出貨』！")
+            
+            group_flows = []
+            for ticker in FILTERED_TICKERS:
+                try:
+                    df_ticker = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
+                    if len(df_ticker) < 5: continue
+                    
+                    df_v = df_ticker.copy()
+                    # 計算今日成交金額 (元) = 今日收盤價 * 今日成交股數
+                    df_v['Value'] = df_v['Close'] * df_v['Volume']
+                    df_v['Value_MA5'] = df_v['Value'].rolling(window=5).mean()
+                    
+                    today_v = df_v.iloc[-1]
+                    yesterday_v = df_v.iloc[-2]
+                    p_change = ((today_v['Close'] - yesterday_v['Close']) / yesterday_v['Close']) * 100
+                    
+                    group_flows.append({
+                        "ticker": ticker,
+                        "group": FILTERED_STOCKS_DICT[ticker]['group'],
+                        "value_today": today_v['Value'],
+                        "value_ma5": today_v['Value_MA5'],
+                        "p_change": p_change
+                    })
+                except: continue
+                
+            if group_flows:
+                flow_df = pd.DataFrame(group_flows)
+                
+                # 將個股數據按族群進行聚合統計
+                agg_df = flow_df.groupby("group").agg({
+                    "value_today": "sum",
+                    "value_ma5": "sum",
+                    "p_change": "mean"  # 族群平均漲跌幅
+                }).reset_index()
+                
+                # 計算資金流向核心指標
+                agg_df["今日成交額 (億元)"] = round(agg_df["value_today"] / 100000000, 2)
+                agg_df["量能放大倍數 (較5日)"] = round(agg_df["value_today"] / agg_df["value_ma5"], 2)
+                agg_df["族群平均漲跌"] = agg_df["p_change"].map(lambda x: f"{x:+.2f}%")
+                
+                # 自動化智慧資金診斷邏輯
+                def judge_flow_status(row):
+                    chg = row["p_change"]
+                    ratio = row["量能放大倍數 (較5日)"]
+                    if chg > 0.4 and ratio >= 1.2: return "🔥 資金大舉點火（價量齊揚）"
+                    elif chg > 0 and ratio >= 0.9: return "📈 資金穩定續留（溫和推升）"
+                    elif -0.4 <= chg <= 0.4 and ratio < 0.8: return "⏳ 資金休兵觀望（縮量沉悶）"
+                    elif chg < -0.4 and ratio >= 1.2: return "🚨 籌碼大舉撤退（放量下跌）"
+                    elif chg < 0 and ratio >= 0.9: return "📉 主力拉回調節（震盪修正）"
+                    else: return "🌀 橫盤量縮整理"
+                    
+                agg_df["🔮 資金流向診斷"] = agg_df.apply(judge_flow_status, axis=1)
+                
+                # 清洗表格輸出
+                output_flow = agg_df[["group", "族群平均漲跌", "今日成交額 (億元)", "量能放大倍數 (較5日)", "🔮 資金流向診斷"]].copy()
+                output_flow.columns = ["AI 細分次族群", "族群平均漲跌", "今日總成交額 (億元)", "量能放大倍數 (較5日)", "🔮 主力資金流向診斷"]
+                
+                # 手機版特製排序篩選切換
+                sort_by = st.radio("排序依據：", ["按成交金額（看誰吸金最多）", "按量能放大倍數（看誰剛被火速點火）"], horizontal=True)
+                if "成交金額" in sort_by:
+                    output_flow = output_flow.sort_values(by="今日總成交額 (億元)", ascending=False).reset_index(drop=True)
+                else:
+                    output_flow = output_flow.sort_values(by="量能放大倍數 (較5日)", ascending=False).reset_index(drop=True)
+                    
+                output_flow.index += 1
+                st.dataframe(output_flow, use_container_width=True)
+            else:
+                st.info("暫無足夠歷史數據計算流向。")
     else:
-        st.warning("⏳ 雲端伺服器排隊抓取數據中，請滑動重整網頁或稍候片刻。")
+        st.warning("⏳ 雲端伺服器排隊抓取數據中，請稍候重整網頁。")
