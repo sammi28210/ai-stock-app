@@ -3,7 +3,7 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
 
-# 恢復原本的大器版面設定
+# 恢復原本受歡迎的大器寬版配置
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
 st.caption("雲端純淨版：無圖表負擔 × 專注技術面動能與量能排行 × 數據秒速下載")
@@ -46,7 +46,7 @@ AI_STOCKS_DICT = {
     # ─── 數據網路與通訊 ───
     '3081.TWO': {'name': '聯亞', 'group': '16. 矽光子雷射晶片/磊晶 (DFB)'},
     '6451.TW': {'name': '訊芯-KY', 'group': '17. 矽光子/CPO 模組封裝'},
-    '3363.TWO': {'name': '上詮', 'group': '17. 矽光子/CPO 模組封裝'},
+    '3363.TWO': {'name': '上詮', 'group': '17. 矽光子/CPO 模組模組封裝'},
     '3450.TW': {'name': '聯鈞', 'group': '17. 矽光子/CPO 模組封裝'},
     '6442.TW': {'name': '光聖', 'group': '18. 高階光收發模組 (800G+)'},
     '4979.TW': {'name': '華星光', 'group': '18. 高階光收發模組 (800G+)'},
@@ -116,7 +116,6 @@ def fetch_all_data(tickers):
     if not tickers: return None, None
     try:
         import requests
-        # 使用防禦性純淨會話，確保百分之百不當機
         clean_session = requests.Session()
         clean_session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -124,19 +123,20 @@ def fetch_all_data(tickers):
         hourly = yf.download(tickers, period="2mo", interval="1h", group_by='ticker', progress=False, threads=False, session=clean_session)
         daily = yf.download(tickers, period="8mo", interval="1d", group_by='ticker', progress=False, threads=False, session=clean_session)
         return hourly, daily
-    except:
+    except Exception as e:
+        st.error(f"❌ 雲端下載數據時發生異常: {e}")
         return None, None
 
 if FILTERED_TICKERS:
-    hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
+    with st.spinner("⚡ 正在安全抓取 100+ 檔台股大軍純數據，請稍候..."):
+        hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
     
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
-        # 建立原本受歡迎的四大分頁，但內部圖表已完全淨空
         tab1, tab2, tab3, tab4 = st.tabs(["🔥 60分線 666 戰法", "🛡️ 均線防守 & 低檔反彈選股", "💎 個股智慧狀態診斷", "📊 AI大軍量能與趨勢排行"])
         
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
-        # ─── Tab 1：60分線篩選表格 ───
+        # ─── Tab 1：60分線篩選 ───
         with tab1:
             st.subheader("🤖 微族群過濾 - 60分鐘線極短線動能篩選")
             matches = []
@@ -159,11 +159,11 @@ if FILTERED_TICKERS:
                         matches.append({"代號": ticker, "股票名稱": AI_STOCKS_DICT[ticker]['name'], "AI細分族群": AI_STOCKS_DICT[ticker]['group'], "當前價": round(today['Close'], 2), "波段趨勢位階": trend_lbl})
                 except: continue
             if matches: 
-                st.success(f"🎯 篩選成功！共有 {len(matches)} 檔符合【60分線價格 > 60MA 且 KD金叉】強勢條件。")
+                st.success(f"🎯 篩選成功！共有 {len(matches)} 檔符合【60分K價格 > 60MA 且 KD金叉】動能條件。")
                 st.dataframe(pd.DataFrame(matches).reset_index(drop=True), use_container_width=True)
             else: st.info("目前範圍內無標的符合條件。")
             
-        # ─── Tab 2：中長線防守與反彈 ───
+        # ─── Tab 2：均線防守選股 ───
         with tab2:
             st.subheader("🔍 日線級別 - 中長線均線防守診斷")
             correction_list = []
@@ -178,7 +178,7 @@ if FILTERED_TICKERS:
                         correction_list.append({"代號": ticker, "股票名稱": FILTERED_STOCKS_DICT[ticker]['name'], "AI細分族群": FILTERED_STOCKS_DICT[ticker]['group'], "今日收盤": round(p_today['Close'], 2), "趨勢診斷": diagnose})
                 except: continue
             if correction_list: 
-                st.warning(f"⚠️ 警示：有 {len(correction_list)} 檔標的跌破月線或季線，目前拉回修正中：")
+                st.warning(f"⚠️ 警示：有 {len(correction_list)} 檔標的跌破月線或季線，拉回修正中：")
                 st.dataframe(pd.DataFrame(correction_list).reset_index(drop=True), use_container_width=True)
             
             st.markdown("---")
@@ -198,10 +198,10 @@ if FILTERED_TICKERS:
                         rebound_matches.append({"代號": ticker, "股票名稱": FILTERED_STOCKS_DICT[ticker]['name'], "AI細分族群": FILTERED_STOCKS_DICT[ticker]['group'], "目前價格": round(today_r['Close'], 2), "長線趨勢背景": trend_lbl})
                 except: continue
             if rebound_matches: 
-                st.success(f"🚀 打底完成！目前有 {len(rebound_matches)} 檔符合【日線KD低檔超賣區黃金交叉】準備反彈訊號！")
+                st.success(f"🚀 打底完成！目前有 {len(rebound_matches)} 檔符合【日線KD超賣區黃金交叉】準備反彈訊號！")
                 st.dataframe(pd.DataFrame(rebound_matches).reset_index(drop=True), use_container_width=True)
 
-        # ─── Tab 3：個股大字體純數據診斷（原K線查閱分頁） ───
+        # ─── Tab 3：個股智慧診斷 (完美修正語法) ───
         with tab3:
             st.subheader("💎 個股當前技術面核心數據查閱")
             selector_options = {t: f"{t} {FILTERED_STOCKS_DICT[t]['name']} ({FILTERED_STOCKS_DICT[t]['group']})" for t in FILTERED_TICKERS}
@@ -223,18 +223,23 @@ if FILTERED_TICKERS:
                 p_change = ((p_close - yes_d['Close']) / yes_d['Close']) * 100
                 trend_lbl = diagnose_trend_status(tod_d['Close'], df_d['MA20'].iloc[-1], df_d['MA60'].iloc[-1])
                 
-                # 🌟 用手機專用的大尺寸組件顯示股價，完全不傷眼
                 st.metric(label="📊 當前即時股價", value=f"{p_close:.2f} 元", delta=f"{p_change:+.2f}%")
                 
-                # 直列式排版，手機下滑輕鬆看完
+                # 🛠️ 語法徹底修復：不在 f-string 大括號內部做嵌套與引號轉義
+                current_ma60_val = df_h['MA60'].iloc[-1]
+                if p_close > current_ma60_val:
+                    ma_status_text = f"高於 60MA ({current_ma60_val:.1f}) ✅強勢"
+                else:
+                    ma_status_text = f"低於 60MA ({current_ma60_val:.1f}) ❌弱勢"
+                
                 with st.container(border=True):
                     st.markdown(f"**🏢 所屬供應鏈族群：** {FILTERED_STOCKS_DICT[selected_ticker]['group']}")
                     st.markdown(f"**🎯 波段中長線趨勢：** {trend_lbl}")
-                    st.markdown(f"**⏱️ 60分K戰法位階：** 目前價格 {f'高於 60MA ({df_h[\"MA60\"].iloc[-1]:.1f}) ✅強勢' if p_close > df_h['MA60'].iloc[-1] else f'低於 60MA ({df_h[\"MA60\"].iloc[-1]:.1f}) ❌弱勢'}")
+                    st.markdown(f"**⏱️ 60分K戰法位階：** 目前價格 {ma_status_text}")
                     st.markdown(f"**📦 今日概估成交張數：** {int(tod_d['Volume']/1000)} 張")
-                    st.markdown(f"**📅 數據最後同步時間：** {df_h.index[-1].strftime('%Y-%m-%d %H:%M')}")
+                    st.markdown(f"**📅 數據最後同步時間：** {tod_h.name.strftime('%Y-%m-%d %H:%M') if hasattr(tod_h.name, 'strftime') else tod_h.name}")
             except Exception as e:
-                st.info("該股今日數據計算中...")
+                st.info("該股數據整合中...")
 
         # ─── Tab 4：量能與趨勢排行 ───
         with tab4:
@@ -254,5 +259,6 @@ if FILTERED_TICKERS:
                 v_df = pd.DataFrame(volume_list).sort_values(by="成交量 (張)", ascending=False).reset_index(drop=True)
                 v_df.index += 1
                 top_30_df = v_df.head(30)
-                # 直接展示排行表格，底部已徹底砍掉個股K線圖
                 st.dataframe(top_30_df, use_container_width=True)
+    else:
+        st.warning("⏳ 雲端伺服器排隊抓取數據中，請滑動重整網頁或稍候片刻。")
