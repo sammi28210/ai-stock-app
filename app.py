@@ -182,8 +182,10 @@ if FILTERED_TICKERS:
         hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
     
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
-        tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🚀 今日實戰精選買入名單", "🔥 60分線 666 戰法", "🛡️ 均線防守 & 低檔反彈選股", 
-            "💎 個股智慧狀態診斷", "📊 AI大軍量能與趨勢排行", "💰 族群資金輪動監控", "📱 持股防守艙])
+        tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+            "🚀 今日實戰精選買入名單", "🔥 60分線 666 戰法", "🛡️ 均線防守 & 低檔反彈選股", 
+            "💎 個股智慧狀態診斷", "📊 AI大軍量能與趨勢排行", "💰 族群資金輪動監控", "📱 持股防守倉"
+            ])
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
         with tab0:
