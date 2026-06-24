@@ -6,16 +6,16 @@ from datetime import datetime, timedelta
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
-st.caption("雲端純淨完全體：智慧雙軌全自動防守艙 × 全局唯一精準真實市價大一統監控倉")
+st.caption("雲端純淨完全體：智慧雙軌全自動防守艙 × 全局唯一精準真實市價大一統監控倉 × 智慧量化下跌主因自動診斷艙")
 
-# --- ⚙️【持股永久固定區】已幫您補上強茂與華新科，重新整理絕不消失！ ---
+# --- ⚙️【持股永久固定區】修改您的真實庫存與成本，重新整理絕不消失！ ---
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
         {"代號": "2356", "買入成本": 70.57},    # 💡 您的英業達真實成本
-        {"代號": "2308", "買入成本": 2038.64},  # 💡 您的國巨真實成本
-        {"代號": "", "買入成本": 0.0},   # 💡 您的台達電真實成本
-        {"代號": "", "買入成本": 0.0},      # 💡 您的強茂成本 (預設0，可於網頁或代碼修改)
-        {"代號": "", "買入成本": 0.0}       # 💡 您的華新科成本 (預設0，可於網頁或代碼修改)
+        {"代號": "2327", "買入成本": 1010.00},  # 💡 您的國巨真實成本
+        {"代號": "2308", "買入成本": 385.50},   # 💡 您的台達電真實成本
+        {"代號": "2481", "買入成本": 0.0},      # 💡 您的強茂成本
+        {"代號": "2492", "買入成本": 0.0}       # 💡 您的華新科成本
     ])
 
 AI_STOCKS_DICT = {
@@ -50,9 +50,9 @@ AI_STOCKS_DICT = {
     '6223.TW': {'name': '旺矽', 'group': '13. 晶圓前段探針卡/測試介面'},
     '6510.TW': {'name': '精測', 'group': '13. 晶圓前段探針卡/測試介面'},
     '3680.TW': {'name': '家登', 'group': '14. EUV 光罩傳送盒/半導體材料'},
-    '3289.TW': {'name': '宜特', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
-    '3587.TWO': {'name': '閎康', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
-    '6830.TW': {'name': '汎銓', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
+    '3289.TW': {'name': '宜特', 'group': '15. 半導體驗證/材料 analysis (MA/RA)'},
+    '3587.TWO': {'name': '閎康', 'group': '15. 半導體驗證/材料 analysis (MA/RA)'},
+    '6830.TW': {'name': '汎銓', 'group': '15. 半導體驗證/材料 analysis (MA/RA)'},
     # ─── 數據網路與通訊 ───
     '3081.TWO': {'name': '聯亞', 'group': '16. 矽光子雷射晶片/磊晶 (DFB)'},
     '6451.TW': {'name': '訊芯-KY', 'group': '17. 矽光子/CPO 模組封裝'},
@@ -101,7 +101,7 @@ AI_STOCKS_DICT = {
     '1513.TW': {'name': '中興電', 'group': '33. 機房配電盤 & 不斷電系統 (UPS)'},
     '1514.TW': {'name': '亞力', 'group': '33. 機房配電盤 & 不斷電系統 (UPS)'},
     '2327.TW': {'name': '國巨', 'group': '34. 被動元件 (高階 MLCC)'},
-    '2492.TW': {'name': '華新科', 'group': '34. 被動元件 (高階 MLCC)'}, # 💡 補齊字典比對
+    '2492.TW': {'name': '華新科', 'group': '34. 被動元件 (高階 MLCC)'}, 
     '3675.TWO': {'name': '德微', 'group': '35. 分離元件 & 功率半導體 (MOSFET)'},
     '2481.TW': {'name': '強茂', 'group': '35. 分離元件 & 功率半導體 (MOSFET)'},
     '2359.TW': {'name': '所羅門', 'group': '36. AI 智慧視覺 & 具身智慧機器人'},
@@ -212,6 +212,7 @@ if FILTERED_TICKERS:
         ])
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
+        # 【價格大一統】改從 daily_data 撈取最精準的日K官方收盤價
         LATEST_PRICES = {}
         for ticker in all_fetch:
             try:
@@ -451,10 +452,10 @@ if FILTERED_TICKERS:
                 st.success(f"📊 已成功解密【{selected_flow_group}】成分股明細：")
                 st.data_editor(output_detail.sort_values(by="金額億", ascending=False).reset_index(drop=True), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙】 ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙 - 內建多空量化原因診斷】 ＝＝＝＝＝＝＝＝＝＝
         with tab6:
             st.subheader("📱 我的持股鋼鐵防守監控艙")
-            st.caption("💡 智慧升級：您不需手動選擇均線。系統會自動幫您監控短線 (10MA) 與波段 (20MA) 雙防線，防止人為點選錯誤！")
+            st.caption("💡 智慧升級：您不需手動選擇均線。系統會自動幫您監控短線 (10MA) 與波段 (20MA) 雙防線，並在轉弱時自動診斷下跌原因！")
             
             edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
             st.session_state.my_portfolio = edited_df
@@ -490,15 +491,60 @@ if FILTERED_TICKERS:
                         ma20 = df_p['Close'].rolling(20).mean().iloc[-1]
                         pnl = ((price - row['買入成本']) / row['買入成本']) * 100
                         
+                        # 📊【大數據診斷層】在背景即時運算該持股的最新動能與籌碼狀態
+                        df_d_ticker = daily_data[yf_tk].dropna() if is_multi else daily_data.dropna()
+                        vol_ma5 = df_d_ticker['Volume'].rolling(window=5).mean().iloc[-1] if 'Volume' in df_d_ticker.columns else 0
+                        tod_vol = df_d_ticker['Volume'].iloc[-1] if 'Volume' in df_d_ticker.columns else 0
+                        vol_ratio = tod_vol / vol_ma5 if vol_ma5 > 0 else 1.0
+                        
+                        df_p['EMA12'] = df_p['Close'].ewm(span=12, adjust=False).mean()
+                        df_p['EMA26'] = df_p['Close'].ewm(span=26, adjust=False).mean()
+                        df_p['DIF'] = df_p['EMA12'] - df_p['EMA26']
+                        df_p['MACD_Sig'] = df_p['DIF'].ewm(span=9, adjust=False).mean()
+                        df_p['HIST'] = df_p['DIF'] - df_p['MACD_Sig']
+                        
+                        low_60, high_60 = df_p['Low'].rolling(window=60).min(), df_p['High'].rolling(window=60).max()
+                        df_p['RSV'] = (((df_p['Close'] - low_60) / (high_60 - low_60)) * 100).fillna(50)
+                        df_p['K'] = df_p['RSV'].ewm(alpha=1/3, adjust=False).mean()
+                        df_p['D'] = df_p['K'].ewm(alpha=1/3, adjust=False).mean()
+                        
+                        tod_h = df_p.iloc[-1]
+                        yes_h = df_p.iloc[-2]
+                        
+                        # ⚙️ 建立動態下跌原因診斷清單
+                        drop_reasons = []
+                        if price < ma10:
+                            drop_reasons.append("📉 **均線破防**：股價已實質跌破 10MA 短線強勢線，短線慣性轉為修正。")
+                        if price < ma20:
+                            drop_reasons.append("🚨 **生命線失守**：股價無情跌破 20MA 波段生命線，中期趨勢正式轉弱。")
+                            
+                        if tod_h['HIST'] < yes_h['HIST']:
+                            if tod_h['HIST'] < 0:
+                                drop_reasons.append("🔴 **MACD 動能下殺**：60分K的 MACD 綠柱持續拉長，空方修正動能仍在放大。")
+                            else:
+                                drop_reasons.append("⏳ **MACD 多頭熄火**：60分K的 MACD 紅柱連續縮短，多方推升力道暫時告吹。")
+                                
+                        if tod_h['K'] < tod_h['D']:
+                            drop_reasons.append(f"🌀 **KD 指標死叉下行**：60分K的 KD 呈死叉狀態 (K:{tod_h['K']:.1f} < D:{tod_h['D']:.1f})，短線洗盤壓力尚未解除。")
+                            
+                        if price < ma10 or price < ma20:
+                            if vol_ratio >= 1.4:
+                                drop_reasons.append(f"💥 **籌碼恐慌爆量**：今日下殺成交量達5日均量的 {vol_ratio:.1f} 倍！屬於『爆量殺多』，有主力出貨或恐慌大單湧出。")
+                            else:
+                                drop_reasons.append(f"🛡️ **籌碼量縮洗盤**：下跌成交量僅為5日均量的 {vol_ratio:.1f} 倍（明顯量縮），主力並未開溜，屬於高檔浮額清洗的良性壓回。")
+                                
+                        reason_text = "\n\n**🔍 轉弱/下跌技術面核心原因診斷：**\n" + "\n".join([f"{i+1}. {r}" for i, r in enumerate(drop_reasons)]) if drop_reasons else "\n\n**⚖️ 原因診斷**：目前多頭結構安全，暫無明顯轉弱或下跌技術訊號。"
+                        
+                        # 🖥️ 智慧畫面渲染
                         disp_title = f"{tk}{name}" if name else tk
                         res_base = f"**{disp_title}** | 現價:{price:.2f} | 損益:{pnl:+.2f}% | (10MA:{ma10:.2f} , 20MA:{ma20:.2f})"
                         
                         if price >= ma10:
-                            st.success(f"🟢 {res_base} ➔ **強勢續抱** (站穩 10MA 與 20MA 之上，多頭格局強勁)")
+                            st.success(f"🟢 {res_base} ➔ **強勢續抱** (站穩 10MA 與 20MA 之上，多頭格局強勁){reason_text}")
                         elif ma20 <= price < ma10:
-                            st.warning(f"⚠️ {res_base} ➔ **短線轉弱** (已跌破 10MA 強勢線！目前改看 20MA 生命線作最後防守)")
+                            st.warning(f"⚠️ {res_base} ➔ **短線轉弱** (已跌破 10MA 強勢線！目前改看 20MA 生命線作最後防守){reason_text}")
                         else:
-                            st.error(f"🚨 {res_base} ➔ **執行紀律！** (已無情跌破 20MA 波段防守點，請立即依紀律離場保護資金)")
+                            st.error(f"🚨 {res_base} ➔ **執行紀律！** (已無情跌破 20MA 波段防守點，請立即依紀律離場保護資金){reason_text}")
                     except Exception as e:
                         st.warning(f"⚠️ {tk} 數據同步中...")
             else:
