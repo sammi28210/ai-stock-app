@@ -417,8 +417,9 @@ if FILTERED_TICKERS:
                 
                 st.success(f"📊 已成功解密【{selected_flow_group}】成分股明細：")
                 st.data_editor(output_detail.sort_values(by="金額億", ascending=False).reset_index(drop=True), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-# --- [新增] 持股防守艙監控邏輯 ---
-with tab6: 
+
+                # --- [新增] 持股防守艙監控邏輯 ---
+      with tab6: 
     st.subheader("📱 持股防守監控艙")
     edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
     st.session_state.my_portfolio = edited_df
