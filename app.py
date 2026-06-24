@@ -187,11 +187,26 @@ if FILTERED_TICKERS:
     with st.spinner("⚡ 雙軌飆股雷達運作中，正在加載流向與籌碼大數據..."):
         hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
     
-    if hourly_data is not None and daily_data is not None and not hourly_data.empty:
-        tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-            "🚀 今日實戰精選買入名單", "🔥 60分線 666 戰法", "🛡️ 均線防守 & 低檔反彈選股", 
-            "💎 個股智慧狀態診斷", "📊 AI大軍量能與趨勢排行", "💰 族群資金輪動監控", "📱 持股防守倉"
-            ])
+    # 1. 先定義好所有的分頁 (移出 if 判斷式，確保一定會被建立)
+tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "🚀 實戰名單", "🔥 60分線", "🛡️ 均線防守", "💎 個股診斷", "📊 量能排行", "💰 資金輪動", "📱 持股防守艙"
+])
+
+# 2. 接著才是您的資料處理邏輯
+if hourly_data is not None and daily_data is not None and not hourly_data.empty:
+    is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
+    
+    # 接下來就是原本的 with tab0: ... with tab5: 的內容
+    # ... (您的原有代碼) ...
+
+# 3. 最後在外面加上持股防守艙
+with tab6:
+    st.subheader("📱 我的持股鋼鐵防守監控")
+    edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
+    st.session_state.my_portfolio = edited_df
+    st.markdown("---")
+    # ... (您的持股監控邏輯) ...
+
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
         with tab0:
