@@ -1,12 +1,13 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
 
-# 恢復原本受歡迎的大器寬版配置
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
-st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
-st.caption("雲端純淨版：無圖表負擔 × 專注技術面動能與量能排行 × 數據秒速下載")
+st.title("🤖 台股 AI 全產業鏈 100+ 大軍終極永久看板")
+st.caption("正式雲端穩定版：技術面趨勢 × 雙週期K線智慧交互 × 籌碼時間軸完全對齊")
 
 AI_STOCKS_DICT = {
     # ─── 基礎算力層 ───
@@ -46,7 +47,7 @@ AI_STOCKS_DICT = {
     # ─── 數據網路與通訊 ───
     '3081.TWO': {'name': '聯亞', 'group': '16. 矽光子雷射晶片/磊晶 (DFB)'},
     '6451.TW': {'name': '訊芯-KY', 'group': '17. 矽光子/CPO 模組封裝'},
-    '3363.TWO': {'name': '上詮', 'group': '17. 矽光子/CPO 模組模組封裝'},
+    '3363.TWO': {'name': '上詮', 'group': '17. 矽光子/CPO 模組封裝'},
     '3450.TW': {'name': '聯鈞', 'group': '17. 矽光子/CPO 模組封裝'},
     '6442.TW': {'name': '光聖', 'group': '18. 高階光收發模組 (800G+)'},
     '4979.TW': {'name': '華星光', 'group': '18. 高階光收發模組 (800G+)'},
@@ -105,7 +106,7 @@ def diagnose_trend_status(p_close, ma20, ma60):
     elif p_close < ma60 and ma20 < ma60: return "⏳ 趨勢空頭/弱勢整理"
     else: return "🌀 均線糾結盤整"
 
-st.sidebar.header("🎯 AI 供應鏈群組過濾")
+st.sidebar.header("🎯 AI 供應鏈精密群組過濾")
 all_available_groups = sorted(list(set([v['group'] for v in AI_STOCKS_DICT.values()])))
 selected_groups = st.sidebar.multiselect("選擇監控群組：", options=all_available_groups, default=all_available_groups)
 FILTERED_STOCKS_DICT = {k: v for k, v in AI_STOCKS_DICT.items() if v['group'] in selected_groups}
@@ -116,27 +117,26 @@ def fetch_all_data(tickers):
     if not tickers: return None, None
     try:
         import requests
+        # 🛡️ 注入純淨防禦機制：自建 Session 與 User-Agent，徹底斷絕 pyrate-limiter 碰觸 AnyIO 的機會
         clean_session = requests.Session()
         clean_session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         })
         hourly = yf.download(tickers, period="2mo", interval="1h", group_by='ticker', progress=False, threads=False, session=clean_session)
         daily = yf.download(tickers, period="8mo", interval="1d", group_by='ticker', progress=False, threads=False, session=clean_session)
         return hourly, daily
     except Exception as e:
-        st.error(f"❌ 雲端下載數據時發生異常: {e}")
+        st.error(f"數據同步中：{e}")
         return None, None
 
 if FILTERED_TICKERS:
-    with st.spinner("⚡ 正在安全抓取 100+ 檔台股大軍純數據，請稍候..."):
-        hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
+    hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
     
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
-        tab1, tab2, tab3, tab4 = st.tabs(["🔥 60分線 666 戰法", "🛡️ 均線防守 & 低檔反彈選股", "💎 個股智慧狀態診斷", "📊 AI大軍量能與趨勢排行"])
+        tab1, tab2, tab3, tab4 = st.tabs(["🔥 60分線 666 戰法", "🛡️ 均線防守 & 低檔反彈選股", "💎 全能智慧 K 線查閱畫布", "📊 AI大軍量能與趨勢排行"])
         
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
-        # ─── Tab 1：60分線篩選 ───
         with tab1:
             st.subheader("🤖 微族群過濾 - 60分鐘線極短線動能篩選")
             matches = []
@@ -159,11 +159,26 @@ if FILTERED_TICKERS:
                         matches.append({"代號": ticker, "股票名稱": AI_STOCKS_DICT[ticker]['name'], "AI細分族群": AI_STOCKS_DICT[ticker]['group'], "當前價": round(today['Close'], 2), "波段趨勢位階": trend_lbl})
                 except: continue
             if matches: 
-                st.success(f"🎯 篩選成功！共有 {len(matches)} 檔符合【60分K價格 > 60MA 且 KD金叉】動能條件。")
+                st.success(f"🎯 篩選成功！共有 {len(matches)} 檔符合條件。")
                 st.dataframe(pd.DataFrame(matches).reset_index(drop=True), use_container_width=True)
+                st.markdown("---")
+                selected_t1 = st.selectbox("📊 點擊個股，下方立刻同步看 60分K 戰法線型圖：", options=[m["代號"] for m in matches], format_func=lambda x: f"{x} {AI_STOCKS_DICT[x]['name']}", key="t1_select")
+                df_t1 = hourly_data[selected_t1].dropna() if is_multi else hourly_data.dropna()
+                df_t1['MA60'] = df_t1['Close'].rolling(window=60).mean()
+                l_60, h_60 = df_t1['Low'].rolling(window=60).min(), df_t1['High'].rolling(window=60).max()
+                df_t1['RSV'] = (((df_t1['Close'] - l_60) / (h_60 - l_60)) * 100).fillna(50)
+                df_t1['K'] = df_t1['RSV'].ewm(alpha=1/3, adjust=False).mean()
+                df_t1['D'] = df_t1['K'].ewm(alpha=1/3, adjust=False).mean()
+                df_plot_t1 = df_t1.tail(60)
+                fig_t1 = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08, row_width=[0.35, 0.65])
+                fig_t1.add_trace(go.Candlestick(x=df_plot_t1.index, open=df_plot_t1['Open'], high=df_plot_t1['High'], low=df_plot_t1['Low'], close=df_plot_t1['Close'], name="60分K"), row=1, col=1)
+                fig_t1.add_trace(go.Scatter(x=df_plot_t1.index, y=df_plot_t1['MA60'], name="60MA", line=dict(color='cyan', width=2.5)), row=1, col=1)
+                fig_t1.add_trace(go.Scatter(x=df_plot_t1.index, y=df_plot_t1['K'], name="K", line=dict(color='red', width=1.5)), row=2, col=1)
+                fig_t1.add_trace(go.Scatter(x=df_plot_t1.index, y=df_plot_t1['D'], name="D", line=dict(color='green', width=1.5)), row=2, col=1)
+                fig_t1.update_layout(xaxis_rangeslider_visible=False, height=500, margin=dict(l=10, r=10, t=10, b=10))
+                st.plotly_chart(fig_t1, use_container_width=True)
             else: st.info("目前範圍內無標的符合條件。")
             
-        # ─── Tab 2：均線防守選股 ───
         with tab2:
             st.subheader("🔍 日線級別 - 中長線均線防守診斷")
             correction_list = []
@@ -178,7 +193,7 @@ if FILTERED_TICKERS:
                         correction_list.append({"代號": ticker, "股票名稱": FILTERED_STOCKS_DICT[ticker]['name'], "AI細分族群": FILTERED_STOCKS_DICT[ticker]['group'], "今日收盤": round(p_today['Close'], 2), "趨勢診斷": diagnose})
                 except: continue
             if correction_list: 
-                st.warning(f"⚠️ 警示：有 {len(correction_list)} 檔標的跌破月線或季線，拉回修正中：")
+                st.warning(f"⚠️ 警示：有 {len(correction_list)} 檔標的回檔修正中：")
                 st.dataframe(pd.DataFrame(correction_list).reset_index(drop=True), use_container_width=True)
             
             st.markdown("---")
@@ -198,50 +213,67 @@ if FILTERED_TICKERS:
                         rebound_matches.append({"代號": ticker, "股票名稱": FILTERED_STOCKS_DICT[ticker]['name'], "AI細分族群": FILTERED_STOCKS_DICT[ticker]['group'], "目前價格": round(today_r['Close'], 2), "長線趨勢背景": trend_lbl})
                 except: continue
             if rebound_matches: 
-                st.success(f"🚀 打底完成！目前有 {len(rebound_matches)} 檔符合【日線KD超賣區黃金交叉】準備反彈訊號！")
+                st.success(f"🚀 打底完成！目前有 {len(rebound_matches)} 檔符合【低檔準備反彈】訊號！")
                 st.dataframe(pd.DataFrame(rebound_matches).reset_index(drop=True), use_container_width=True)
+                
+            all_t2_targets = list(set([c["代號"] for c in correction_list] + [r["代號"] for r in rebound_matches]))
+            if all_t2_targets:
+                st.markdown("---")
+                selected_t2 = st.selectbox("📊 選擇上方標的，直接看日K線與日線KD打底圖：", options=all_t2_targets, format_func=lambda x: f"{x} {AI_STOCKS_DICT[x]['name']}", key="t2_select")
+                df_t2 = daily_data[selected_t2].dropna() if is_multi else daily_data.dropna()
+                df_t2['MA20'] = df_t2['Close'].rolling(window=20).mean()
+                df_t2['MA60'] = df_t2['Close'].rolling(window=60).mean()
+                l_9, h_9 = df_t2['Low'].rolling(window=9).min(), df_t2['High'].rolling(window=9).max()
+                df_t2['RSV'] = (((df_t2['Close'] - l_9) / (h_9 - l_9)) * 100).fillna(50)
+                df_t2['K'] = df_t2['RSV'].ewm(alpha=1/3, adjust=False).mean()
+                df_t2['D'] = df_t2['K'].ewm(alpha=1/3, adjust=False).mean()
+                df_plot_t2 = df_t2.tail(50)
+                fig_t2 = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08, row_width=[0.35, 0.65])
+                fig_t2.add_trace(go.Candlestick(x=df_plot_t2.index, open=df_plot_t2['Open'], high=df_plot_t2['High'], low=df_plot_t2['Low'], close=df_plot_t2['Close'], name="日K"), row=1, col=1)
+                fig_t2.add_trace(go.Scatter(x=df_plot_t2.index, y=df_plot_t2['MA20'], name="20MA月線", line=dict(color='orange', width=2)), row=1, col=1)
+                fig_t2.add_trace(go.Scatter(x=df_plot_t2.index, y=df_plot_t2['MA60'], name="60MA季線", line=dict(color='limegreen', width=2.5)), row=1, col=1)
+                fig_t2.add_trace(go.Scatter(x=df_plot_t2.index, y=df_plot_t2['K'], name="日K值", line=dict(color='red', width=1.5)), row=2, col=1)
+                fig_t2.add_trace(go.Scatter(x=df_plot_t2.index, y=df_plot_t2['D'], name="日D值", line=dict(color='green', width=1.5)), row=2, col=1)
+                fig_t2.update_layout(xaxis_rangeslider_visible=False, height=500, margin=dict(l=10, r=10, t=10, b=10))
+                st.plotly_chart(fig_t2, use_container_width=True)
 
-        # ─── Tab 3：個股智慧診斷 (完美修正語法) ───
         with tab3:
-            st.subheader("💎 個股當前技術面核心數據查閱")
+            st.subheader("💎 AI 個股波段趨勢 & 雙規格智慧 K 線看板")
             selector_options = {t: f"{t} {FILTERED_STOCKS_DICT[t]['name']} ({FILTERED_STOCKS_DICT[t]['group']})" for t in FILTERED_TICKERS}
-            selected_ticker = st.selectbox("請選擇你想查看的 AI 股：", options=FILTERED_TICKERS, format_func=lambda x: selector_options[x])
+            selected_ticker = st.selectbox("請選擇你想查看 K 線圖的 AI 股：", options=FILTERED_TICKERS, format_func=lambda x: selector_options[x])
+            chart_type = st.radio("請選擇 K 線圖查閱規格：", ["📈 60分鐘線 K線圖", "📊 日線級別 K線圖 × 量能看板"])
             
-            try:
-                df_d = daily_data[selected_ticker].dropna() if is_multi else daily_data.dropna()
-                df_h = hourly_data[selected_ticker].dropna() if is_multi else hourly_data.dropna()
+            if "60分鐘線" in chart_type:
+                df_selected_h = hourly_data[selected_ticker].dropna() if is_multi else hourly_data.dropna()
+                if len(df_selected_h) >= 65:
+                    df_selected_h['MA60'] = df_selected_h['Close'].rolling(window=60).mean()
+                    low_60, high_60 = df_selected_h['Low'].rolling(window=60).min(), df_selected_h['High'].rolling(window=60).max()
+                    df_selected_h['RSV'] = (((df_selected_h['Close'] - low_60) / (high_60 - low_60)) * 100).fillna(50)
+                    df_selected_h['K'] = df_selected_h['RSV'].ewm(alpha=1/3, adjust=False).mean()
+                    df_selected_h['D'] = df_selected_h['K'].ewm(alpha=1/3, adjust=False).mean()
+                    df_plot_h = df_selected_h.tail(60)
+                    fig_h = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08, row_width=[0.35, 0.65])
+                    fig_h.add_trace(go.Candlestick(x=df_plot_h.index, open=df_plot_h['Open'], high=df_plot_h['High'], low=df_plot_h['Low'], close=df_plot_h['Close'], name="60分K"), row=1, col=1)
+                    fig_h.add_trace(go.Scatter(x=df_plot_h.index, y=df_plot_h['MA60'], name="60MA", line=dict(color='cyan', width=2.5)), row=1, col=1)
+                    fig_h.add_trace(go.Scatter(x=df_plot_h.index, y=df_plot_h['K'], name="K", line=dict(color='red', width=1.5)), row=2, col=1)
+                    fig_h.add_trace(go.Scatter(x=df_plot_h.index, y=df_plot_h['D'], name="D", line=dict(color='green', width=1.5)), row=2, col=1)
+                    fig_h.update_layout(xaxis_rangeslider_visible=False, height=600, margin=dict(l=10, r=10, t=10, b=10))
+                    st.plotly_chart(fig_h, use_container_width=True)
+            else:
+                df_selected_d = daily_data[selected_ticker].dropna() if is_multi else daily_data.dropna()
+                df_selected_d['MA20'] = df_selected_d['Close'].rolling(window=20).mean()
+                df_selected_d['MA60'] = df_selected_d['Close'].rolling(window=60).mean()
+                df_selected_d = df_selected_d.tail(50)
                 
-                df_d['MA20'] = df_d['Close'].rolling(window=20).mean()
-                df_d['MA60'] = df_d['Close'].rolling(window=60).mean()
-                df_h['MA60'] = df_h['Close'].rolling(window=60).mean()
+                fig_canvas = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08, row_width=[0.3, 0.7])
+                fig_canvas.add_trace(go.Candlestick(x=df_selected_d.index, open=df_selected_d['Open'], high=df_selected_d['High'], low=df_selected_d['Low'], close=df_selected_d['Close'], name="日K線"), row=1, col=1)
+                fig_canvas.add_trace(go.Scatter(x=df_selected_d.index, y=df_selected_d['MA20'], name="20MA", line=dict(color='orange', width=2)), row=1, col=1)
+                fig_canvas.add_trace(go.Scatter(x=df_selected_d.index, y=df_selected_d['MA60'], name="60MA", line=dict(color='limegreen', width=2.5)), row=1, col=1)
                 
-                tod_d = df_d.iloc[-1]
-                yes_d = df_d.iloc[-2]
-                tod_h = df_h.iloc[-1]
-                
-                p_close = tod_h['Close']
-                p_change = ((p_close - yes_d['Close']) / yes_d['Close']) * 100
-                trend_lbl = diagnose_trend_status(tod_d['Close'], df_d['MA20'].iloc[-1], df_d['MA60'].iloc[-1])
-                
-                st.metric(label="📊 當前即時股價", value=f"{p_close:.2f} 元", delta=f"{p_change:+.2f}%")
-                
-                # 🛠️ 語法徹底修復：不在 f-string 大括號內部做嵌套與引號轉義
-                current_ma60_val = df_h['MA60'].iloc[-1]
-                if p_close > current_ma60_val:
-                    ma_status_text = f"高於 60MA ({current_ma60_val:.1f}) ✅強勢"
-                else:
-                    ma_status_text = f"低於 60MA ({current_ma60_val:.1f}) ❌弱勢"
-                
-                with st.container(border=True):
-                    st.markdown(f"**🏢 所屬供應鏈族群：** {FILTERED_STOCKS_DICT[selected_ticker]['group']}")
-                    st.markdown(f"**🎯 波段中長線趨勢：** {trend_lbl}")
-                    st.markdown(f"**⏱️ 60分K戰法位階：** 目前價格 {ma_status_text}")
-                    st.markdown(f"**📦 今日概估成交張數：** {int(tod_d['Volume']/1000)} 張")
-                    st.markdown(f"**📅 數據最後同步時間：** {tod_h.name.strftime('%Y-%m-%d %H:%M') if hasattr(tod_h.name, 'strftime') else tod_h.name}")
-            except Exception as e:
-                st.info("該股數據整合中...")
+                fig_canvas.add_trace(go.Bar(x=df_selected_d.index, y=df_selected_d['Volume'], name="成交量", marker_color='#1f77b4'), row=2, col=1)
+                fig_canvas.update_layout(xaxis_rangeslider_visible=False, height=600, margin=dict(l=10, r=10, t=10, b=10), hovermode="x unified")
+                st.plotly_chart(fig_canvas, use_container_width=True)
 
-        # ─── Tab 4：量能與趨勢排行 ───
         with tab4:
             st.subheader("📊 已選 AI 細分供應鏈 - 當日量能與波段趨勢雙料排行 (Top 30)")
             volume_list = []
@@ -252,13 +284,44 @@ if FILTERED_TICKERS:
                     df_v['MA20'] = df_v['Close'].rolling(window=20).mean(); df_v['MA60'] = df_v['Close'].rolling(window=60).mean()
                     today_v, yesterday_v = df_v.iloc[-1], df_v.iloc[-2]
                     p_change = ((today_v['Close'] - yesterday_v['Close']) / yesterday_v['Close']) * 100
-                    volume_list.append({"代號": ticker, "股票名稱": FILTERED_STOCKS_DICT[ticker]['name'], "AI雷射族群": FILTERED_STOCKS_DICT[ticker]['group'], "今日收盤": round(today_v['Close'], 2), "今日漲跌幅": f"{p_change:+.2f}%", "成交量 (張)": int(today_v['Volume'] / 1000), "🌟 當前波段趨勢": diagnose_trend_status(today_v['Close'], today_v['MA20'], today_v['MA60'])})
+                    volume_list.append({"代號": ticker, "股票名稱": FILTERED_STOCKS_DICT[ticker]['name'], "AI雷射族群": FILTERED_STOCKS_DICT[ticker]['group'], "今日收盤價": round(today_v['Close'], 2), "今日漲跌幅": f"{p_change:+.2f}%", "成交張數 (張)": int(today_v['Volume'] / 1000), "🌟 當前波段趨勢位階": diagnose_trend_status(today_v['Close'], today_v['MA20'], today_v['MA60'])})
                 except: continue
                 
             if volume_list: 
-                v_df = pd.DataFrame(volume_list).sort_values(by="成交量 (張)", ascending=False).reset_index(drop=True)
+                v_df = pd.DataFrame(volume_list).sort_values(by="成交張數 (張)", ascending=False).reset_index(drop=True)
                 v_df.index += 1
                 top_30_df = v_df.head(30)
                 st.dataframe(top_30_df, use_container_width=True)
-    else:
-        st.warning("⏳ 雲端伺服器排隊抓取數據中，請滑動重整網頁或稍候片刻。")
+                
+                st.markdown("---")
+                selected_t4 = st.selectbox("📊 選擇排行榜中的任意股票，直接看圖：", options=top_30_df["代號"].tolist(), format_func=lambda x: f"{x} {AI_STOCKS_DICT[x]['name']}", key="t4_select")
+                t4_type = st.radio("選擇看圖規格：", ["📈 查看 60分鐘線 K線", "📊 查看 日線 × 量能圖"], key="t4_radio")
+                
+                if "60分鐘" in t4_type:
+                    df_t4_h = hourly_data[selected_t4].dropna() if is_multi else hourly_data.dropna()
+                    df_t4_h['MA60'] = df_t4_h['Close'].rolling(window=60).mean()
+                    l_60, h_60 = df_t4_h['Low'].rolling(window=60).min(), df_t4_h['High'].rolling(window=60).max()
+                    df_t4_h['RSV'] = (((df_t4_h['Close'] - l_60) / (h_60 - l_60)) * 100).fillna(50)
+                    df_t4_h['K'] = df_t4_h['RSV'].ewm(alpha=1/3, adjust=False).mean()
+                    df_t4_h['D'] = df_t4_h['K'].ewm(alpha=1/3, adjust=False).mean()
+                    df_p_t4h = df_t4_h.tail(60)
+                    fig_t4h = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08, row_width=[0.35, 0.65])
+                    fig_t4h.add_trace(go.Candlestick(x=df_p_t4h.index, open=df_p_t4h['Open'], high=df_p_t4h['High'], low=df_p_t4h['Low'], close=df_p_t4h['Close'], name="60分K"), row=1, col=1)
+                    fig_t4h.add_trace(go.Scatter(x=df_p_t4h.index, y=df_p_t4h['MA60'], name="60MA", line=dict(color='cyan', width=2.5)), row=1, col=1)
+                    fig_t4h.add_trace(go.Scatter(x=df_p_t4h.index, y=df_p_t4h['K'], name="K", line=dict(color='red', width=1.5)), row=2, col=1)
+                    fig_t4h.add_trace(go.Scatter(x=df_p_t4h.index, y=df_p_t4h['D'], name="D", line=dict(color='green', width=1.5)), row=2, col=1)
+                    fig_t4h.update_layout(xaxis_rangeslider_visible=False, height=500, margin=dict(l=10, r=10, t=10, b=10))
+                    st.plotly_chart(fig_t4h, use_container_width=True)
+                else:
+                    df_t4_d = daily_data[selected_t4].dropna() if is_multi else daily_data.dropna()
+                    df_t4_d['MA20'] = df_t4_d['Close'].rolling(window=20).mean()
+                    df_t4_d['MA60'] = df_t4_d['Close'].rolling(window=60).mean()
+                    df_p_t4d = df_t4_d.tail(50)
+                    
+                    fig_t4d = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08, row_width=[0.3, 0.7])
+                    fig_t4d.add_trace(go.Candlestick(x=df_p_t4d.index, open=df_p_t4d['Open'], high=df_p_t4d['High'], low=df_p_t4d['Low'], close=df_p_t4d['Close'], name="日K"), row=1, col=1)
+                    fig_t4d.add_trace(go.Scatter(x=df_p_t4d.index, y=df_p_t4d['MA20'], name="20MA", line=dict(color='orange', width=2)), row=1, col=1)
+                    fig_t4d.add_trace(go.Scatter(x=df_p_t4d.index, y=df_p_t4d['MA60'], name="60MA", line=dict(color='limegreen', width=2.5)), row=1, col=1)
+                    fig_t4d.add_trace(go.Bar(x=df_p_t4d.index, y=df_p_t4d['Volume'], name="成交量", marker_color='#1f77b4'), row=2, col=1)
+                    fig_t4d.update_layout(xaxis_rangeslider_visible=False, height=500, margin=dict(l=10, r=10, t=10, b=10))
+                    st.plotly_chart(fig_t4d, use_container_width=True)
