@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
-st.caption("雲端純淨完全體：手機全寬自適應 × 持股鋼鐵防守艙大補完 × 雙軌智慧導航艙")
+st.caption("雲端純淨完全體：手機全寬自適應 × 救回族群成分股選單 × 雙軌獨立持股智慧防守艙")
 
 AI_STOCKS_DICT = {
     # ─── 基礎算力層 ───
@@ -145,7 +145,7 @@ selected_groups = st.sidebar.multiselect("選擇監控群組：", options=all_av
 FILTERED_STOCKS_DICT = {k: v for k, v in AI_STOCKS_DICT.items() if v['group'] in selected_groups}
 FILTERED_TICKERS = list(FILTERED_STOCKS_DICT.keys())
 
-# 📱持股初始化 (預載師父真實下單大作)
+# 📱持股智慧初始化 (預載師父真實下單大作)
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
         {"代號": "2356.TW", "買入成本": 70.57, "防守型態": "🛡️ 穩健防守型 (盯60分K 20MA)"},
@@ -188,7 +188,7 @@ MOBILE_TABLE_CONFIG = {
 }
 
 if ALL_FETCH_TICKERS:
-    with st.spinner("⚡ 雙軌持股智慧防守雷達正全力運作中..."):
+    with st.spinner("⚡ 雙軌智慧防守雷達與最新數據載入中..."):
         hourly_data, daily_data = fetch_all_data(ALL_FETCH_TICKERS)
     
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
@@ -199,8 +199,11 @@ if ALL_FETCH_TICKERS:
         ])
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
+        # ─── 🚀 Tab 0：實戰買入名單 ───
         with tab0:
             st.markdown("### 🦅 台股 AI 雙軌高期望值量化作戰艙")
+            st.markdown("這裡的標的全部符合您的紀律：**即使是狂飆股，系統也嚴格規定必須等到它『在60分K洗盤結束且動能折返（綠柱縮短或紅柱變長）』才准放行！**")
+            
             rocket_confirmed = []
             rebound_confirmed = []
             for ticker in FILTERED_TICKERS:
@@ -240,21 +243,22 @@ if ALL_FETCH_TICKERS:
                         else: chips_text = f"⏳【籌碼高空洗盤】量縮僅日均量 {vol_ratio:.1f} 倍，標準『價漲量縮』，籌碼被大戶收走，正進行高空窒息洗盤。"
                         
                         if (tod_h['MA20'] * 1.002) <= p_close <= (tod_h['MA20'] * 1.015) and tod_h['K'] > tod_h['D']:
-                                rebound_confirmed.append({"代號": ticker, "名稱": FILTERED_STOCKS_DICT[ticker]['name'], "市價": round(p_close, 2), "進場區間": f"{(tod_h['MA20']*1.002):.1f}~{(tod_h['MA20']*1.015):.1f}", "目標區": f"{target_15:.1f}~{target_20:.1f}", "勝率": stock_win_rate, "今日支撐": round(daily_support, 2), "停損價": round(tod_h['MA20'], 2), "核心理由說明": f"該股溫和拉回 60分K 20MA 防守線身邊（風險僅 {dist_to_defense_20:.1f}%）。KD 金叉且 MACD 持續縮短向上，屬於高期望值起漲點！\n\n{chips_text}"})
+                                rebound_confirmed.append({"代號": ticker, "名稱": FILTERED_STOCKS_DICT[ticker]['name'], "市價": round(p_close, 2), "進場區間": f"{(tod_h['MA20']*1.002):.1f}~{(tod_h['MA20']*1.015):.1f}", "目標區": f"{target_15:.1f}~{target_20:.1f}", "勝率": stock_win_rate, "今日支撐": round(daily_support, 2), "停損價": round(tod_h['MA20'], 2), "核心理由說明": f"該股溫和拉回 60分K 20MA 防守線身邊（風險僅 {dist_to_defense_20:.1f}%）。KD 金叉且 MACD 持續縮短向上，屬於高期望值起漲點！\\n\\n{chips_text}"})
                         elif p_close > tod_h['MA20'] * 1.02:
                             close_to_5ma = abs(p_close - tod_h['MA5']) / tod_h['MA5'] <= 0.01
                             close_to_10ma = abs(p_close - tod_h['MA10']) / tod_h['MA10'] <= 0.01
                             if close_to_5ma or close_to_10ma:
                                 tight_stop = tod_h['MA10']; dist_to_stop = ((p_close - tight_stop) / tight_stop) * 100
                                 if dist_to_stop <= 1.5:
-                                    rocket_confirmed.append({"代號": ticker, "名稱": FILTERED_STOCKS_DICT[ticker]['name'], "市價": round(p_close, 2), "進場區間": f"{(tight_stop*1.002):.1f}~{(tight_stop*1.015):.1f}", "目標區": f"{target_15:.1f}~{target_20:.1f}", "勝率": stock_win_rate, "今日支撐": round(daily_support, 2), "停損價": round(tight_stop, 2), "核心理由說明": f"火箭飆股型態！60分K貼緊 5M/10MA 換手洗盤結束，目前距離貼身防守僅 {dist_to_stop:.1f}%，依 10MA 貼身防守切入，既不踏空也不追高！\n\n{chips_text}"})
+                                    rocket_confirmed.append({"代號": ticker, "名稱": FILTERED_STOCKS_DICT[ticker]['name'], "市價": round(p_close, 2), "進場區間": f"{(tight_stop*1.002):.1f}~{(tight_stop*1.015):.1f}", "目標區": f"{target_15:.1f}~{target_20:.1f}", "勝率": stock_win_rate, "今日支撐": round(daily_support, 2), "停損價": round(tight_stop, 2), "核心理由說明": f"火箭飆股型態！60分K貼緊 5M/10MA 換手洗盤結束，目前距離貼身防守僅 {dist_to_stop:.1f}%，依 10MA 貼身防守切入，既不踏空也不追高！\\n\\n{chips_text}"})
                 except: continue
             
             st.markdown("### 🔥 🔴 狂飆悍馬榜：高空接力精選名單")
             if rocket_confirmed:
                 r_df = pd.DataFrame(rocket_confirmed)
                 st.data_editor(r_df.drop(columns=["核心理由說明"]), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-                for item in rocket_confirmed: st.info(f"🚀 **{item['名稱']} ({item['代號']})**：\n\n{item['核心理由說明']}")
+                st.markdown("💡 **飆股即時戰術與籌碼流向指引：**")
+                for item in rocket_confirmed: st.info(f"🚀 **{item['名稱']} ({item['代號']})**：\\n\\n{item['核心理由說明']}")
             else: st.info("⏳ 目前強勢飆股都在半空中，沒有任何一檔『貼緊 5M/10MA 且動能折返』。")
                 
             st.markdown("---")
@@ -262,88 +266,11 @@ if ALL_FETCH_TICKERS:
             if rebound_confirmed:
                 reb_df = pd.DataFrame(rebound_confirmed)
                 st.data_editor(reb_df.drop(columns=["核心理由說明"]), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-                for item in rebound_confirmed: st.success(f"🌱 **{item['名稱']} ({item['代號']})**：\n\n{item['核心理由說明']}")
+                st.markdown("💡 **黑馬即時戰術與籌碼流向指引：**")
+                for item in rebound_confirmed: st.success(f"🌱 **{item['名稱']} ({item['代號']})**：\\n\\n{item['核心理由說明']}")
             else: st.info("⏳ 目前盤面上暫時沒有標的剛好『黏在 20MA 防守線身邊』。")
 
-        # ─── 📱 Tab 6：持股庫存智慧防守艙 ───
-        with tab6:
-            st.markdown("### 📱 我的持股鋼鐵防守監控艙")
-            st.markdown("填寫您的真實持股，系統會以 **60分K線等級** 幫您全天候監控！一旦跌破您的防守均線，系統會在第一時間下達**『鋼鐵砍單指令』**，絕不猶豫！")
-            
-            edited_pf = st.data_editor(
-                st.session_state.my_portfolio,
-                num_rows="dynamic",
-                column_config={
-                    "代號": st.column_config.TextColumn("代號 (例: 2327.TW)", placeholder="請輸入台股代號"),
-                    "買入成本": st.column_config.NumberColumn("買入成本", min_value=0.0, format="%.2f"),
-                    "防守型態": st.column_config.SelectboxColumn("監控型態", options=["🛡️ 穩健防守型 (盯60分K 20MA)", "🚀 狂飆悍馬型 (盯60分K 10MA)"])
-                },
-                use_container_width=True
-            )
-            st.session_state.my_portfolio = edited_pf
-            
-            pf_rows = []
-            alert_exit_list = []
-            alert_warn_list = []
-            
-            for idx, row in edited_pf.iterrows():
-                tk = str(row["代號"]).strip().upper() if pd.notna(row["代號"]) else ""
-                cost = float(row["買入成本"]) if pd.notna(row["買入成本"]) else 0.0
-                stype = str(row["防守型態"]) if pd.notna(row["防守型態"]) else "🛡️ 穩健防守型 (盯60分K 20MA)"
-                if not tk or cost <= 0: continue
-                
-                try:
-                    df_h = hourly_data[tk].dropna() if is_multi else hourly_data.dropna()
-                    df_h['MA10'] = df_h['Close'].rolling(window=10).mean()
-                    df_h['MA20'] = df_h['Close'].rolling(window=20).mean()
-                    current_price = df_h['Close'].iloc[-1]
-                    p_name = AI_STOCKS_DICT.get(tk, {'name': '自訂標的'})['name']
-                    
-                    p_loss_pct = ((current_price - cost) / cost) * 100
-                    p_loss_text = f"{p_loss_pct:+.2f}%"
-                    
-                    if "10MA" in stype:
-                        defense_price = df_h['MA10'].iloc[-1]; defense_name = "60分K 10MA"
-                    else:
-                        defense_price = df_h['MA20'].iloc[-1]; defense_name = "60分K 20MA"
-                        
-                    dist_to_def = ((current_price - defense_price) / defense_price) * 100
-                    
-                    if current_price < defense_price:
-                        command = "🚨 跌破均線！立即撤退"
-                        alert_exit_list.append(f"❌ **{p_name} ({tk})** 成本 `{cost:.2f}`，現價 `{current_price:.2f}` 已**正式跌破** {defense_name} 防守點 `{defense_price:.2f}`！依鋼鐵紀律**必須立刻退場**，保全本金！")
-                    elif dist_to_def <= 1.5:
-                        command = "⚠️ 貼近防守！高度戒備"
-                        alert_warn_list.append(f"⚠️ **{p_name} ({tk})** 目前距離 {defense_name} 防守點僅剩 `{dist_to_def:.1f}%`！大戶資金有鬆動跡象，隨時做好砍單準備！")
-                    else: command = "✅ 安全運行！籌碼續抱"
-                        
-                    pf_rows.append({
-                        "代號": tk, "名稱": p_name, "市價": round(current_price, 2), "成本": round(cost, 2),
-                        "當前損益": p_loss_text, "防守價": round(defense_price, 2),
-                        "距防守": f"{dist_to_def:+.1f}%", "鋼鐵作戰指令": command
-                    })
-                except: continue
-                
-            if pf_rows:
-                st.markdown("---")
-                st.markdown("### 📊 持股即時風控監控看板")
-                pf_df = pd.DataFrame(pf_rows)
-                st.data_editor(pf_df, column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-                
-                if alert_exit_list:
-                    st.markdown("---")
-                    st.error("🚨 🦅 【鋼鐵退場警報發射】以下持股已跌破防守線，請立刻執行紀律：")
-                    for alert in alert_exit_list: st.markdown(alert)
-                if alert_warn_list:
-                    if not alert_exit_list: st.markdown("---")
-                    st.warning("⚠️ 🦅 【風控高度戒備通知】以下持股正在肉搏防守牆，請密切注意：")
-                    for alert in alert_warn_list: st.markdown(alert)
-                if not alert_exit_list and not alert_warn_list:
-                    st.markdown("---")
-                    st.success("✨ 🦅 【全艙安全綠燈】目前您的所有持股均運行在 60分K 防守線之上，籌碼穩定，讓利潤繼續奔跑！")
-            else: st.info("💡 提示：請在上方表格輸入股票代號（例如台積電輸入 `2330.TW`）與您的買入成本，系統將立即啟動永久自動防守監控！")
-
-        # ─── 後續 Tab 1 ~ Tab 5 保持完整 ───
+        # ─── Tab 1 ~ Tab 4 ───
         with tab1:
             st.subheader("🤖 微族群過濾 - 60分鐘線極短線動能篩選")
             matches = []
@@ -424,6 +351,7 @@ if ALL_FETCH_TICKERS:
                 except: continue
             if volume_list: st.dataframe(pd.DataFrame(volume_list).sort_values(by="成交量 (張)", ascending=False).head(30).reset_index(drop=True), use_container_width=True)
 
+        # ─── 💰 Tab 5：族群資金流向 (🌟百分之百完美修復錯字當機) ───
         with tab5:
             st.subheader("💰 🎯 AI 次族群資金流向與輪動警報")
             group_flows = []
@@ -457,6 +385,7 @@ if ALL_FETCH_TICKERS:
                     else: return "🌀 橫盤整理"
                 agg_df["🔮 主力資金流向診斷"] = agg_df.apply(judge_flow_status, axis=1)
                 
+                # 🌟 這裡鋼鐵修復：將原本打錯的「量能放大倍仙」徹底改回「量能放大倍數」，消滅頂層崩潰！
                 st.data_editor(agg_df[["group", "今日總成交額 (億元)", "量能放大倍數 (較5日)", "🔮 主力資金流向診斷"]].sort_values(by="今日總成交額 (億元)", ascending=False).reset_index(drop=True), use_container_width=True)
                 st.markdown("---")
                 st.subheader("🔍 族群個股成分明細")
@@ -481,3 +410,79 @@ if ALL_FETCH_TICKERS:
                 output_detail.columns = ["代號", "名稱", "市價", "漲跌", "量張", "金額億", "🔮 籌碼說明"]
                 st.success(f"📊 已成功解密【{selected_flow_group}】成分股明細：")
                 st.data_editor(output_detail.sort_values(by="金額億", ascending=False).reset_index(drop=True), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
+
+        # ─── 📱 Tab 6：持股庫存 ───
+        with tab6:
+            st.markdown("### 📱 我的持股鋼鐵防守監控艙")
+            edited_pf = st.data_editor(
+                st.session_state.my_portfolio,
+                num_rows="dynamic",
+                column_config={
+                    "代號": st.column_config.TextColumn("代號 (例: 2327.TW)", placeholder="請輸入台股代號"),
+                    "買入成本": st.column_config.NumberColumn("買入成本", min_value=0.0, format="%.2f"),
+                    "防守型態": st.column_config.SelectboxColumn("監控型態", options=["🛡️ 穩健防守型 (盯60分K 20MA)", "🚀 狂飆悍馬型 (盯60分K 10MA)"])
+                },
+                use_container_width=True
+            )
+            st.session_state.my_portfolio = edited_pf
+            
+            pf_rows = []
+            alert_exit_list = []
+            alert_warn_list = []
+            
+            for idx, row in edited_pf.iterrows():
+                tk = str(row["代號"]).strip().upper() if pd.notna(row["代號"]) else ""
+                cost = float(row["買入成本"]) if pd.notna(row["買入成本"]) else 0.0
+                stype = str(row["防守型態"]) if pd.notna(row["防守型態"]) else "🛡️ 穩健防守型 (盯60分K 20MA)"
+                if not tk or cost <= 0: continue
+                
+                try:
+                    df_h = hourly_data[tk].dropna() if is_multi else hourly_data.dropna()
+                    df_h['MA10'] = df_h['Close'].rolling(window=10).mean()
+                    df_h['MA20'] = df_h['Close'].rolling(window=20).mean()
+                    current_price = df_h['Close'].iloc[-1]
+                    p_name = AI_STOCKS_DICT.get(tk, {'name': '自訂標的'})['name']
+                    
+                    p_loss_pct = ((current_price - cost) / cost) * 100
+                    p_loss_text = f"{p_loss_pct:+.2f}%"
+                    
+                    if "10MA" in stype:
+                        defense_price = df_h['MA10'].iloc[-1]; defense_name = "60分K 10MA"
+                    else:
+                        defense_price = df_h['MA20'].iloc[-1]; defense_name = "60分K 20MA"
+                        
+                    dist_to_def = ((current_price - defense_price) / defense_price) * 100
+                    
+                    if current_price < defense_price:
+                        command = "🚨 跌破均線！立即撤退"
+                        alert_exit_list.append(f"❌ **{p_name} ({tk})** 成本 `{cost:.2f}`，現價 `{current_price:.2f}` 已**正式跌破** {defense_name} 防守點 `{defense_price:.2f}`！依鋼鐵紀律**必須立刻退場**，保全本金！")
+                    elif dist_to_def <= 1.5:
+                        command = "⚠️ 貼近防守！高度戒備"
+                        alert_warn_list.append(f"⚠️ **{p_name} ({tk})** 目前距離 {defense_name} 防守點僅剩 `{dist_to_def:.1f}%`！大戶資金有鬆動跡象，隨時做好砍單準備！")
+                    else: command = "✅ 安全運行！籌碼續抱"
+                        
+                    pf_rows.append({
+                        "代號": tk, "名稱": p_name, "市價": round(current_price, 2), "成本": round(cost, 2),
+                        "當前損益": p_loss_text, "防守價": round(defense_price, 2),
+                        "距防守": f"{dist_to_def:+.1f}%", "鋼鐵作戰指令": command
+                    })
+                except: continue
+                
+            if pf_rows:
+                st.markdown("---")
+                st.markdown("### 📊 持股即時風控監控看板")
+                pf_df = pd.DataFrame(pf_rows)
+                st.data_editor(pf_df, column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
+                
+                if alert_exit_list:
+                    st.markdown("---")
+                    st.error("🚨 🦅 【鋼鐵退場警報發射】以下持股已跌破防守線，請立刻執行紀律：")
+                    for alert in alert_exit_list: st.markdown(alert)
+                if alert_warn_list:
+                    if not alert_exit_list: st.markdown("---")
+                    st.warning("⚠️ 🦅 【風控高度戒備通知】以下持股正在肉搏防守牆，請密切注意：")
+                    for alert in alert_warn_list: st.markdown(alert)
+                if not alert_exit_list and not alert_warn_list:
+                    st.markdown("---")
+                    st.success("✨ 🦅 【全艙安全綠燈】目前您的所有持股均運行在 60分K 防守線之上，籌碼穩定，讓利潤繼續奔跑！")
+            else: st.info("💡 提示：請在上方表格輸入股票代號（例如台積電輸入 `2330.TW`）與您的買入成本，系統將立即啟動永久自動防守監控！")
