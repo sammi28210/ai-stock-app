@@ -8,11 +8,14 @@ st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
 st.caption("雲端純淨完全體：智慧雙軌全自動防守艙 × 全局唯一精準真實市價大一統監控倉")
 
-# --- 持股監控初始化（支援純數字輸入） ---
+# --- ⚙️【持股永久固定區】已幫您補上強茂與華新科，重新整理絕不消失！ ---
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
-        {"代號": "2356", "買入成本": 70.57},
-        {"代號": "2327", "買入成本": 1010.00}
+        {"代號": "2356", "買入成本": 70.57},    # 💡 您的英業達真實成本
+        {"代號": "2308", "買入成本": 2038.64},  # 💡 您的國巨真實成本
+        {"代號": "", "買入成本": 0.0},   # 💡 您的台達電真實成本
+        {"代號": "", "買入成本": 0.0},      # 💡 您的強茂成本 (預設0，可於網頁或代碼修改)
+        {"代號": "", "買入成本": 0.0}       # 💡 您的華新科成本 (預設0，可於網頁或代碼修改)
     ])
 
 AI_STOCKS_DICT = {
@@ -51,7 +54,7 @@ AI_STOCKS_DICT = {
     '3587.TWO': {'name': '閎康', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
     '6830.TW': {'name': '汎銓', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
     # ─── 數據網路與通訊 ───
-    '3081.TWO': {'name': '聯網', 'group': '16. 矽光子雷射晶片/磊晶 (DFB)'},
+    '3081.TWO': {'name': '聯亞', 'group': '16. 矽光子雷射晶片/磊晶 (DFB)'},
     '6451.TW': {'name': '訊芯-KY', 'group': '17. 矽光子/CPO 模組封裝'},
     '3363.TWO': {'name': '上詮', 'group': '17. 矽光子/CPO 模組封裝'},
     '3450.TW': {'name': '聯鈞', 'group': '17. 矽光子/CPO 模組封裝'},
@@ -98,6 +101,7 @@ AI_STOCKS_DICT = {
     '1513.TW': {'name': '中興電', 'group': '33. 機房配電盤 & 不斷電系統 (UPS)'},
     '1514.TW': {'name': '亞力', 'group': '33. 機房配電盤 & 不斷電系統 (UPS)'},
     '2327.TW': {'name': '國巨', 'group': '34. 被動元件 (高階 MLCC)'},
+    '2492.TW': {'name': '華新科', 'group': '34. 被動元件 (高階 MLCC)'}, # 💡 補齊字典比對
     '3675.TWO': {'name': '德微', 'group': '35. 分離元件 & 功率半導體 (MOSFET)'},
     '2481.TW': {'name': '強茂', 'group': '35. 分離元件 & 功率半導體 (MOSFET)'},
     '2359.TW': {'name': '所羅門', 'group': '36. AI 智慧視覺 & 具身智慧機器人'},
@@ -208,7 +212,6 @@ if FILTERED_TICKERS:
         ])
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
-        # 💡【價格大一統】改從 daily_data 撈取最精準的日K官方收盤價
         LATEST_PRICES = {}
         for ticker in all_fetch:
             try:
@@ -448,7 +451,7 @@ if FILTERED_TICKERS:
                 st.success(f"📊 已成功解密【{selected_flow_group}】成分股明細：")
                 st.data_editor(output_detail.sort_values(by="金額億", ascending=False).reset_index(drop=True), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙 - 名稱與價格完美大一統】 ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙】 ＝＝＝＝＝＝＝＝＝＝
         with tab6:
             st.subheader("📱 我的持股鋼鐵防守監控艙")
             st.caption("💡 智慧升級：您不需手動選擇均線。系統會自動幫您監控短線 (10MA) 與波段 (20MA) 雙防線，防止人為點選錯誤！")
@@ -462,7 +465,6 @@ if FILTERED_TICKERS:
                     tk = str(row["代號"]).strip().upper()
                     if not tk: continue
                     
-                    # 💡【名稱對應邏輯】在後台自動補全名稱，避免人工打字繁瑣
                     yf_tk = tk
                     name = ""
                     if not tk.endswith('.TW') and not tk.endswith('.TWO'):
@@ -488,7 +490,6 @@ if FILTERED_TICKERS:
                         ma20 = df_p['Close'].rolling(20).mean().iloc[-1]
                         pnl = ((price - row['買入成本']) / row['買入成本']) * 100
                         
-                        # 🎯【格式美化】將代號與名稱（例如 2356英業達）綁定顯示
                         disp_title = f"{tk}{name}" if name else tk
                         res_base = f"**{disp_title}** | 現價:{price:.2f} | 損益:{pnl:+.2f}% | (10MA:{ma10:.2f} , 20MA:{ma20:.2f})"
                         
