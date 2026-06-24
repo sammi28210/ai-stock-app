@@ -6,13 +6,13 @@ from datetime import datetime, timedelta
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
-st.caption("雲端純淨完全體：手機版獨立排版優化 × 內建日均量籌碼動向解密 × 全局唯一精準真實市價大一統監控倉")
+st.caption("雲端純淨完全體：智慧雙軌全自動防守艙 × 全局唯一精準真實市價大一統監控倉")
 
 # --- 持股監控初始化（支援純數字輸入） ---
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
-        {"代號": "2356", "買入成本": 70.57, "監控均線": "20MA"},
-        {"代號": "2327", "買入成本": 1010.00, "監控均線": "10MA"}
+        {"代號": "2356", "買入成本": 70.57},
+        {"代號": "2327", "買入成本": 1010.00}
     ])
 
 AI_STOCKS_DICT = {
@@ -51,7 +51,7 @@ AI_STOCKS_DICT = {
     '3587.TWO': {'name': '閎康', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
     '6830.TW': {'name': '汎銓', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
     # ─── 數據網路與通訊 ───
-    '3081.TWO': {'name': '聯亞', 'group': '16. 矽光子雷射晶片/磊晶 (DFB)'},
+    '3081.TWO': {'name': '聯網', 'group': '16. 矽光子雷射晶片/磊晶 (DFB)'},
     '6451.TW': {'name': '訊芯-KY', 'group': '17. 矽光子/CPO 模組封裝'},
     '3363.TWO': {'name': '上詮', 'group': '17. 矽光子/CPO 模組封裝'},
     '3450.TW': {'name': '聯鈞', 'group': '17. 矽光子/CPO 模組封裝'},
@@ -208,7 +208,7 @@ if FILTERED_TICKERS:
         ])
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
-        # 💡【全新防線：全局真實市價字典】改從 daily_data 撈取最精準的日K收盤價，直接繞過小時線的缺陷！
+        # 💡【價格大一統】改從 daily_data 撈取最精準的日K官方收盤價
         LATEST_PRICES = {}
         for ticker in all_fetch:
             try:
@@ -240,7 +240,7 @@ if FILTERED_TICKERS:
                     df_h['HIST'] = df_h['DIF'] - df_h['MACD_Sig']
                     
                     tod_h = df_h.iloc[-1]; yes_h = df_h.iloc[-2]
-                    p_close = LATEST_PRICES.get(ticker, tod_h['Close']) # 強制使用真實市價
+                    p_close = LATEST_PRICES.get(ticker, tod_h['Close']) 
                     
                     if p_close > tod_h['MA60']:
                         if tod_h['HIST'] > yes_h['HIST']:
@@ -448,9 +448,11 @@ if FILTERED_TICKERS:
                 st.success(f"📊 已成功解密【{selected_flow_group}】成分股明細：")
                 st.data_editor(output_detail.sort_values(by="金額億", ascending=False).reset_index(drop=True), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙】 ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙 - 名稱與價格完美大一統】 ＝＝＝＝＝＝＝＝＝＝
         with tab6:
             st.subheader("📱 我的持股鋼鐵防守監控艙")
+            st.caption("💡 智慧升級：您不需手動選擇均線。系統會自動幫您監控短線 (10MA) 與波段 (20MA) 雙防線，防止人為點選錯誤！")
+            
             edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
             st.session_state.my_portfolio = edited_df
             
@@ -460,13 +462,20 @@ if FILTERED_TICKERS:
                     tk = str(row["代號"]).strip().upper()
                     if not tk: continue
                     
+                    # 💡【名稱對應邏輯】在後台自動補全名稱，避免人工打字繁瑣
                     yf_tk = tk
+                    name = ""
                     if not tk.endswith('.TW') and not tk.endswith('.TWO'):
                         matched = [k for k in AI_STOCKS_DICT.keys() if k.startswith(tk + '.')]
-                        if matched: yf_tk = matched[0]
-                        else: yf_tk = tk + '.TW'
+                        if matched: 
+                            yf_tk = matched[0]
+                            name = AI_STOCKS_DICT[yf_tk]['name']
+                        else: 
+                            yf_tk = tk + '.TW'
+                    else:
+                        if yf_tk in AI_STOCKS_DICT:
+                            name = AI_STOCKS_DICT[yf_tk]['name']
                         
-                    # 💡 全新大一統機制：改抓精準日線收盤價快照，保證與真實世界的市價一模一樣
                     price = LATEST_PRICES.get(yf_tk, 0.0)
                     if price == 0.0:
                         st.warning(f"⚠️ {tk} 數據同步中...")
@@ -474,16 +483,21 @@ if FILTERED_TICKERS:
                         
                     try:
                         df_p = hourly_data[yf_tk].dropna() if is_multi else hourly_data.dropna()
-                        ma = df_p['Close'].rolling(20).mean().iloc[-1] if row['監控均線'] == "20MA" else df_p['Close'].rolling(10).mean().iloc[-1]
+                        
+                        ma10 = df_p['Close'].rolling(10).mean().iloc[-1]
+                        ma20 = df_p['Close'].rolling(20).mean().iloc[-1]
                         pnl = ((price - row['買入成本']) / row['買入成本']) * 100
                         
-                        status = "🚨 跌破均線！" if price < ma else "✅ 籌碼續抱"
-                        res = f"**{tk}** | 現價:{price:.2f} | 損益:{pnl:+.2f}% | 防守線:{ma:.2f}"
+                        # 🎯【格式美化】將代號與名稱（例如 2356英業達）綁定顯示
+                        disp_title = f"{tk}{name}" if name else tk
+                        res_base = f"**{disp_title}** | 現價:{price:.2f} | 損益:{pnl:+.2f}% | (10MA:{ma10:.2f} , 20MA:{ma20:.2f})"
                         
-                        if price < ma:
-                            st.error(f"{res} | {status} (當前低於 {row['監控均線']}，請執行紀律！)")
+                        if price >= ma10:
+                            st.success(f"🟢 {res_base} ➔ **強勢續抱** (站穩 10MA 與 20MA 之上，多頭格局強勁)")
+                        elif ma20 <= price < ma10:
+                            st.warning(f"⚠️ {res_base} ➔ **短線轉弱** (已跌破 10MA 強勢線！目前改看 20MA 生命線作最後防守)")
                         else:
-                            st.success(f"{res} | {status} (守穩在 {row['監控均線']} 之上，安全運行中)")
+                            st.error(f"🚨 {res_base} ➔ **執行紀律！** (已無情跌破 20MA 波段防守點，請立即依紀律離場保護資金)")
                     except Exception as e:
                         st.warning(f"⚠️ {tk} 數據同步中...")
             else:
