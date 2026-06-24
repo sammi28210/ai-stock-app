@@ -5,109 +5,289 @@ from datetime import datetime, timedelta
 
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
-st.title("🦅 台股 AI 全產業鏈 100+ 大軍終極永久看板")
-st.caption("雲端純淨完全體：智慧雙軌全自動防守艙 × 全局唯一精準真實市價大一統監控倉 × 智慧進場與下跌原因全方位量化診斷艙")
+st.title("🦅 台股 AI 全產業鏈 200+ 大軍終極永久看板")
+st.caption("雲端純淨完全體：200+ 供應鏈大軍全面擴編 × 智慧雙軌全自動防守艙 × 智慧進場與下跌原因全方位量化診斷艙")
 
-# --- ⚙️【持股永久固定區】修改您的真實庫存與成本，重新整理絕不消失！ ---
+# --- ⚙️【持股永久固定區】您的核心持股基本盤（重新整理絕不消失） ---
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
-        {"代號": "2356", "買入成本": 70.57},    # 💡 您的英業達真實成本
-        {"代號": "2327", "買入成本": 1010.00},  # 💡 您的國巨真實成本
-        {"代號": "2308", "買入成本": 385.50},   # 💡 您的台達電真實成本
-        {"代號": "2481", "買入成本": 0.0},      # 💡 您的強茂成本
-        {"代號": "2492", "買入成本": 0.0}       # 💡 您的華新科成本
+        {"代號": "2356", "買入成本": 70.57},    # 英業達
+        {"代號": "2308", "買入成本": 2038.64},  # 國巨
+        {"代號": "", "買入成本": 0.0},   # 台達電
+        {"代號": "", "買入成本": 0.0},      # 強茂
+        {"代號": "", "買入成本": 0.0}       # 華新科
     ])
 
+# 🦅【全新擴編：200+ 檔台股 AI 全產業鏈核心大軍字典】
 AI_STOCKS_DICT = {
-    # ─── 基礎算力層 ───
+    # ─── 01. 矽智財 (IP/ASIC) ───
     '3661.TW': {'name': '世芯-KY', 'group': '01. 矽智財 (IP/ASIC)'},
     '3443.TW': {'name': '創意', 'group': '01. 矽智財 (IP/ASIC)'},
     '3035.TW': {'name': '智原', 'group': '01. 矽智財 (IP/ASIC)'},
     '6643.TWO': {'name': 'M31', 'group': '01. 矽智財 (IP/ASIC)'},
     '6533.TWO': {'name': '晶心科', 'group': '01. 矽智財 (IP/ASIC)'},
+    '6684.TWO': {'name': '安格', 'group': '01. 矽智財 (IP/ASIC)'},
+    '6756.TW': {'name': '威鋒電子', 'group': '01. 矽智財 (IP/ASIC)'},
+
+    # ─── 02. AI 晶片 & 主流 IC 設計 ───
     '2454.TW': {'name': '聯發科', 'group': '02. AI 晶片 & 主流 IC 設計'},
     '2379.TW': {'name': '瑞昱', 'group': '02. AI 晶片 & 主流 IC 設計'},
     '3034.TW': {'name': '聯詠', 'group': '02. AI 晶片 & 主流 IC 設計'},
-    '5274.TW': {'name': '信驊', 'group': '03. 伺服器 BMC/遠端控制 IC'},
-    '5269.TW': {'name': '祥碩', 'group': '04. 高速傳传输控制 IC (PCIe 5)'},
-    '4966.TW': {'name': '譜瑞-KY', 'group': '04. 高速傳传输控制 IC (PCIe 5)'},
-    '6415.TW': {'name': '矽力*-KY', 'group': '05. 伺服器電源管理 IC (PMIC)'},
-    '2330.TW': {'name': '台積電', 'group': '06. 晶圓代工 (先進製程)'},
-    '2303.TW': {'name': '聯電', 'group': '07. 晶圓代工 (成熟製程)'},
-    '5347.TW': {'name': '世界', 'group': '07. 晶圓代工 (成熟製程)'},
-    # ─── 先進封裝與半導體設備 ───
-    '3711.TW': {'name': '日月光投控', 'group': '08. 先進封裝封測 (CoWoS)'},
-    '2449.TW': {'name': '京元電子', 'group': '08. 先進封裝封測 (CoWoS)'},
-    '6239.TW': {'name': '力成', 'group': '08. 先進封裝封測 (CoWoS)'},
-    '6147.TWO': {'name': '頎邦', 'group': '09. 面板級先進封裝 (FOPLP)'},
-    '3481.TW': {'name': '群創', 'group': '09. 面板級先進封裝 (FOPLP)'},
-    '3131.TWO': {'name': '弘塑', 'group': '10. 先進封裝濕製程設備'},
-    '3583.TW': {'name': '辛耘', 'group': '10. 先進封裝濕製程設備'},
-    '6187.TWO': {'name': '萬潤', 'group': '11. 先進封裝點膠/自動化設備'},
-    '2467.TW': {'name': '志聖', 'group': '11. 先進封裝點膠/自動化設備'},
-    '5443.TW': {'name': '均豪', 'group': '11. 先進封裝點膠/自動化設備'},
-    '6515.TW': {'name': '穎崴', 'group': '12. 高階晶片測試座 (Socket)'},
-    '6223.TW': {'name': '旺矽', 'group': '13. 晶圓前段探針卡/測試介面'},
-    '6510.TW': {'name': '精測', 'group': '13. 晶圓前段探針卡/測試介面'},
-    '3680.TW': {'name': '家登', 'group': '14. EUV 光罩傳送盒/半導體材料'},
-    '3289.TW': {'name': '宜特', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
-    '3587.TWO': {'name': '閎康', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
-    '6830.TW': {'name': '汎銓', 'group': '15. 半導體驗證/材料分析 (MA/RA)'},
-    # ─── 數據網路與通訊 ───
-    '3081.TWO': {'name': '聯亞', 'group': '16. 矽光子雷射晶片/磊晶 (DFB)'},
-    '6451.TW': {'name': '訊芯-KY', 'group': '17. 矽光子/CPO 模組封裝'},
-    '3363.TWO': {'name': '上詮', 'group': '17. 矽光子/CPO 模組封裝'},
-    '3450.TW': {'name': '聯鈞', 'group': '17. 矽光子/CPO 模組封裝'},
-    '6442.TW': {'name': '光聖', 'group': '18. 高階光收發模組 (800G+)'},
-    '4979.TW': {'name': '華星光', 'group': '18. 高階光收發模組 (800G+)'},
-    '2345.TW': {'name': '智邦', 'group': '19. 高階資料中心交換器'},
-    # ─── 伺服器中游硬體 ───
-    '2317.TW': {'name': '鴻海', 'group': '20. AI 伺服器代工 (ODM整機櫃)'},
-    '2382.TW': {'name': '廣達', 'group': '20. AI 伺服器代工 (ODM整機櫃)'},
-    '6669.TW': {'name': '緯穎', 'group': '20. AI 伺服器代工 (ODM整機櫃)'},
-    '3231.TW': {'name': '緯創', 'group': '21. 伺服器主機板 & GPU加速卡基板'},
-    '2356.TW': {'name': '英業達', 'group': '21. 伺服器主機板 & GPU加速卡基板'},
-    '2376.TW': {'name': '技嘉', 'group': '21. 伺服器主機板 & GPU加速卡基板'},
-    '3017.TW': {'name': '奇鋐', 'group': '22. 核心液冷散熱 (CDU/水冷板)'},
-    '3324.TW': {'name': '雙鴻', 'group': '22. 核心液冷散熱 (CDU/水冷板)'},
-    '8996.TW': {'name': '高力', 'group': '22. 核心液冷散熱 (CDU/水冷板)'},
-    '2421.TW': {'name': '建準', 'group': '23. 高階散熱風扇 & 均熱片'},
-    '3653.TW': {'name': '健策', 'group': '23. 高階散熱風扇 & 均熱片'},
-    '3483.TW': {'name': '力致', 'group': '23. 高階散熱風扇 & 均熱片'},
-    '8210.TW': {'name': '勤誠', 'group': '24. AI 伺服器專用機殼/水冷櫃'},
-    '3013.TW': {'name': '晟銘電', 'group': '24. AI 伺服器專用機殼/水冷櫃'},
-    '6117.TW': {'name': '迎廣', 'group': '24. AI 伺服器專用機殼/水冷櫃'},
-    '2059.TW': {'name': '川湖', 'group': '25. 高階伺服器滑軌/導軌'},
-    '6584.TW': {'name': '南俊國際', 'group': '25. 高階伺服器滑軌/導軌'},
-    '2383.TW': {'name': '台光電', 'group': '26. 高頻高速 CCL 銅箔基板'},
-    '6274.TW': {'name': '台燿', 'group': '26. 高頻高速 CCL 銅箔基板'},
-    '6213.TW': {'name': '聯茂', 'group': '26. 高頻高速 CCL 銅箔基板'},
-    '2368.TW': {'name': '金像電', 'group': '27. 高層數伺服器 PCB 主板'},
-    '4958.TW': {'name': '臻鼎-KY', 'group': '27. 高層數伺服器 PCB 主板'},
-    '3044.TW': {'name': '健鼎', 'group': '27. 高層數伺服器 PCB 主板'},
-    '3037.TW': {'name': '欣興', 'group': '28. ABF 晶片載板'},
-    '8046.TW': {'name': '南電', 'group': '28. ABF 晶片載板'},
-    # ─── 周邊與延伸支援 ───
-    '2408.TW': {'name': '南亞科', 'group': '29. HBM / 高頻寬記憶體顆顆'},
-    '8299.TWO': {'name': '群聯', 'group': '29. HBM / 高頻寬記憶體顆顆'},
-    '3260.TWO': {'name': '威剛', 'group': '29. HBM / 高頻寬記憶體顆顆'},
-    '2308.TW': {'name': '台達電', 'group': '30. 伺服器高階高功率電源 (5.5kW+)'},
-    '2301.TW': {'name': '光寶科', 'group': '30. 伺服器高階高功率電源 (5.5kW+)'},
-    '6197.TW': {'name': '佳必琪', 'group': '31. NVLink 高速線束 & 連接器'},
-    '3533.TW': {'name': '嘉澤', 'group': '31. NVLink 高速線束 & 連接器'},
-    '3665.TW': {'name': '貿聯-KY', 'group': '31. NVLink 高速線束 & 連接器'},
-    '1519.TW': {'name': '華城', 'group': '32. 機房電力大變壓器 (特高壓重電)'},
-    '1503.TW': {'name': '士電', 'group': '32. 機房電力大變壓器 (特高壓重電)'},
-    '1513.TW': {'name': '中興電', 'group': '33. 機房配電盤 & 不斷電系統 (UPS)'},
-    '1514.TW': {'name': '亞力', 'group': '33. 機房配電盤 & 不斷電系統 (UPS)'},
-    '2327.TW': {'name': '國巨', 'group': '34. 被動元件 (高階 MLCC)'},
-    '2492.TW': {'name': '華新科', 'group': '34. 被動元件 (高階 MLCC)'}, 
-    '3675.TWO': {'name': '德微', 'group': '35. 分離元件 & 功率半導體 (MOSFET)'},
-    '2481.TW': {'name': '強茂', 'group': '35. 分離元件 & 功率半導體 (MOSFET)'},
-    '2359.TW': {'name': '所羅門', 'group': '36. AI 智慧視覺 & 具身智慧機器人'},
-    '6188.TW': {'name': '廣明', 'group': '36. AI 智慧視覺 & 具身智慧機器人'},
-    '2353.TW': {'name': '宏碁', 'group': '37. AI PC 品牌與終端'},
-    '2357.TW': {'name': '華碩', 'group': '37. AI PC 品牌與終端'}
+    '2458.TW': {'name': '義隆', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '3545.TW': {'name': '敦泰', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '4961.TW': {'name': '天鈺', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '8016.TW': {'name': '矽創', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '6202.TW': {'name': '盛群', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '5471.TW': {'name': '松翰', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '2401.TW': {'name': '凌陽', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '2436.TW': {'name': '偉詮電', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '5351.TWO': {'name': '鈺創', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '3006.TW': {'name': '晶豪科', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '3122.TW': {'name': '笙泉', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '3228.TW': {'name': '金麗科', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '6243.TW': {'name': '迅杰', 'group': '02. AI 晶片 & 主流 IC 設計'},
+    '4919.TW': {'name': '新唐', 'group': '02. AI 晶片 & 主流 IC 設計'},
+
+    # ─── 03. 伺服器核心 IC & 管理晶片 ───
+    '5274.TW': {'name': '信驊', 'group': '03. 伺服器核心 IC & 管理晶片'},
+    '5269.TW': {'name': '祥碩', 'group': '03. 伺服器核心 IC & 管理晶片'},
+    '4966.TW': {'name': '譜瑞-KY', 'group': '03. 伺服器核心 IC & 管理晶片'},
+    '6415.TW': {'name': '矽力*-KY', 'group': '03. 伺服器核心 IC & 管理晶片'},
+    '6138.TWO': {'name': '茂達', 'group': '03. 伺服器核心 IC & 管理晶片'},
+    '3588.TW': {'name': '通嘉', 'group': '03. 伺服器核心 IC & 管理晶片'},
+
+    # ─── 04. 晶圓代工與先進製程 ───
+    '2330.TW': {'name': '台積電', 'group': '04. 晶圓代工與先進製程'},
+    '2303.TW': {'name': '聯電', 'group': '04. 晶圓代工與先進製程'},
+    '5347.TW': {'name': '世界', 'group': '04. 晶圓代工與先進製程'},
+    '3707.TW': {'name': '漢磊', 'group': '04. 晶圓代工與先進製程'},
+    '3016.TW': {'name': '嘉晶', 'group': '04. 晶圓代工與先進製程'},
+    '6770.TW': {'name': '力基電', 'group': '04. 晶圓代工與先進製程'},
+
+    # ─── 05. 先進封裝與測試 (CoWoS/FOPLP) ───
+    '3711.TW': {'name': '日月光投控', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
+    '2449.TW': {'name': '京元電子', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
+    '6239.TW': {'name': '力成', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
+    '6147.TWO': {'name': '頎邦', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
+    '3481.TW': {'name': '群創', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
+    '2441.TW': {'name': '超豐', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
+    '6257.TW': {'name': '矽格', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
+    '3264.TWO': {'name': '欣銓', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
+    '3265.TWO': {'name': '台星科', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
+    '8110.TW': {'name': '華東', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
+
+    # ─── 06. 半導體設備、濕製程與材料 ───
+    '3131.TWO': {'name': '弘塑', 'group': '06. 半導體設備、濕製程與材料'},
+    '3583.TW': {'name': '辛耘', 'group': '06. 半導體設備、濕製程與材料'},
+    '6187.TWO': {'name': '萬潤', 'group': '06. 半導體設備、濕製程與材料'},
+    '2467.TW': {'name': '志聖', 'group': '06. 半導體設備、濕製程與材料'},
+    '5443.TW': {'name': '均豪', 'group': '06. 半導體設備、濕製程與材料'},
+    '6640.TWO': {'name': '均華', 'group': '06. 半導體設備、濕製程與材料'},
+    '6196.TW': {'name': '帆宣', 'group': '06. 半導體設備、濕製程與材料'},
+    '2404.TW': {'name': '漢唐', 'group': '06. 半導體設備、濕製程與材料'},
+    '6139.TW': {'name': '亞翔', 'group': '06. 半導體設備、濕製程與材料'},
+    '3413.TW': {'name': '京鼎', 'group': '06. 半導體設備、濕製程與材料'},
+    '5536.TWO': {'name': '聖暉*', 'group': '06. 半導體設備、濕製程與材料'},
+    '6613.TWO': {'name': '朋億*', 'group': '06. 半導體設備、濕製程與材料'},
+    '6667.TWO': {'name': '信紘科', 'group': '06. 半導體設備、濕製程與材料'},
+    '6894.TWO': {'name': '科嶠', 'group': '06. 半導體設備、濕製程與材料'},
+    '6207.TWO': {'name': '雷科', 'group': '06. 半導體設備、濕製程與材料'},
+    '1560.TW': {'name': '中砂', 'group': '06. 半導體設備、濕製程與材料'},
+    '1773.TW': {'name': '勝一', 'group': '06. 半導體設備、濕製程與材料'},
+    '4755.TWO': {'name': '三福化', 'group': '06. 半導體設備、濕製程與材料'},
+    '5434.TW': {'name': '崇越', 'group': '06. 半導體設備、濕製程與材料'},
+    '3010.TW': {'name': '華立', 'group': '06. 半導體設備、濕製程與材料'},
+    '1717.TW': {'name': '長興', 'group': '06. 半導體設備、濕製程與材料'},
+    '3680.TW': {'name': '家登', 'group': '06. 半導體設備、濕製程與材料'},
+
+    # ─── 07. 高階晶片測試介面與檢測 (Socket/探針卡) ───
+    '6515.TW': {'name': '穎崴', 'group': '07. 高階晶片測試介面與檢測 (Socket/探針卡)'},
+    '6223.TW': {'name': '旺矽', 'group': '07. 高階晶片測試介面與檢測 (Socket/探針卡)'},
+    '6510.TW': {'name': '精測', 'group': '07. 高階晶片測試介面與檢測 (Socket/探針卡)'},
+    '6683.TWO': {'name': '雍智科技', 'group': '07. 高階晶片測試介面與檢測 (Socket/探針卡)'},
+    '3030.TW': {'name': '德律', 'group': '07. 高階晶片測試介面與檢測 (Socket/探針卡)'},
+    '3289.TW': {'name': '宜特', 'group': '07. 高階晶片測試介面與檢測 (Socket/探針卡)'},
+    '3587.TWO': {'name': '閎康', 'group': '07. 高階晶片測試介面與檢測 (Socket/探針卡)'},
+    '6830.TW': {'name': '汎銓', 'group': '07. 高階晶片測試介面與檢測 (Socket/探針卡)'},
+
+    # ─── 08. 矽光子、CPO 與光收發模組 ───
+    '3081.TWO': {'name': '聯亞', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '6451.TW': {'name': '訊芯-KY', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '3363.TWO': {'name': '上詮', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '3450.TW': {'name': '聯鈞', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '6442.TW': {'name': '光聖', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '4979.TW': {'name': '華星光', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '4908.TWO': {'name': '前鼎', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '4977.TW': {'name': '眾達-KY', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '3163.TWO': {'name': '波若威', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '3234.TWO': {'name': '光環', 'group': '08. 矽光子、CPO 與光收發模組'},
+
+    # ─── 09. 網路通訊、交換器與 5G 設備 ───
+    '2345.TW': {'name': '智邦', 'group': '09. 網路通訊、交換器與 5G 設備'},
+    '3380.TW': {'name': '明泰', 'group': '09. 網路通訊、交換器與 5G 設備'},
+    '6285.TW': {'name': '啟碁', 'group': '09. 網路通訊、交換器與 5G 設備'},
+    '5388.TW': {'name': '中磊', 'group': '09. 網路通訊、交換器與 5G 設備'},
+    '4906.TW': {'name': '正文', 'group': '09. 網路通訊、交換器與 5G 設備'},
+    '2332.TW': {'name': '友訊', 'group': '09. 網路通訊、交換器與 5G 設備'},
+    '3596.TW': {'name': '智易', 'group': '09. 網路通訊、交換器與 5G 設備'},
+    '3558.TW': {'name': '神準', 'group': '09. 網路通訊、交換器與 5G 設備'},
+
+    # ─── 10. AI 伺服器代工組裝 (ODM/EMS/品牌) ───
+    '2317.TW': {'name': '鴻海', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2382.TW': {'name': '廣達', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '6669.TW': {'name': '緯穎', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '3231.TW': {'name': '緯創', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2356.TW': {'name': '英業達', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2376.TW': {'name': '技嘉', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2352.TW': {'name': '佳世達', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2315.TW': {'name': '神達', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2312.TW': {'name': '金寶', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2324.TW': {'name': '仁寶', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '4938.TW': {'name': '和碩', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2377.TW': {'name': '微星', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2353.TW': {'name': '宏碁', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2357.TW': {'name': '華碩', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+
+    # ─── 11. 核心液冷、風扇與核心散熱 ───
+    '3017.TW': {'name': '奇鋐', 'group': '11. 核心液冷、風扇與核心散熱'},
+    '3324.TW': {'name': '雙鴻', 'group': '11. 核心液冷、風扇與核心散熱'},
+    '8996.TW': {'name': '高力', 'group': '11. 核心液冷、風扇與核心散熱'},
+    '2421.TW': {'name': '建準', 'group': '11. 核心液冷、風扇與核心散熱'},
+    '3653.TW': {'name': '健策', 'group': '11. 核心液冷、風扇與核心散熱'},
+    '3483.TW': {'name': '力致', 'group': '11. 核心液冷、風扇與核心散熱'},
+    '3071.TW': {'name': '協禧', 'group': '11. 核心液冷、風扇與核心散熱'},
+    '3338.TW': {'name': '泰碩', 'group': '11. 核心液冷、風扇與核心散熱'},
+    '6275.TW': {'name': '元山', 'group': '11. 核心液冷、風扇與核心散熱'},
+    '4543.TWO': {'name': '萬在', 'group': '11. 核心液冷、風扇與核心散熱'},
+    '6230.TW': {'name': '尼得科超眾', 'group': '11. 核心液冷、風扇與核心散熱'},
+
+    # ─── 12. 伺服器機殼與高階滑軌 ───
+    '8210.TW': {'name': '勤誠', 'group': '12. 伺服器機殼與高階滑軌'},
+    '3013.TW': {'name': '晟銘電', 'group': '12. 伺服器機殼與高階滑軌'},
+    '6117.TW': {'name': '迎廣', 'group': '12. 伺服器機殼與高階滑軌'},
+    '2059.TW': {'name': '川湖', 'group': '12. 伺服器機殼與高階滑軌'},
+    '6584.TW': {'name': '南俊國際', 'group': '12. 伺服器機殼與高階滑軌'},
+    '5222.TW': {'name': '全訊', 'group': '12. 伺服器機殼與高階滑軌'},
+    '2476.TW': {'name': '鉅祥', 'group': '12. 伺服器機殼與高階滑軌'},
+
+    # ─── 13. 高頻高速 CCL、銅箔基板與 PCB 主板 ───
+    '2383.TW': {'name': '台光電', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '6274.TW': {'name': '台燿', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '6213.TW': {'name': '聯茂', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '2368.TW': {'name': '金像電', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '4958.TW': {'name': '臻鼎-KY', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '3044.TW': {'name': '健鼎', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '6269.TW': {'name': '台郡', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '2367.TW': {'name': '燿華', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '2313.TW': {'name': '華通', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '2316.TW': {'name': '楠梓電', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '5469.TW': {'name': '瀚宇博', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '3715.TW': {'name': '定穎投控', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '1815.TW': {'name': '富喬', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '8358.TWO': {'name': '金居', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+
+    # ─── 14. IC 載板 (ABF/BT) ───
+    '3037.TW': {'name': '欣興', 'group': '14. IC 載板 (ABF/BT)'},
+    '8046.TW': {'name': '南電', 'group': '14. IC 載板 (ABF/BT)'},
+    '3189.TW': {'name': '景碩', 'group': '14. IC 載板 (ABF/BT)'},
+
+    # ─── 15. 記憶體顆粒、模組與控制晶片 ───
+    '2408.TW': {'name': '南亞科', 'group': '15. 記憶體顆粒、模組與控制晶片'},
+    '2344.TW': {'name': '華邦電', 'group': '15. 記憶體顆粒、模組與控制晶片'},
+    '2337.TW': {'name': '旺宏', 'group': '15. 記憶體顆粒、模組與控制晶片'},
+    '8299.TWO': {'name': '群聯', 'group': '15. 記憶體顆粒、模組與控制晶片'},
+    '3260.TWO': {'name': '威剛', 'group': '15. 記憶體顆粒、模組與控制晶片'},
+    '2451.TW': {'name': '創見', 'group': '15. 記憶體顆粒、模組與控制晶片'},
+    '8088.TWO': {'name': '品安', 'group': '15. 記憶體顆粒、模組與控制晶片'},
+    '4967.TW': {'name': '十銓', 'group': '15. 記憶體顆粒、模組與控制晶片'},
+    '8271.TW': {'name': '宇瞻', 'group': '15. 記憶體顆粒、模組與控制晶片'},
+
+    # ─── 16. 高階高功率電源供應器與配電 ───
+    '2308.TW': {'name': '台達電', 'group': '16. 高階高功率電源供應器與配電'},
+    '2301.TW': {'name': '光寶科', 'group': '16. 高階高功率電源供應器與配電'},
+    '6282.TW': {'name': '康舒', 'group': '16. 高階高功率電源供應器與配電'},
+    '3015.TW': {'name': '全漢', 'group': '16. 高階高功率電源供應器與配電'},
+    '3032.TW': {'name': '偉訓', 'group': '16. 高階高功率電源供應器與配電'},
+    '2457.TW': {'name': '飛宏', 'group': '16. 高階高功率電源供應器與配電'},
+    '3027.TW': {'name': '盛達', 'group': '16. 高階高功率電源供應器與配電'},
+
+    # ─── 17. NVLink 連接線、連接器與高速線束 ───
+    '6197.TW': {'name': '佳必琪', 'group': '17. NVLink 連接線、連接器與高速線束'},
+    '3533.TW': {'name': '嘉澤', 'group': '17. NVLink 連接線、連接器與高速線束'},
+    '3665.TW': {'name': '貿聯-KY', 'group': '17. NVLink 連接線、連接器與高速線束'},
+    '6205.TW': {'name': '詮欣', 'group': '17. NVLink 連接線、連接器與高速線束'},
+    '3023.TW': {'name': '信邦', 'group': '17. NVLink 連接線、連接器與高速線束'},
+    '3003.TW': {'name': '健和興', 'group': '17. NVLink 連接線、連接器與高速線束'},
+    '3526.TWO': {'name': '凡甲', 'group': '17. NVLink 連接線、連接器與高速線束'},
+    '3710.TW': {'name': '連展投控', 'group': '17. NVLink 連接線、連接器與高速線束'},
+    '6290.TW': {'name': '良維', 'group': '17. NVLink 連接線、連接器與高速線束'},
+    '3605.TW': {'name': '宏致', 'group': '17. NVLink 連接線、連接器與高速線束'},
+
+    # ─── 18. 特高壓重電與不斷電配電系統 ───
+    '1519.TW': {'name': '華城', 'group': '18. 特高壓重電與不斷電配電系統'},
+    '1503.TW': {'name': '士電', 'group': '18. 特高壓重電與不斷電配電系統'},
+    '1513.TW': {'name': '中興電', 'group': '18. 特高壓重電與不斷電配電系統'},
+    '1514.TW': {'name': '亞力', 'group': '18. 特高壓重電與不斷電配電系統'},
+    '1504.TW': {'name': '東元', 'group': '18. 特高壓重電與不斷電配電系統'},
+    '1529.TW': {'name': '樂事綠能', 'group': '18. 特高壓重電與不斷電配電系統'},
+    '6869.TW': {'name': '雲豹能源', 'group': '18. 特高壓重電與不斷電配電系統'},
+    '6806.TW': {'name': '森崴能源', 'group': '18. 特高壓重電與不斷電配電系統'},
+
+    # ─── 19. 被動元件 (MLCC/電感/電阻) ───
+    '2327.TW': {'name': '國巨', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
+    '2492.TW': {'name': '華新科', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
+    '3357.TWO': {'name': '臺慶科', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
+    '3026.TW': {'name': '禾伸堂', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
+    '6173.TWO': {'name': '信昌電', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
+    '2375.TW': {'name': '凱美', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
+    '2472.TW': {'name': '立隆電', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
+    '3090.TW': {'name': '日電貿', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
+    '6284.TWO': {'name': '佳邦', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
+
+    # ─── 20. 二極體、MOSFET 與功率半導體 ───
+    '3675.TWO': {'name': '德微', 'group': '20. 二極體、MOSFET 與功率半導體'},
+    '2481.TW': {'name': '強茂', 'group': '20. 二極體、MOSFET 與功率半導體'},
+    '2425.TW': {'name': '鼎元', 'group': '20. 二極體、MOSFET 與功率半導體'},
+    '2340.TW': {'name': '台亞', 'group': '20. 二極體、MOSFET 與功率半導體'},
+    '5425.TWO': {'name': '台半', 'group': '20. 二極體、MOSFET 與功率半導體'},
+    '8255.TW': {'name': '朋程', 'group': '20. 二極體、MOSFET 與功率半導體'},
+    '6573.TWO': {'name': '虹揚-KY', 'group': '20. 二極體、MOSFET 與功率半導體'},
+
+    # ─── 21. 智慧視覺、機器人與自動化具身智能 ───
+    '2359.TW': {'name': '所羅門', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '6188.TW': {'name': '廣明', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '2464.TW': {'name': '盟立', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '8374.TWO': {'name': '羅昇', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '4562.TW': {'name': '穎漢', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '2365.TW': {'name': '昆盈', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '1536.TW': {'name': '和大', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '1597.TWO': {'name': '直得', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '2049.TW': {'name': '上銀', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '4583.TW': {'name': '台灣精銳', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+
+    # ─── 22. 工業電腦與嵌入式系統 (IPC) ───
+    '2395.TW': {'name': '研華', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
+    '6414.TW': {'name': '樺漢', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
+    '6206.TW': {'name': '飛捷', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
+    '6166.TW': {'name': '凌華', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
+    '8050.TW': {'name': '廣積', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
+    '6160.TWO': {'name': '欣技', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
+    '6245.TWO': {'name': '立端', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
+
+    # ─── 23. 光學鏡頭、面板與車用電子 ───
+    '3406.TW': {'name': '玉晶光', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '3008.TW': {'name': '大立光', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '3362.TWO': {'name': '先進光', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '3019.TW': {'name': '亞光', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '4976.TWO': {'name': '佳凌', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '2409.TW': {'name': '友達', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '6116.TW': {'name': '彩晶', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '2393.TW': {'name': '億光', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '3714.TW': {'name': '富采', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '3552.TWO': {'name': '同致', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '1533.TW': {'name': '車王電', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '2231.TW': {'name': '為升', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '2497.TW': {'name': '怡利電', 'group': '23. 光學鏡頭、面板與車用電子'},
 }
 
 def diagnose_trend_status(p_close, ma20, ma60):
@@ -202,7 +382,7 @@ MOBILE_TABLE_CONFIG = {
 }
 
 if FILTERED_TICKERS:
-    with st.spinner("⚡ 雙軌飆股雷達運作中，正在加載流向與籌碼大數據..."):
+    with st.spinner("⚡ 200+ 雙軌飆股雷達全力運作中，正在加載大數據..."):
         hourly_data, daily_data, all_fetch = fetch_all_data(FILTERED_TICKERS)
     
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
@@ -212,7 +392,7 @@ if FILTERED_TICKERS:
         ])
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
-        # 【價格大一統】從 daily_data 撈取收盤價
+        # 【價格大一統】從 daily_data 撈取最精準收盤價
         LATEST_PRICES = {}
         for ticker in all_fetch:
             try:
@@ -221,7 +401,7 @@ if FILTERED_TICKERS:
                     LATEST_PRICES[ticker] = df_ticker['Close'].iloc[-1]
             except: pass
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 0【今日實戰精選買入名單 - 全面加裝智慧診斷】 ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 0【今日實戰精選買入名單】 ＝＝＝＝＝＝＝＝＝＝
         with tab0:
             st.markdown("### 🦅 台股 AI 雙軌高期望值量化作戰艙")
             rocket_confirmed = []
@@ -265,10 +445,8 @@ if FILTERED_TICKERS:
                             else:
                                 chips_text = f"⏳【籌碼高空洗盤】高檔量縮僅日均量的 {vol_ratio:.1f} 倍，呈現標準『價漲量縮』，顯示籌碼已被主力高度鎖定，正在進行高空窒息量洗盤。"
                             
-                            # 💡 清理籌碼字樣以利多點解說排版
                             chips_clean = chips_text.replace("🔥【籌碼瘋狂掃貨】", "").replace("📈【籌碼溫和控盤】", "").replace("⏳【籌碼高空洗盤】", "")
                             
-                            # 🌱 🟢 潛力黑馬榜進榜與多點解說
                             if (tod_h['MA20'] * 1.002) <= p_close <= (tod_h['MA20'] * 1.015) and tod_h['K'] > tod_h['D']:
                                 rebound_confirmed.append({
                                     "代號": ticker, "名稱": FILTERED_STOCKS_DICT[ticker]['name'], "市價": round(p_close, 2),
@@ -282,7 +460,6 @@ if FILTERED_TICKERS:
                                         f"3. **💰 籌碼量能動向**：今日成交量為 5 日均量的 {vol_ratio:.1f} 倍。{chips_clean}"
                                     )
                                 })
-                            # 🔥 🔴 狂飆悍馬榜進榜與多點解說
                             elif p_close > tod_h['MA20'] * 1.02:
                                 close_to_5ma = abs(p_close - tod_h['MA5']) / tod_h['MA5'] <= 0.01
                                 close_to_10ma = abs(p_close - tod_h['MA10']) / tod_h['MA10'] <= 0.01
@@ -307,8 +484,7 @@ if FILTERED_TICKERS:
             if rocket_confirmed:
                 r_df = pd.DataFrame(rocket_confirmed)
                 st.data_editor(r_df.drop(columns=["核心理由說明"]), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-                for item in rocket_confirmed: 
-                    st.info(f"🚀 **{item['名稱']} ({item['代號']})**\n\n{item['核心理由說明']}")
+                for item in rocket_confirmed: st.info(f"🚀 **{item['名稱']} ({item['代號']})**\n\n{item['核心理由說明']}")
             else: st.info("⏳ 目前強勢飆股都在半空中，沒有任何一檔『貼緊 5M/10MA 且動能折返』。")
                 
             st.markdown("---")
@@ -316,11 +492,10 @@ if FILTERED_TICKERS:
             if rebound_confirmed:
                 reb_df = pd.DataFrame(rebound_confirmed)
                 st.data_editor(reb_df.drop(columns=["核心理由說明"]), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-                for item in rebound_confirmed: 
-                    st.success(f"🌱 **{item['名稱']} ({item['代號']})**\n\n{item['核心理由說明']}")
+                for item in rebound_confirmed: st.success(f"🌱 **{item['名稱']} ({item['代號']})**\n\n{item['核心理由說明']}")
             else: st.info("⏳ 目前盤面上暫時沒有標的剛好『黏在 20MA 防守線身邊』。")
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 1 ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 1 到 Tab 5 內建邏輯 (全面自動同步支援 200+ 大軍) ＝＝＝＝＝＝＝＝＝＝
         with tab1:
             st.subheader("🤖 微族群過濾 - 60分鐘線極短線動能篩選")
             matches = []
@@ -342,7 +517,6 @@ if FILTERED_TICKERS:
                 except: continue
             if matches: st.dataframe(pd.DataFrame(matches).reset_index(drop=True), use_container_width=True)
             
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 2 ＝＝＝＝＝＝＝＝＝＝
         with tab2:
             st.subheader("🔍 日線級別 - 中長線均線防守診斷")
             correction_list = []
@@ -376,7 +550,6 @@ if FILTERED_TICKERS:
                 except: continue
             if rebound_matches: st.dataframe(pd.DataFrame(rebound_matches).reset_index(drop=True), use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 3 ＝＝＝＝＝＝＝＝＝＝
         with tab3:
             st.subheader("💎 個股當前技術面核心數據與買賣區間監控")
             selector_options = {t: f"{t} {FILTERED_STOCKS_DICT[t]['name']}" for t in FILTERED_TICKERS}
@@ -395,7 +568,6 @@ if FILTERED_TICKERS:
                     st.markdown(f"**📌 今日支撐點：** `{daily_support:.2f} 元` | **📈 歷史達標率：** {calculate_historical_win_rate(df_d)}")
             except: st.info("數據整合中...")
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 4 ＝＝＝＝＝＝＝＝＝＝
         with tab4:
             st.subheader("📊 已選 AI 細分供應鏈 - 當日量能與波段趨勢雙料排行")
             volume_list = []
@@ -410,7 +582,6 @@ if FILTERED_TICKERS:
                 except: continue
             if volume_list: st.dataframe(pd.DataFrame(volume_list).sort_values(by="成交量 (張)", ascending=False).head(30).reset_index(drop=True), use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 5 ＝＝＝＝＝＝＝＝＝＝
         with tab5:
             st.subheader("💰 🎯 AI 次族群資金流向與輪動警報")
             group_flows = []
@@ -471,7 +642,7 @@ if FILTERED_TICKERS:
                 st.success(f"📊 已成功解密【{selected_flow_group}】成分股明細：")
                 st.data_editor(output_detail.sort_values(by="金額億", ascending=False).reset_index(drop=True), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙】 ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙 - 內建多空量化原因診斷】 ＝＝＝＝＝＝＝＝＝＝
         with tab6:
             st.subheader("📱 我的持股鋼鐵防守監控艙")
             st.caption("💡 智慧升級：您不需手動選擇均線。系統會自動幫您監控短線 (10MA) 與波段 (20MA) 雙防線，並在轉弱時自動診斷下跌原因！")
