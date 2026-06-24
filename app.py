@@ -148,8 +148,8 @@ FILTERED_TICKERS = list(FILTERED_STOCKS_DICT.keys())
 # 初始化自訂持股庫存
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
-        {"代號": "2356.TW", "買入成本": 70.57, "防守型態": "🛡️ 穩健防守型 (盯60分K 20MA)"},
-        {"代號": "2327.TW", "買入成本": 1010.00, "防守型態": "🚀 狂飆悍馬型 (盯60分K 10MA)"}
+        {"代號": "2356", "買入成本": 70.57, "防守型態": "🛡️ 穩健防守型 (盯60分K 20MA)"},
+        {"代號": "2327", "買入成本": 1010.00, "防守型態": "🚀 狂飆悍馬型 (盯60分K 10MA)"}
     ])
 
 user_portfolio_tickers = [t.strip().upper() for t in st.session_state.my_portfolio["代號"].dropna().tolist() if t.strip()]
@@ -381,7 +381,7 @@ if ALL_FETCH_TICKERS:
                 st.session_state.my_portfolio,
                 num_rows="dynamic",
                 column_config={
-                    "代號": st.column_config.TextColumn("代號 (例: 2327.TW)", placeholder="請輸入台股代號"),
+                    "代號": st.column_config.TextColumn("代號 (例: 2327)", placeholder="請輸入台股代號"),
                     "買入成本": st.column_config.NumberColumn("買入成本", min_value=0.0, format="%.2f"),
                     "防守型態": st.column_config.SelectboxColumn("監控型態", options=["🛡️ 穩健防守型 (盯60分K 20MA)", "🚀 狂飆悍馬型 (盯60分K 10MA)"])
                 },
@@ -456,6 +456,6 @@ if ALL_FETCH_TICKERS:
                         st.markdown("---")
                         st.success("✨ 🦅 【全艙安全綠燈】目前您的所有持股均運行在 60分K 防守線之上，籌碼穩定，讓利潤繼續奔跑！")
                 else:
-                    st.info("💡 提示：請在上方表格輸入股票代號（例如台積電輸入 `2330.TW`）與您的買入成本，系統將立即啟動永久自動防守監控！")
+                    st.info("💡 提示：請在上方表格輸入股票代號（例如台積電輸入 `2330`）與您的買入成本，系統將立即啟動永久自動防守監控！")
             except Exception as e:
                 st.info("⏳ 正在為您的真實持股加載 60分K 即時風控防線...")
