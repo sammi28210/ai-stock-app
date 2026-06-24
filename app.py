@@ -6,19 +6,18 @@ from datetime import datetime, timedelta
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 200+ 大軍終極永久看板")
-st.caption("雲端純淨完全體：200+ 供應鏈大軍全面擴編 × 智慧雙軌全自動防守艙 × 智慧進場與下跌原因全方位量化診斷艙")
+st.caption("雲端純淨完全體：5分鐘高頻飆股動能雷達 × 智慧雙軌全自動防守艙 × 智慧進場與下跌原因全方位量化診斷艙")
 
-# --- ⚙️【持股永久固定區】您的核心持股基本盤（重新整理絕不消失） ---
+# --- ⚙️【持股永久固定區】修改您的真實庫存與成本，重新整理絕不消失！ ---
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
-        {"代號": "2356", "買入成本": 70.57},    # 英業達
-        {"代號": "2308", "買入成本": 2038.64},  # 國巨
-        {"代號": "", "買入成本": 0.0},   # 台達電
-        {"代號": "", "買入成本": 0.0},      # 強茂
-        {"代號": "", "買入成本": 0.0}       # 華新科
+        {"代號": "2356", "買入成本": 70.57},    # 💡 您的英業達真實成本
+        {"代號": "2308", "買入成本": 2038.64},  # 💡 您的國巨真實成本
+        {"代號": "", "買入成本": 0.0},   # 💡 您的台達電真實成本
+        {"代號": "", "買入成本": 0.0},      # 💡 您的強茂成本
+        {"代號": "", "買入成本": 0.0}       # 💡 您的華新科成本
     ])
 
-# 🦅【全新擴編：200+ 檔台股 AI 全產業鏈核心大軍字典】
 AI_STOCKS_DICT = {
     # ─── 01. 矽智財 (IP/ASIC) ───
     '3661.TW': {'name': '世芯-KY', 'group': '01. 矽智財 (IP/ASIC)'},
@@ -260,9 +259,9 @@ AI_STOCKS_DICT = {
     '8374.TWO': {'name': '羅昇', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
     '4562.TW': {'name': '穎漢', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
     '2365.TW': {'name': '昆盈', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
-    '1536.TW': {'name': '和大', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '1536.TW': {'name': '和大', 'group': '21. 智慧視覺、機器人與自動化自動化具身智能'},
     '1597.TWO': {'name': '直得', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
-    '2049.TW': {'name': '上銀', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '2049.TW': {'name': '上銀', 'group': '21. 智慧視覺、機器人與自動化具身智慧'},
     '4583.TW': {'name': '台灣精銳', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
 
     # ─── 22. 工業電腦與嵌入式系統 (IPC) ───
@@ -340,7 +339,8 @@ selected_groups = st.sidebar.multiselect("選擇監控群組：", options=all_av
 FILTERED_STOCKS_DICT = {k: v for k, v in AI_STOCKS_DICT.items() if v['group'] in selected_groups}
 FILTERED_TICKERS = list(FILTERED_STOCKS_DICT.keys())
 
-@st.cache_data(ttl=900)
+# ⚡【智慧秒改】這行已經幫您將暫存時間一勞永逸改成 300 秒（5 分鐘高頻抓取體制）了！
+@st.cache_data(ttl=300)
 def fetch_all_data(tickers):
     if not tickers: return None, None
     try:
@@ -392,7 +392,6 @@ if FILTERED_TICKERS:
         ])
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
-        # 【價格大一統】從 daily_data 撈取最精準收盤價
         LATEST_PRICES = {}
         for ticker in all_fetch:
             try:
@@ -495,7 +494,7 @@ if FILTERED_TICKERS:
                 for item in rebound_confirmed: st.success(f"🌱 **{item['名稱']} ({item['代號']})**\n\n{item['核心理由說明']}")
             else: st.info("⏳ 目前盤面上暫時沒有標的剛好『黏在 20MA 防守線身邊』。")
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 1 到 Tab 5 內建邏輯 (全面自動同步支援 200+ 大軍) ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 1 到 Tab 5 (全面自動同步支援 200+ 大軍) ＝＝＝＝＝＝＝＝＝＝
         with tab1:
             st.subheader("🤖 微族群過濾 - 60分鐘線極短線動能篩選")
             matches = []
@@ -642,10 +641,10 @@ if FILTERED_TICKERS:
                 st.success(f"📊 已成功解密【{selected_flow_group}】成分股明細：")
                 st.data_editor(output_detail.sort_values(by="金額億", ascending=False).reset_index(drop=True), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙 - 內建多空量化原因診斷】 ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙】 ＝＝＝＝＝＝＝＝＝＝
         with tab6:
             st.subheader("📱 我的持股鋼鐵防守監控艙")
-            st.caption("💡 智慧升級：您不需手動選擇均線。系統會自動幫您監控短線 (10MA) 與波段 (20MA) 雙防線，並在轉弱時自動診斷下跌原因！")
+            st.caption("💡 智慧升級：您不需手動選擇均線。系統會自動幫您监控短線 (10MA) 與波段 (20MA) 雙防線，並在轉弱時自動診斷下跌原因！")
             
             edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
             st.session_state.my_portfolio = edited_df
