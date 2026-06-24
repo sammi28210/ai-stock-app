@@ -3,7 +3,6 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from FinMind.data import DataLoader
 from datetime import datetime, timedelta
 
 st.set_page_config(page_title="台股AI全鏈監控系統", layout="wide")
@@ -117,27 +116,33 @@ FILTERED_TICKERS = list(FILTERED_STOCKS_DICT.keys())
 def fetch_all_data(tickers):
     if not tickers: return None, None
     try:
-        # 🛡️ 終極防禦：單次批量打包下載，並強制關閉 threads，徹底免疫機房保安系統的弱引用死鎖！
-        hourly = yf.download(tickers, period="2mo", interval="1h", group_by='ticker', progress=False, threads=False)
-        daily = yf.download(tickers, period="8mo", interval="1d", group_by='ticker', progress=False, threads=False)
+        import requests
+        # 🛡️ 注入純淨防禦機制：自建 Session 與 User-Agent，徹底斷絕 pyrate-limiter 碰觸 AnyIO 的機會
+        clean_session = requests.Session()
+        clean_session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        })
+        hourly = yf.download(tickers, period="2mo", interval="1h", group_by='ticker', progress=False, threads=False, session=clean_session)
+        daily = yf.download(tickers, period="8mo", interval="1d", group_by='ticker', progress=False, threads=False, session=clean_session)
         return hourly, daily
     except Exception as e:
-        st.error(f"數據加載同步中，請稍候重整：{e}")
+        st.error(f"數據同步中：{e}")
         return None, None
 
 if FILTERED_TICKERS:
     hourly_data, daily_data = fetch_all_data(FILTERED_TICKERS)
     
-    if hourly_data is not None and daily_data is not None:
+    if hourly_data is not None and daily_data is not None and not hourly_data.empty:
         tab1, tab2, tab3, tab4 = st.tabs(["🔥 60分線 666 戰法", "🛡️ 均線防守 & 低檔反彈選股", "💎 全能智慧 K 線查閱畫布", "📊 AI大軍量能與趨勢排行"])
         
-        # ─── 分頁一 ───
+        is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
+        
         with tab1:
             st.subheader("🤖 微族群過濾 - 60分鐘線極短線動能篩選")
             matches = []
             for ticker in FILTERED_TICKERS:
                 try:
-                    df = hourly_data[ticker].dropna() if len(FILTERED_TICKERS) > 1 else hourly_data.dropna()
+                    df = hourly_data[ticker].dropna() if is_multi else hourly_data.dropna()
                     if len(df) < 65: continue
                     df['MA60'] = df['Close'].rolling(window=60).mean()
                     low_60, high_60 = df['Low'].rolling(window=60).min(), df['High'].rolling(window=60).max()
@@ -146,7 +151,7 @@ if FILTERED_TICKERS:
                     df['D'] = df['K'].ewm(alpha=1/3, adjust=False).mean()
                     today = df.iloc[-1]
                     if today['Close'] > today['MA60'] and today['K'] > today['D']:
-                        df_d = daily_data[ticker].dropna() if len(FILTERED_TICKERS) > 1 else daily_data.dropna()
+                        df_d = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
                         df_d['MA20'] = df_d['Close'].rolling(window=20).mean()
                         df_d['MA60'] = df_d['Close'].rolling(window=60).mean()
                         p_tod = df_d.iloc[-1]
@@ -158,7 +163,7 @@ if FILTERED_TICKERS:
                 st.dataframe(pd.DataFrame(matches).reset_index(drop=True), use_container_width=True)
                 st.markdown("---")
                 selected_t1 = st.selectbox("📊 點擊個股，下方立刻同步看 60分K 戰法線型圖：", options=[m["代號"] for m in matches], format_func=lambda x: f"{x} {AI_STOCKS_DICT[x]['name']}", key="t1_select")
-                df_t1 = hourly_data[selected_t1].dropna() if len(FILTERED_TICKERS) > 1 else hourly_data.dropna()
+                df_t1 = hourly_data[selected_t1].dropna() if is_multi else hourly_data.dropna()
                 df_t1['MA60'] = df_t1['Close'].rolling(window=60).mean()
                 l_60, h_60 = df_t1['Low'].rolling(window=60).min(), df_t1['High'].rolling(window=60).max()
                 df_t1['RSV'] = (((df_t1['Close'] - l_60) / (h_60 - l_60)) * 100).fillna(50)
@@ -174,19 +179,18 @@ if FILTERED_TICKERS:
                 st.plotly_chart(fig_t1, use_container_width=True)
             else: st.info("目前範圍內無標的符合條件。")
             
-        # ─── 分頁二 ───
         with tab2:
             st.subheader("🔍 日線級別 - 中長線均線防守診斷")
             correction_list = []
             for ticker in FILTERED_TICKERS:
                 try:
-                    df_d = daily_data[ticker].dropna() if len(FILTERED_TICKERS) > 1 else daily_data.dropna()
+                    df_d = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
                     df_d['MA20'] = df_d['Close'].rolling(window=20).mean()
                     df_d['MA60'] = df_d['Close'].rolling(window=60).mean()
                     p_today = df_d.iloc[-1]
                     if p_today['Close'] < p_today['MA20'] or p_today['Close'] < p_today['MA60']:
                         diagnose = diagnose_trend_status(p_today['Close'], p_today['MA20'], p_today['MA60'])
-                        correction_list.append({"代號": ticker, "股票名稱": AI_STOCKS_DICT[ticker]['name'], "AI細分族群": AI_STOCKS_DICT[ticker]['group'], "今日收盤": round(p_today['Close'], 2), "趨勢診斷": diagnose})
+                        correction_list.append({"代號": ticker, "股票名稱": FILTERED_STOCKS_DICT[ticker]['name'], "AI細分族群": FILTERED_STOCKS_DICT[ticker]['group'], "今日收盤": round(p_today['Close'], 2), "趨勢診斷": diagnose})
                 except: continue
             if correction_list: 
                 st.warning(f"⚠️ 警示：有 {len(correction_list)} 檔標的回檔修正中：")
@@ -197,7 +201,7 @@ if FILTERED_TICKERS:
             rebound_matches = []
             for ticker in FILTERED_TICKERS:
                 try:
-                    df_r = daily_data[ticker].dropna() if len(FILTERED_TICKERS) > 1 else daily_data.dropna()
+                    df_r = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
                     df_r['MA20'] = df_r['Close'].rolling(window=20).mean(); df_r['MA60'] = df_r['Close'].rolling(window=60).mean()
                     low_9, high_9 = df_r['Low'].rolling(window=9).min(), df_r['High'].rolling(window=9).max()
                     df_r['RSV'] = (((df_r['Close'] - low_9) / (high_9 - low_9)) * 100).fillna(50)
@@ -216,7 +220,7 @@ if FILTERED_TICKERS:
             if all_t2_targets:
                 st.markdown("---")
                 selected_t2 = st.selectbox("📊 選擇上方標的，直接看日K線與日線KD打底圖：", options=all_t2_targets, format_func=lambda x: f"{x} {AI_STOCKS_DICT[x]['name']}", key="t2_select")
-                df_t2 = daily_data[selected_t2].dropna() if len(FILTERED_TICKERS) > 1 else daily_data.dropna()
+                df_t2 = daily_data[selected_t2].dropna() if is_multi else daily_data.dropna()
                 df_t2['MA20'] = df_t2['Close'].rolling(window=20).mean()
                 df_t2['MA60'] = df_t2['Close'].rolling(window=60).mean()
                 l_9, h_9 = df_t2['Low'].rolling(window=9).min(), df_t2['High'].rolling(window=9).max()
@@ -233,16 +237,14 @@ if FILTERED_TICKERS:
                 fig_t2.update_layout(xaxis_rangeslider_visible=False, height=500, margin=dict(l=10, r=10, t=10, b=10))
                 st.plotly_chart(fig_t2, use_container_width=True)
 
-        # ─── 分頁三 ───
         with tab3:
             st.subheader("💎 AI 個股波段趨勢 & 雙規格智慧 K 線看板")
             selector_options = {t: f"{t} {FILTERED_STOCKS_DICT[t]['name']} ({FILTERED_STOCKS_DICT[t]['group']})" for t in FILTERED_TICKERS}
             selected_ticker = st.selectbox("請選擇你想查看 K 線圖的 AI 股：", options=FILTERED_TICKERS, format_func=lambda x: selector_options[x])
-            stock_id = selected_ticker.split('.')[0]
-            chart_type = st.radio("請選擇 K 線圖查閱規格：", ["📈 60分鐘線 K線圖", "📊 日線級別 K線圖 × 三大法人籌碼"])
+            chart_type = st.radio("請選擇 K 線圖查閱規格：", ["📈 60分鐘線 K線圖", "📊 日線級別 K線圖 × 量能看板"])
             
             if "60分鐘線" in chart_type:
-                df_selected_h = hourly_data[selected_ticker].dropna() if len(FILTERED_TICKERS) > 1 else hourly_data.dropna()
+                df_selected_h = hourly_data[selected_ticker].dropna() if is_multi else hourly_data.dropna()
                 if len(df_selected_h) >= 65:
                     df_selected_h['MA60'] = df_selected_h['Close'].rolling(window=60).mean()
                     low_60, high_60 = df_selected_h['Low'].rolling(window=60).min(), df_selected_h['High'].rolling(window=60).max()
@@ -258,41 +260,26 @@ if FILTERED_TICKERS:
                     fig_h.update_layout(xaxis_rangeslider_visible=False, height=600, margin=dict(l=10, r=10, t=10, b=10))
                     st.plotly_chart(fig_h, use_container_width=True)
             else:
-                df_selected_d = daily_data[selected_ticker].dropna() if len(FILTERED_TICKERS) > 1 else daily_data.dropna()
+                df_selected_d = daily_data[selected_ticker].dropna() if is_multi else daily_data.dropna()
                 df_selected_d['MA20'] = df_selected_d['Close'].rolling(window=20).mean()
                 df_selected_d['MA60'] = df_selected_d['Close'].rolling(window=60).mean()
-                df_selected_d = df_selected_d.tail(40)
-                @st.cache_data(ttl=1800)
-                def fetch_chip_data(sid):
-                    fm_api = DataLoader()
-                    start_date = (datetime.now() - timedelta(days=60)).strftime("%Y-%m-%d")
-                    return fm_api.taiwan_stock_institutional_investors(stock_id=sid, start_date=start_date)
-                try:
-                    chip_df = fetch_chip_data(stock_id)
-                    if not chip_df.empty:
-                        chip_df['Net_Shares'] = (chip_df['buy'] - chip_df['sell']) / 1000
-                        pivot_df = chip_df.pivot_table(index='date', columns='name', values='Net_Shares', aggfunc='sum').fillna(0)
-                        pivot_df = pivot_df.rename(columns={'Foreign_Investor': '外資', 'Investment_Trust': '投信', 'Dealer_Self': '自營商'})
-                        pivot_df.index = pd.to_datetime(pivot_df.index)
-                        merged_df = df_selected_d.join(pivot_df, how='inner')
-                        fig_canvas = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08, row_width=[0.35, 0.65])
-                        fig_canvas.add_trace(go.Candlestick(x=merged_df.index, open=merged_df['Open'], high=merged_df['High'], low=merged_df['Low'], close=merged_df['Close'], name="日K線"), row=1, col=1)
-                        fig_canvas.add_trace(go.Scatter(x=merged_df.index, y=merged_df['MA20'], name="20MA", line=dict(color='orange', width=2)), row=1, col=1)
-                        fig_canvas.add_trace(go.Scatter(x=merged_df.index, y=merged_df['MA60'], name="60MA", line=dict(color='limegreen', width=2.5)), row=1, col=1)
-                        color_map = {'外資': '#1f77b4', '投信': '#ff7f0e', '自營商': '#2ca02c'}
-                        for investor in ['外資', '投信', '自營商']:
-                            if investor in merged_df.columns: fig_canvas.add_trace(go.Bar(x=merged_df.index, y=merged_df[investor], name=investor, marker_color=color_map[investor]), row=2, col=1)
-                        fig_canvas.update_layout(xaxis_rangeslider_visible=False, barmode='group', height=600, margin=dict(l=10, r=10, t=10, b=10), hovermode="x unified")
-                        st.plotly_chart(fig_canvas, use_container_width=True)
-                except Exception as e: st.error(f"籌碼加載中... {e}")
+                df_selected_d = df_selected_d.tail(50)
+                
+                fig_canvas = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08, row_width=[0.3, 0.7])
+                fig_canvas.add_trace(go.Candlestick(x=df_selected_d.index, open=df_selected_d['Open'], high=df_selected_d['High'], low=df_selected_d['Low'], close=df_selected_d['Close'], name="日K線"), row=1, col=1)
+                fig_canvas.add_trace(go.Scatter(x=df_selected_d.index, y=df_selected_d['MA20'], name="20MA", line=dict(color='orange', width=2)), row=1, col=1)
+                fig_canvas.add_trace(go.Scatter(x=df_selected_d.index, y=df_selected_d['MA60'], name="60MA", line=dict(color='limegreen', width=2.5)), row=1, col=1)
+                
+                fig_canvas.add_trace(go.Bar(x=df_selected_d.index, y=df_selected_d['Volume'], name="成交量", marker_color='#1f77b4'), row=2, col=1)
+                fig_canvas.update_layout(xaxis_rangeslider_visible=False, height=600, margin=dict(l=10, r=10, t=10, b=10), hovermode="x unified")
+                st.plotly_chart(fig_canvas, use_container_width=True)
 
-        # ─── 分頁四 ───
         with tab4:
             st.subheader("📊 已選 AI 細分供應鏈 - 當日量能與波段趨勢雙料排行 (Top 30)")
             volume_list = []
             for ticker in FILTERED_TICKERS:
                 try:
-                    df_v = daily_data[ticker].dropna() if len(FILTERED_TICKERS) > 1 else daily_data.dropna()
+                    df_v = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
                     if df_v.empty: continue
                     df_v['MA20'] = df_v['Close'].rolling(window=20).mean(); df_v['MA60'] = df_v['Close'].rolling(window=60).mean()
                     today_v, yesterday_v = df_v.iloc[-1], df_v.iloc[-2]
@@ -308,10 +295,10 @@ if FILTERED_TICKERS:
                 
                 st.markdown("---")
                 selected_t4 = st.selectbox("📊 選擇排行榜中的任意股票，直接看圖：", options=top_30_df["代號"].tolist(), format_func=lambda x: f"{x} {AI_STOCKS_DICT[x]['name']}", key="t4_select")
-                t4_type = st.radio("選擇看圖規格：", ["📈 查看 60分鐘線 K線", "📊 查看 日線 × 法人籌碼圖"], key="t4_radio")
+                t4_type = st.radio("選擇看圖規格：", ["📈 查看 60分鐘線 K線", "📊 查看 日線 × 量能圖"], key="t4_radio")
                 
                 if "60分鐘" in t4_type:
-                    df_t4_h = hourly_data[selected_t4].dropna() if len(FILTERED_TICKERS) > 1 else hourly_data.dropna()
+                    df_t4_h = hourly_data[selected_t4].dropna() if is_multi else hourly_data.dropna()
                     df_t4_h['MA60'] = df_t4_h['Close'].rolling(window=60).mean()
                     l_60, h_60 = df_t4_h['Low'].rolling(window=60).min(), df_t4_h['High'].rolling(window=60).max()
                     df_t4_h['RSV'] = (((df_t4_h['Close'] - l_60) / (h_60 - l_60)) * 100).fillna(50)
@@ -326,24 +313,15 @@ if FILTERED_TICKERS:
                     fig_t4h.update_layout(xaxis_rangeslider_visible=False, height=500, margin=dict(l=10, r=10, t=10, b=10))
                     st.plotly_chart(fig_t4h, use_container_width=True)
                 else:
-                    df_t4_d = daily_data[selected_t4].dropna() if len(FILTERED_TICKERS) > 1 else daily_data.dropna()
+                    df_t4_d = daily_data[selected_t4].dropna() if is_multi else daily_data.dropna()
                     df_t4_d['MA20'] = df_t4_d['Close'].rolling(window=20).mean()
                     df_t4_d['MA60'] = df_t4_d['Close'].rolling(window=60).mean()
-                    df_p_t4d = df_t4_d.tail(40)
-                    try:
-                        fm_api = DataLoader()
-                        c_df = fm_api.taiwan_stock_institutional_investors(stock_id=selected_t4.split('.')[0], start_date=(datetime.now() - timedelta(days=60)).strftime("%Y-%m-%d"))
-                        if not c_df.empty:
-                            c_df['Net_Shares'] = (c_df['buy'] - c_df['sell']) / 1000
-                            p_df = c_df.pivot_table(index='date', columns='name', values='Net_Shares', aggfunc='sum').fillna(0).rename(columns={'Foreign_Investor':'外資','Investment_Trust':'投信','Dealer_Self':'自營商'})
-                            p_df.index = pd.to_datetime(p_df.index)
-                            m_df = df_p_t4d.join(p_df, how='inner')
-                            fig_t4d = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08, row_width=[0.35, 0.65])
-                            fig_t4d.add_trace(go.Candlestick(x=m_df.index, open=m_df['Open'], high=m_df['High'], low=m_df['Low'], close=m_df['Close'], name="日K"), row=1, col=1)
-                            fig_t4d.add_trace(go.Scatter(x=m_df.index, y=m_df['MA20'], name="20MA", line=dict(color='orange', width=2)), row=1, col=1)
-                            fig_t4d.add_trace(go.Scatter(x=m_df.index, y=m_df['MA60'], name="60MA", line=dict(color='limegreen', width=2.5)), row=1, col=1)
-                            for inv, clr in [('外資','#1f77b4'),('投信','#ff7f0e'),('自營商','#2ca02c')]:
-                                if inv in m_df.columns: fig_t4d.add_trace(go.Bar(x=m_df.index, y=m_df[inv], name=inv, marker_color=clr), row=2, col=1)
-                            fig_t4d.update_layout(xaxis_rangeslider_visible=False, barmode='group', height=500, margin=dict(l=10, r=10, t=10, b=10))
-                            st.plotly_chart(fig_t4d, use_container_width=True)
-                    except: st.error("籌碼維護中。")
+                    df_p_t4d = df_t4_d.tail(50)
+                    
+                    fig_t4d = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08, row_width=[0.3, 0.7])
+                    fig_t4d.add_trace(go.Candlestick(x=df_p_t4d.index, open=df_p_t4d['Open'], high=df_p_t4d['High'], low=df_p_t4d['Low'], close=df_p_t4d['Close'], name="日K"), row=1, col=1)
+                    fig_t4d.add_trace(go.Scatter(x=df_p_t4d.index, y=df_p_t4d['MA20'], name="20MA", line=dict(color='orange', width=2)), row=1, col=1)
+                    fig_t4d.add_trace(go.Scatter(x=df_p_t4d.index, y=df_p_t4d['MA60'], name="60MA", line=dict(color='limegreen', width=2.5)), row=1, col=1)
+                    fig_t4d.add_trace(go.Bar(x=df_p_t4d.index, y=df_p_t4d['Volume'], name="成交量", marker_color='#1f77b4'), row=2, col=1)
+                    fig_t4d.update_layout(xaxis_rangeslider_visible=False, height=500, margin=dict(l=10, r=10, t=10, b=10))
+                    st.plotly_chart(fig_t4d, use_container_width=True)
