@@ -116,8 +116,20 @@ FILTERED_TICKERS = list(FILTERED_STOCKS_DICT.keys())
 @st.cache_data(ttl=900)
 def fetch_all_data(tickers):
     if not tickers: return None, None
-    hourly = yf.download(tickers, period="2mo", interval="1h", group_by='ticker', progress=False, threads=False)
-    daily = yf.download(tickers, period="8mo", interval="1d", group_by='ticker', progress=False, threads=False)
+    hourly_dict = {}
+    daily_dict = {}
+    
+    # 終極解決方案：改用單股循序安全抓取並合併，完全杜絕任何機房執行緒相容問題
+    progress_bar = st.progress(0, text="正在向 Yahoo Finance 安全下載 100+ 檔 AI 大軍即時數據...")
+    for i, ticker in enumerate(tickers):
+        hourly_dict[ticker] = yf.download(ticker, period="2mo", interval="1h", progress=False)
+        daily_dict[ticker] = yf.download(ticker, period="8mo", interval="1d", progress=False)
+        progress_bar.progress((i + 1) / len(tickers), text=f"⚡ 雲端安全同步中：{ticker} ({i+1}/{len(tickers)})")
+    progress_bar.empty()
+    
+    # 轉換成原本看盤系統所需要的多重索引格式
+    hourly = pd.concat(hourly_dict, axis=1)
+    daily = pd.concat(daily_dict, axis=1)
     return hourly, daily
 
 if FILTERED_TICKERS:
@@ -290,7 +302,7 @@ if FILTERED_TICKERS:
             except: continue
             
         if volume_list: 
-            v_df = pd.DataFrame(volume_list).sort_values(by="成交張數 (張)", INDIRECT=False).reset_index(drop=True)
+            v_df = pd.DataFrame(volume_list).sort_values(by="成交張數 (張)", ascending=False).reset_index(drop=True)
             v_df.index += 1
             top_30_df = v_df.head(30)
             st.dataframe(top_30_df, use_container_width=True)
