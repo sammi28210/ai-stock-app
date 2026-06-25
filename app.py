@@ -648,6 +648,6 @@ if FILTERED_TICKERS:
                         if price_h >= ma10_h: st.success(f"🟢 {res_base} ➔ **強勢續抱** (站穩 10MA 與 20MA 之上，多頭格局強勁){reason_text}")
                         elif ma20_h <= price_h < ma10_h: st.warning(f"⚠️ {res_base} ➔ **短線轉弱** (已破 10MA！移動停利機制準備，看 20MA 最後防守){reason_text}")
                         else: st.error(f"🚨 {res_base} ➔ **執行紀律！** (已無情跌破 60分K 20MA 防守點，請依波段紀律停利/停損出場！){reason_text}")
-                    exceptException as e: st.warning(f"⚠️ {tk} 數據同步中...")
+                        except Exception as e: st.warning(f"⚠️ {tk} 數據同步中...")
             else:
                 st.info("💡 正在等待雷達數據初始化同步...")
