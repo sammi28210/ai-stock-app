@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit st
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
@@ -243,7 +243,7 @@ AI_STOCKS_DICT = {
     '3090.TW': {'name': '日電貿', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
     '6284.TWO': {'name': '佳邦', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
 
-    # ─── 20. 二極體、MOSFET 與功率半導體（🔥 已為您深度全面擴編補齊） ───
+    # ─── 20. 二極體、MOSFET 與功率半導體 ───
     '3675.TWO': {'name': '德微', 'group': '20. 二極體、MOSFET 與功率半導體'},
     '2481.TW': {'name': '強茂', 'group': '20. 二極體、MOSFET 與功率半導體'},
     '2425.TW': {'name': '鼎元', 'group': '20. 二極體、MOSFET 與功率半導體'},
@@ -483,7 +483,7 @@ if FILTERED_TICKERS:
                                                 f"### 🔵 量化訊號：【確認符合飆股進場條件】\n\n"
                                                 f"**🔍 AI 智慧買入核心數據診斷（日K強勢結構）：**\n"
                                                 f"1. **🚀 強勢主升位階**：標準日K級別主升段狂飆悍馬走勢！波段主力極強，股價強行沿著 5MA/10MA 階梯式向上推進。目前精準拉回貼緊【日K 10MA換手點】，距離貼身防守線僅 {dist_to_stop:.1f}%，適合明早開盤直接跟進，踏空風險極低。\n"
-                                                f"2. **🔥 動能強勢續航**：日K的 MACD 紅柱結構健康且持續放大，多方推推力道未見疲態，屬強者恆強的高速換手續航買點。\n"
+                                                f"2. **🔥 動能強勢續航**：日K的 MACD 紅柱結構健康且持續放大，多方推推力道未見疲態，屬於強者恆強的高速換手續航買點。\n"
                                                 f"3. **💰 籌碼量能動向**：今日成交量為 5 日均量的 {vol_ratio:.1f} 倍。{chips_clean}"
                                             )
                                         })
@@ -540,7 +540,7 @@ if FILTERED_TICKERS:
                 except: continue
             if correction_list: st.dataframe(pd.DataFrame(correction_list).reset_index(drop=True), use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 3【個股日K智庫全景診斷艙】（⚡全面解鎖解密完美註解） ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 3【個股日K智庫全景診斷艙】 ＝＝＝＝＝＝＝＝＝＝
         with tab3:
             st.subheader("💎 個股日K量化數據智慧解密與完美解說智庫艙")
             selector_options = {t: f"{t} {FILTERED_STOCKS_DICT[t]['name']}" for t in FILTERED_TICKERS}
@@ -601,7 +601,6 @@ if FILTERED_TICKERS:
                         )
                         st.markdown("---")
                         
-                        # 🏆 這就是你指定的「圖一完美註解」格式！全自動動態派生！
                         if tod_d['K'] > tod_d['D'] and tod_d['HIST'] > yes_d['HIST']:
                             box_type = st.success
                             title_icon = "🟢【AI 量化智庫判定：該個股目前結構安全，動能多頭折返點火】"
@@ -634,24 +633,34 @@ if FILTERED_TICKERS:
                 except: continue
             if volume_list: st.dataframe(pd.DataFrame(volume_list).sort_values(by="成交量 (張)", ascending=False).head(30).reset_index(drop=True), use_container_width=True)
 
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 5【次族群資金大流向】（⚡已成功將「🔮 個股診斷」補回明細表最右側） ＝＝＝＝＝＝＝＝＝＝
         with tab5:
             st.subheader("💰 🎯 AI 次族群日線級別資金大流向與輪動警報")
             group_flows = []
             for ticker in FILTERED_TICKERS:
                 try:
                     df_ticker = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
-                    if len(df_ticker) < 6: continue
+                    if len(df_ticker) < 65: continue  # 鎖定長線季線足夠長度
                     df_v = df_ticker.copy()
+                    df_v['MA20'] = df_v['Close'].rolling(window=20).mean()
+                    df_v['MA60'] = df_v['Close'].rolling(window=60).mean()
                     df_v['Value'] = df_v['Close'] * df_v['Volume']
                     df_v['Value_MA5'] = df_v['Value'].rolling(window=5).mean(); df_v['Vol_MA5'] = df_v['Volume'].rolling(window=5).mean()
+                    
                     today_v = df_v.iloc[-1]
                     yesterday_close = YESTERDAY_CLOSES_DAILY.get(ticker, today_v['Close'])
                     current_p = LATEST_PRICES_DAILY.get(ticker, today_v['Close']) 
                     chg_pct = ((current_p - yesterday_close) / yesterday_close * 100)
+                    
+                    # ⚡ 核心修復：盤後大數據為每個個股獨立注入日線均線波段大診斷狀態
+                    stock_trend = diagnose_trend_status(current_p, today_v['MA20'], today_v['MA60'])
+                    
                     group_flows.append({
                         "ticker": ticker, "name": AI_STOCKS_DICT[ticker]['name'], "group": FILTERED_STOCKS_DICT[ticker]['group'],
                         "value_today": today_v['Value'], "value_ma5": today_v['Value_MA5'], 
-                        "p_change": chg_pct, "price": current_p, "volume": today_v['Volume'], "stock_vol_ratio": today_v['Volume'] / today_v['Vol_MA5'] if today_v['Vol_MA5'] > 0 else 1.0
+                        "p_change": chg_pct, "price": current_p, "volume": today_v['Volume'], 
+                        "stock_vol_ratio": today_v['Volume'] / today_v['Vol_MA5'] if today_v['Vol_MA5'] > 0 else 1.0,
+                        "stock_trend": stock_trend
                     })
                 except: continue
                 
@@ -690,20 +699,23 @@ if FILTERED_TICKERS:
                 flow_display["現價"] = round(flow_display["price"], 2)
                 flow_display["漲跌幅"] = flow_display["p_change"].apply(lambda x: f"{x:+.2f}%")
                 flow_display["個股量增"] = round(flow_display["stock_vol_ratio"], 2)
+                flow_display["🔮 個股診斷"] = flow_display["stock_trend"] # 🔒 完美補回大數據診斷標籤
                 
                 flow_display = flow_display.sort_values(by=["group", "value_today"], ascending=[True, False])
                 
+                # 📱 專屬手機端排版：優化順序，將名稱、現價、漲跌幅、診斷一覽無遺
                 detail_table_config = {
                     "族群": st.column_config.TextColumn("族群", width="small"),
                     "代號": st.column_config.TextColumn("代號", width="small"),
                     "名稱": st.column_config.TextColumn("名稱", width="small"),
                     "現價": st.column_config.NumberColumn("現價", width="small"),
                     "漲跌幅": st.column_config.TextColumn("漲跌幅", width="small"),
+                    "🔮 個股診斷": st.column_config.TextColumn("🔮 個股診斷", width="medium"),
                     "個股量增": st.column_config.NumberColumn("量增", width="small", format="%.2f x")
                 }
                 
                 st.data_editor(
-                    flow_display[["族群", "代號", "名稱", "現價", "漲跌幅", "個股量增"]],
+                    flow_display[["族群", "代號", "名稱", "現價", "漲跌幅", "🔮 個股診斷", "個股量增"]],
                     column_config=detail_table_config, hide_index=True, disabled=True, use_container_width=True
                 )
 
