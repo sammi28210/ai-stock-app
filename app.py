@@ -12,7 +12,7 @@ st.caption("🎯 戰略完全體：分頁0~5採用【日K波段選股架構】×
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
         {"代號": "2356", "買入成本": 70.57},    # 💡 您的英業達真實成本
-        {"代號": "2308", "買入成本": 2038.64},  # 💡 您的國巨真實成本
+        {"代號": "2308", "買入成本": 2032.64},  # 💡 您的國巨真實成本
         {"代號": "", "買入成本": 0.0},   # 💡 您的台達電真實成本
         {"代號": "", "買入成本": 0.0},      # 💡 您的強茂成本
         {"代號": "", "買入成本": 0.0}       # 💡 您的華新科成本
@@ -387,7 +387,7 @@ if FILTERED_TICKERS:
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
         tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
             "🚀 今日實戰精選買入名單", "🔥 日K核心動能大篩選", "🛡️ 日線級別均線防守選股", 
-            "💎 個股日K技術面狀態診斷", "📊 AI大軍日K成交量排行", "💰 族群日K資金輪動監控", "📱 持股防守艙"
+            "💎 個股日K技術面狀態診斷", "📊 AI大軍日K成交量排行", "💰 族群日K資金輪動监控", "📱 持股防守艙"
         ])
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
@@ -571,6 +571,7 @@ if FILTERED_TICKERS:
                 except: continue
             if volume_list: st.dataframe(pd.DataFrame(volume_list).sort_values(by="成交量 (張)", ascending=False).head(30).reset_index(drop=True), use_container_width=True)
 
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 5【次族群資金大流向】（📱已為手機窄螢幕進行極致優化） ＝＝＝＝＝＝＝＝＝＝
         with tab5:
             st.subheader("💰 🎯 AI 次族群日線級別資金大流向與輪動警報")
             group_flows = []
@@ -606,7 +607,21 @@ if FILTERED_TICKERS:
                     else: return "🌀 橫盤整理"
                 agg_df["🔮 主力資金流向診斷"] = agg_df.apply(judge_flow_status, axis=1)
                 
-                st.data_editor(agg_df[["group", "今日總成交額 (億元)", "量能放大倍數 (較5日)", "🔮 主力資金流向診斷"]].sort_values(by="今日總成交額 (億元)", ascending=False).reset_index(drop=True), use_container_width=True)
+                # 🚀 專屬手機端窄螢幕配置：刪除無用 Index、鎖定高精簡欄位寬度、防止橫向出鏡
+                group_table_config = {
+                    "group": st.column_config.TextColumn("🔬 AI 次族群名稱", width="medium"),
+                    "今日總成交額 (億元)": st.column_config.NumberColumn("金額(億)", width="small", format="%.1f 億"),
+                    "量能放大倍數 (較5日)": st.column_config.NumberColumn("量增倍數", width="small", format="%.2f x"),
+                    "🔮 主力資金流向診斷": st.column_config.TextColumn("🎯 資金診斷", width="small")
+                }
+                
+                st.data_editor(
+                    agg_df[["group", "今日總成交額 (億元)", "量能放大倍數 (較5日)", "🔮 主力資金流向診斷"]].sort_values(by="今日總成交額 (億元)", ascending=False),
+                    column_config=group_table_config,
+                    hide_index=True,        # 🔒 強制隱藏左側多餘數字，把空間還給手機！
+                    disabled=True,
+                    use_container_width=True
+                )
 
         # ＝＝＝＝＝＝＝＝＝＝ Tab 6【持股防守監控艙 - 堅守 60分K 極速停利體制】 ＝＝＝＝＝＝＝＝＝＝
         with tab6:
@@ -677,7 +692,7 @@ if FILTERED_TICKERS:
                         if price_h < ma20_h: drop_reasons.append("🚨 **生命線失守**：股價無情跌破 60分K 20MA 波段防守點，移動停利點/停損點觸發！")
                         if tod_h['HIST'] < yes_h['HIST']:
                             if tod_h['HIST'] < 0: drop_reasons.append("🔴 **MACD 動能下殺**：60分K綠柱持續拉長，空方修正動能放大。")
-                            else: drop_reasons.append("⏳ **MACD 多頭熄火**：60分K紅柱連續縮短，推升力道告吹。")
+                            else: drop_reasons.append("⏳ **MACD 多頭熄火**：60分K紅柱連續縮短，推升力道告告。")
                         if tod_h['K'] < tod_h['D']: drop_reasons.append(f"🌀 **KD 指標死叉**：60分K呈現死叉 (K:{tod_h['K']:.1f} < D:{tod_h['D']:.1f})。")
                         if price_h < ma10_h or price_h < ma20_h:
                             if vol_ratio >= 1.4: drop_reasons.append(f"💥 **籌碼恐慌爆量**：下殺成交量達5日均量 {vol_ratio:.1f} 倍！有主力砍倉。")
