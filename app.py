@@ -258,7 +258,7 @@ AI_STOCKS_DICT = {
     '2464.TW': {'name': '盟立', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
     '8374.TWO': {'name': '羅昇', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
     '4562.TW': {'name': '穎漢', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
-    '2365.TW': {'name': '昆盈', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
+    '2365.TW': {'name': '昆盈', 'group': '21. 智慧視覺、機器人自動化具身智能'},
     '1536.TW': {'name': '和大', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
     '1597.TWO': {'name': '直得', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
     '2049.TW': {'name': '上銀', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
@@ -387,7 +387,7 @@ if FILTERED_TICKERS:
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
         tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
             "🚀 今日實戰精選買入名單", "🔥 日K核心動能大篩選", "🛡️ 日線級別均線防守選股", 
-            "💎 個股日K技術面狀態診斷", "📊 AI大軍日K成交量排行", "💰 族群日K資金輪動监控", "📱 持股防守艙"
+            "💎 個股日K技術面狀態診斷", "📊 AI大軍日K成交量排行", "💰 族群日K資金輪動監控", "📱 持股防守艙"
         ])
         is_multi = isinstance(hourly_data.columns, pd.MultiIndex)
         
@@ -498,7 +498,7 @@ if FILTERED_TICKERS:
                 for item in rebound_confirmed: st.success(f"🌱 **{item['名稱']} ({item['代號']})**\n\n{item['核心理由說明']}")
             else: st.info("⏳ 目前日K盤面上暫時沒有標的剛好『穩定黏在日線20MA防守線身邊』。")
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 1 到 Tab 5 ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 1 到 Tab 4 ＝＝＝＝＝＝＝＝＝＝
         with tab1:
             st.subheader("🤖 微族群過濾 - 日K級別強勢波段動能篩選")
             matches = []
@@ -526,7 +526,7 @@ if FILTERED_TICKERS:
                 try:
                     df_d = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
                     df_d['MA20'] = df_d['Close'].rolling(window=20).mean(); df_d['MA60'] = df_d['Close'].rolling(window=60).mean()
-                    p_today = df_d.iloc[-1]
+                    p_today = df_v = df_d.iloc[-1]
                     if p_today['Close'] < p_today['MA20'] or p_today['Close'] < p_today['MA60']:
                         diagnose = diagnose_trend_status(p_today['Close'], p_today['MA20'], p_today['MA60'])
                         current_p = LATEST_PRICES_DAILY.get(ticker, p_today['Close']) 
@@ -571,7 +571,7 @@ if FILTERED_TICKERS:
                 except: continue
             if volume_list: st.dataframe(pd.DataFrame(volume_list).sort_values(by="成交量 (張)", ascending=False).head(30).reset_index(drop=True), use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 5【次族群資金大流向】（📱已為手機窄螢幕進行極致優化） ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 5【次族群資金大流向】（📱已完美加回並優化個股詳細清單） ＝＝＝＝＝＝＝＝＝＝
         with tab5:
             st.subheader("💰 🎯 AI 次族群日線級別資金大流向與輪動警報")
             group_flows = []
@@ -607,18 +607,46 @@ if FILTERED_TICKERS:
                     else: return "🌀 橫盤整理"
                 agg_df["🔮 主力資金流向診斷"] = agg_df.apply(judge_flow_status, axis=1)
                 
-                # 🚀 專屬手機端窄螢幕配置：刪除無用 Index、鎖定高精簡欄位寬度、防止橫向出鏡
+                # 🥇 1. 族群大資金統計總表
                 group_table_config = {
                     "group": st.column_config.TextColumn("🔬 AI 次族群名稱", width="medium"),
                     "今日總成交額 (億元)": st.column_config.NumberColumn("金額(億)", width="small", format="%.1f 億"),
                     "量能放大倍數 (較5日)": st.column_config.NumberColumn("量增倍數", width="small", format="%.2f x"),
                     "🔮 主力資金流向診斷": st.column_config.TextColumn("🎯 資金診斷", width="small")
                 }
-                
                 st.data_editor(
                     agg_df[["group", "今日總成交額 (億元)", "量能放大倍數 (較5日)", "🔮 主力資金流向診斷"]].sort_values(by="今日總成交額 (億元)", ascending=False),
-                    column_config=group_table_config,
-                    hide_index=True,        # 🔒 強制隱藏左側多餘數字，把空間還給手機！
+                    column_config=group_table_config, hide_index=True, disabled=True, use_container_width=True
+                )
+                
+                # 🥈 2. 【回歸核心】次族群內部所有成分股詳細清單表（對齊手機窄螢幕配置）
+                st.markdown("---")
+                st.markdown("### 🔍 AI 次族群內部個股即時動態明細表")
+                
+                flow_display = flow_df.copy()
+                flow_display["代號"] = flow_display["ticker"].apply(lambda x: str(x).split('.')[0])
+                flow_display["名稱"] = flow_display["name"]
+                flow_display["族群"] = flow_display["group"].apply(lambda x: str(x).split(' ')[1] if ' ' in str(x) else str(x)) # 簡化族群名稱省手機空間
+                flow_display["現價"] = round(flow_display["price"], 2)
+                flow_display["漲跌幅"] = flow_display["p_change"].apply(lambda x: f"{x:+.2f}%")
+                flow_display["個股量增"] = round(flow_display["stock_vol_ratio"], 2)
+                
+                # 依照群組排序，並把成交量最大、最核心的成分股頂在最前面
+                flow_display = flow_display.sort_values(by=["group", "value_today"], ascending=[True, False])
+                
+                detail_table_config = {
+                    "族群": st.column_config.TextColumn("族群", width="small"),
+                    "代號": st.column_config.TextColumn("代號", width="small"),
+                    "名稱": st.column_config.TextColumn("名稱", width="small"),
+                    "現價": st.column_config.NumberColumn("現價", width="small"),
+                    "漲跌幅": st.column_config.TextColumn("漲跌幅", width="small"),
+                    "個股量增": st.column_config.NumberColumn("量增", width="small", format="%.2f x")
+                }
+                
+                st.data_editor(
+                    flow_display[["族群", "代號", "名稱", "現價", "漲跌幅", "個股量增"]],
+                    column_config=detail_table_config,
+                    hide_index=True,        # 🔒 強制隱藏左側多餘數字列
                     disabled=True,
                     use_container_width=True
                 )
@@ -692,7 +720,7 @@ if FILTERED_TICKERS:
                         if price_h < ma20_h: drop_reasons.append("🚨 **生命線失守**：股價無情跌破 60分K 20MA 波段防守點，移動停利點/停損點觸發！")
                         if tod_h['HIST'] < yes_h['HIST']:
                             if tod_h['HIST'] < 0: drop_reasons.append("🔴 **MACD 動能下殺**：60分K綠柱持續拉長，空方修正動能放大。")
-                            else: drop_reasons.append("⏳ **MACD 多頭熄火**：60分K紅柱連續縮短，推升力道告告。")
+                            else: drop_reasons.append("⏳ **MACD 多頭熄火**：60分K紅柱連續縮短，推升力道告吹。")
                         if tod_h['K'] < tod_h['D']: drop_reasons.append(f"🌀 **KD 指標死叉**：60分K呈現死叉 (K:{tod_h['K']:.1f} < D:{tod_h['D']:.1f})。")
                         if price_h < ma10_h or price_h < ma20_h:
                             if vol_ratio >= 1.4: drop_reasons.append(f"💥 **籌碼恐慌爆量**：下殺成交量達5日均量 {vol_ratio:.1f} 倍！有主力砍倉。")
