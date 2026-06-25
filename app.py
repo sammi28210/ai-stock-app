@@ -1,4 +1,4 @@
-import streamlit st
+import streamlit as st
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
@@ -12,7 +12,7 @@ st.caption("🎯 戰略完全體：分頁0~5採用【日K波段選股架構】×
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
         {"代號": "2356", "買入成本": 70.57},    # 💡 您的英業達真實成本
-        {"代號": "2308", "買入成本": 2032.64},  # 💡 您的國巨真實成本
+        {"代號": "2308", "買入成本": 2038.64},  # 💡 您的國巨真實成本
         {"代號": "", "買入成本": 0.0},   # 💡 您的台達電真實成本
         {"代號": "", "買入成本": 0.0},      # 💡 您的強茂成本
         {"代號": "", "買入成本": 0.0}       # 💡 您的華新科成本
@@ -71,11 +71,11 @@ AI_STOCKS_DICT = {
     '3481.TW': {'name': '群創', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
     '2441.TW': {'name': '超豐', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
     '6257.TW': {'name': '矽格', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
-    '3264.TWO': {'name': '欣銓', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
+    '3264.TWO': {'name': '欣銓', 'group': '05. 先釋封裝與測試 (CoWoS/FOPLP)'},
     '3265.TWO': {'name': '台星科', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
     '8110.TW': {'name': '華東', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
 
-    # ─── 06. 半導體設備、濕製程與材料 ───
+    # ─── 06. 半導體設備、濕製程與材料（🔥 已為您加回 東捷） ───
     '3131.TWO': {'name': '弘塑', 'group': '06. 半導體設備、濕製程與材料'},
     '3583.TW': {'name': '辛耘', 'group': '06. 半導體設備、濕製程與材料'},
     '6187.TWO': {'name': '萬潤', 'group': '06. 半導體設備、濕製程與材料'},
@@ -98,6 +98,7 @@ AI_STOCKS_DICT = {
     '3010.TW': {'name': '華立', 'group': '06. 半導體設備、濕製程與材料'},
     '1717.TW': {'name': '長興', 'group': '06. 半導體設備、濕製程與材料'},
     '3680.TW': {'name': '家登', 'group': '06. 半導體設備、濕製程與材料'},
+    '8064.TWO': {'name': '東捷', 'group': '06. 半導體設備、濕製程與材料'},
 
     # ─── 07. 高階晶片測試介面與檢測 (Socket/探針卡) ───
     '6515.TW': {'name': '穎崴', 'group': '07. 高階晶片測試介面與檢測 (Socket/探針卡)'},
@@ -116,7 +117,7 @@ AI_STOCKS_DICT = {
     '3450.TW': {'name': '聯鈞', 'group': '08. 矽光子、CPO 與光收發模組'},
     '6442.TW': {'name': '光聖', 'group': '08. 矽光子、CPO 與光收發模組'},
     '4979.TW': {'name': '華星光', 'group': '08. 矽光子、CPO 與光收發模組'},
-    '4908.TWO': {'name': '前鼎', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '4908.TWO': {'name': '前鼎', 'group': '08. 矽光子、CPO 與光收發模裝'},
     '4977.TW': {'name': '眾達-KY', 'group': '08. 矽光子、CPO 與光收發模組'},
     '3163.TWO': {'name': '波若威', 'group': '08. 矽光子、CPO 與光收發模組'},
     '3234.TWO': {'name': '光環', 'group': '08. 矽光子、CPO 與光收發模組'},
@@ -243,7 +244,7 @@ AI_STOCKS_DICT = {
     '3090.TW': {'name': '日電貿', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
     '6284.TWO': {'name': '佳邦', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
 
-    # ─── 20. 二極體、MOSFET 與功率半導體 ───
+    # ─── 20. 二極體、MOSFET 與功率半導體（🔥 已為您加回 全宇昕、力士、廣閎科） ───
     '3675.TWO': {'name': '德微', 'group': '20. 二極體、MOSFET 與功率半導體'},
     '2481.TW': {'name': '強茂', 'group': '20. 二極體、MOSFET 與功率半導體'},
     '2425.TW': {'name': '鼎元', 'group': '20. 二極體、MOSFET 與功率半導體'},
@@ -257,6 +258,9 @@ AI_STOCKS_DICT = {
     '3317.TWO': {'name': '尼克森', 'group': '20. 二極體、MOSFET 與功率半導體'},
     '6411.TWO': {'name': '晶焱', 'group': '20. 二極體、MOSFET 與功率半導體'},
     '6525.TW': {'name': '捷敏-KY', 'group': '20. 二極體、MOSFET 與功率半導體'},
+    '6651.TWO': {'name': '全宇昕', 'group': '20. 二極體、MOSFET 與功率半導體'},
+    '6759.TWO': {'name': '力士', 'group': '20. 二極體、MOSFET 與功率半導體'},
+    '6693.TWO': {'name': '廣閎科', 'group': '20. 二極體、MOSFET 與功率半導體'},
 
     # ─── 21. 智慧視覺、機器人與自動化具身智能 ───
     '2359.TW': {'name': '所羅門', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
@@ -279,7 +283,7 @@ AI_STOCKS_DICT = {
     '6160.TWO': {'name': '欣技', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
     '6245.TWO': {'name': '立端', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
 
-    # ─── 23. 光學鏡頭、面板與車用電子 ───
+    # ─── 23. 光學鏡頭、面板與車用電子（🔥 已為您加回 澤米） ───
     '3406.TW': {'name': '玉晶光', 'group': '23. 光學鏡頭、面板與車用電子'},
     '3008.TW': {'name': '大立光', 'group': '23. 光學鏡頭、面板與車用電子'},
     '3362.TWO': {'name': '先進光', 'group': '23. 光學鏡頭、面板與車用電子'},
@@ -293,13 +297,14 @@ AI_STOCKS_DICT = {
     '1533.TW': {'name': '車王電', 'group': '23. 光學鏡頭、面板與車用電子'},
     '2231.TW': {'name': '為升', 'group': '23. 光學鏡頭、面板與車用電子'},
     '2497.TW': {'name': '怡利電', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '6795.TW': {'name': '澤米', 'group': '23. 光學鏡頭、面板與車用電子'},
 }
 
 def diagnose_trend_status(p_close, ma20, ma60):
     if p_close > ma20 and ma20 > ma60: return "🔥 多頭強攻中"
     elif ma20 > ma60 and p_close <= ma20 and p_close > ma60: return "🛡️ 多頭良性拉回"
     elif p_close < ma60 and ma20 < ma60: return "⏳ 趨勢空頭/弱勢整理"
-    else: return "🌀 均線糾結盤整"
+    else: return "🌀 均線糾結盘整"
 
 def calculate_historical_win_rate(df_d):
     try:
@@ -633,14 +638,13 @@ if FILTERED_TICKERS:
                 except: continue
             if volume_list: st.dataframe(pd.DataFrame(volume_list).sort_values(by="成交量 (張)", ascending=False).head(30).reset_index(drop=True), use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 5【次族群資金大流向】（⚡已成功將「🔮 個股診斷」補回明細表最右側） ＝＝＝＝＝＝＝＝＝＝
         with tab5:
             st.subheader("💰 🎯 AI 次族群日線級別資金大流向與輪動警報")
             group_flows = []
             for ticker in FILTERED_TICKERS:
                 try:
                     df_ticker = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
-                    if len(df_ticker) < 65: continue  # 鎖定長線季線足夠長度
+                    if len(df_ticker) < 65: continue
                     df_v = df_ticker.copy()
                     df_v['MA20'] = df_v['Close'].rolling(window=20).mean()
                     df_v['MA60'] = df_v['Close'].rolling(window=60).mean()
@@ -652,7 +656,6 @@ if FILTERED_TICKERS:
                     current_p = LATEST_PRICES_DAILY.get(ticker, today_v['Close']) 
                     chg_pct = ((current_p - yesterday_close) / yesterday_close * 100)
                     
-                    # ⚡ 核心修復：盤後大數據為每個個股獨立注入日線均線波段大診斷狀態
                     stock_trend = diagnose_trend_status(current_p, today_v['MA20'], today_v['MA60'])
                     
                     group_flows.append({
@@ -699,11 +702,10 @@ if FILTERED_TICKERS:
                 flow_display["現價"] = round(flow_display["price"], 2)
                 flow_display["漲跌幅"] = flow_display["p_change"].apply(lambda x: f"{x:+.2f}%")
                 flow_display["個股量增"] = round(flow_display["stock_vol_ratio"], 2)
-                flow_display["🔮 個股診斷"] = flow_display["stock_trend"] # 🔒 完美補回大數據診斷標籤
+                flow_display["🔮 個股診斷"] = flow_display["stock_trend"]
                 
                 flow_display = flow_display.sort_values(by=["group", "value_today"], ascending=[True, False])
                 
-                # 📱 專屬手機端排版：優化順序，將名稱、現價、漲跌幅、診斷一覽無遺
                 detail_table_config = {
                     "族群": st.column_config.TextColumn("族群", width="small"),
                     "代號": st.column_config.TextColumn("代號", width="small"),
@@ -785,7 +787,7 @@ if FILTERED_TICKERS:
                         if price_h < ma20_h: drop_reasons.append("🚨 **生命線失守**：股價無情跌破 60分K 20MA 波段防守點，移動停利點/停損點觸發！")
                         if tod_h['HIST'] < yes_h['HIST']:
                             if tod_h['HIST'] < 0: drop_reasons.append("🔴 **MACD 動能下殺**：60分K綠柱持續拉長，空方修正動能放大。")
-                            else: drop_reasons.append("⏳ **MACD 多頭熄火**：60分K紅柱連續縮短，推升力道告吹。")
+                            else: drop_reasons.append("⏳ **MACD 多頭熄火**：60分K紅柱連續縮短，推推力道告吹。")
                         if tod_h['K'] < tod_h['D']: drop_reasons.append(f"🌀 **KD 指標死叉**：60分K呈現死叉 (K:{tod_h['K']:.1f} < D:{tod_h['D']:.1f})。")
                         if price_h < ma10_h or price_h < ma20_h:
                             if vol_ratio >= 1.4: drop_reasons.append(f"💥 **籌碼恐慌爆量**：下殺成交量達5日均量 {vol_ratio:.1f} 倍！有主力砍倉。")
