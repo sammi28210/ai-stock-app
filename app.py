@@ -19,7 +19,7 @@ if 'my_portfolio' not in st.session_state:
         {"代號": "", "買入成本": 0.0}       # 💡 您的華新科成本
     ])
 
-# 🔒 200+ 大軍完全體字典：大立光（3008.TW）的大括號語法已百分之百完美歸位，全面消滅 TypeError 內鬼！
+# 🔒 200+ 大軍完全體字典：大立光（3008.TW）與全線格式已鋼鐵校對歸位！
 AI_STOCKS_DICT = {
     # ─── 01. 矽智財 (IP/ASIC) ───
     '3661.TW': {'name': '世芯-KY', 'group': '01. 矽智財 (IP/ASIC)'},
@@ -38,7 +38,7 @@ AI_STOCKS_DICT = {
     '3545.TW': {'name': '敦泰', 'group': '02. AI 晶片 & 主流 IC 設計'},
     '4961.TW': {'name': '天鈺', 'group': '02. AI 晶片 & 主流 IC 設計'},
     '8016.TW': {'name': '矽創', 'group': '02. AI 晶片 & 主流 IC 設計'},
-    '6202.TW': {'name': '盛群', 'group': '02. AI 晶腕 & 主流 IC 設計'},
+    '6202.TW': {'name': '盛群', 'group': '02. AI 晶片 & 主流 IC 設計'},
     '5471.TW': {'name': '松翰', 'group': '02. AI 晶片 & 主流 IC 設計'},
     '2401.TW': {'name': '凌陽', 'group': '02. AI 晶片 & 主流 IC 設計'},
     '2436.TW': {'name': '偉詮電', 'group': '02. AI 晶片 & 主流 IC 設計'},
@@ -182,7 +182,7 @@ AI_STOCKS_DICT = {
     '6269.TW': {'name': '台郡', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
     '2367.TW': {'name': '燿華', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
     '2313.TW': {'name': '華通', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
-    '2316.TW': {'name': '楠梓電', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
+    '2316.TW': {'name': '楠梓電', 'group': '13. 高頻高速 CCL + PCB 主板'},
     '5469.TW': {'name': '瀚宇博', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
     '3715.TW': {'name': '定穎投控', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
     '1815.TW': {'name': '富喬', 'group': '13. 高頻高速 CCL、銅箔基板與 PCB 主板'},
@@ -280,12 +280,12 @@ AI_STOCKS_DICT = {
     '2395.TW': {'name': '研華', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
     '6414.TW': {'name': '樺漢', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
     '6206.TW': {'name': '飛捷', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
-    '6166.TW': {'name': '停華', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
+    '6166.TW': {'name': '凌華', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
     '8050.TW': {'name': '廣積', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
     '6160.TWO': {'name': '欣技', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
     '6245.TWO': {'name': '立端', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
 
-    # ─── 23. 光學鏡頭、面板與車用電子（🔥 大立光 3008 格式已徹底完美修正！） ───
+    # ─── 23. 光學鏡頭、面板與車用電子 ───
     '3406.TW': {'name': '玉晶光', 'group': '23. 光學鏡頭、面板與車用電子'},
     '3008.TW': {'name': '大立光', 'group': '23. 光學鏡頭、面板與車用電子'}, 
     '3362.TWO': {'name': '先進光', 'group': '23. 光學鏡頭、面板與車用電子'},
@@ -368,7 +368,6 @@ def calculate_institutional_flows(df_ticker_d):
     except:
         return {"今日主力": "暫無數據", "今日外資": "暫無數據", "今日投信": "暫無數據", "五日總量": "暫無數據", "評級": "⏳ 籌碼冷靜區"}
 
-# 🛡️ 戰略位階防護：將 Sidebar 過濾代碼與全球變數定義鋼鐵歸位
 st.sidebar.header("🎯 AI 供應鏈群組過濾")
 all_available_groups = sorted(list(set([v['group'] for v in AI_STOCKS_DICT.values()])))
 selected_groups = st.sidebar.multiselect("選擇監控群組：", options=all_available_groups, default=all_available_groups)
@@ -432,7 +431,7 @@ if FILTERED_TICKERS:
         tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
             "🚀 今日實戰精選買入名單", "🔄 AI次族群資金換手地圖", "🔥 日K核心動能大篩選", 
             "🛡️ 日線級別均線防守選股", "💎 個股日K智庫全景診斷", "📊 AI大軍日K成交量排行", 
-            "💰 族群日K資金輪動監控", "📱 持股防守艙"
+            "💰 族群日K資金輪動监控", "📱 持股防守艙"
         ])
 
         # 大數據流向核心矩陣計算
@@ -534,7 +533,7 @@ if FILTERED_TICKERS:
                                 })
                 except: continue
             
-            st.markdown("### 👑 🔮 👑 頂級操盤手特製：【今日最完美量化共振 ➔ 🌟 蓄勢待發發發射球】")
+            st.markdown("### 👑 🔮 👑 頂級操盤手特製：【今日最完美量化共振 ➔ 🌟 蓄勢待發發射球】")
             st.caption("💡 點火原理：前一晚均線價格處於『極致壓縮壓彈簧』狀態，且20日K線被抓包『真結構底背離大戶狂掃』，隔早只要爆量即是總攻訊號！")
             if ignition_sphere_confirmed:
                 SEARCH_TABLE_CONFIG = {
@@ -558,7 +557,7 @@ if FILTERED_TICKERS:
                 st.data_editor(pd.DataFrame(rebound_confirmed), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
             else: st.info("⏳ 目前暫時沒有標的『溫和黏在日線 20MA 防守線身邊』。")
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 1【🔄 獨立：次族群資金換手地圖分頁】（🔥 特打活體查詢功能） ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 1【🔄 獨立：次族群資金換手地圖分頁】 ＝＝＝＝＝＝＝＝＝＝
         with tab1:
             st.markdown("## 🗺️ 系統獨立監測：三大法人 AI 大軍資金「蹺蹺板換手地圖」")
             st.caption("💡 戰略核心：本頁面全自動捕捉大資金從過熱區抽水、並同步注入低位階龍頭標的之完整遷徙軌跡。")
@@ -593,7 +592,7 @@ if FILTERED_TICKERS:
                     
                     st.markdown("---")
                     
-                    from_names = "、".join([f"【{x.split(' ')[1]}】" for x in from_groups["group"].tolist()])
+                    from_names = "..".join([f"【{x.split(' ')[1]}】" for x in from_groups["group"].tolist()])
                     to_names = "、".join([f"【{x.split(' ')[1]}】" for x in to_groups["group"].tolist()])
                     st.info(
                         f"🔮 **操盤手實戰換手完美註解**：\n\n"
@@ -602,7 +601,7 @@ if FILTERED_TICKERS:
                     )
             else: st.info("⏳ 次族群資金遷徙數據同步中...")
 
-            # 🛠️ 鋼鐵特打查詢艙（變數名稱、大小寫與對帳邏輯徹底完美修復！）
+            # 🔮 個股快速查詢艙
             st.markdown("---")
             st.markdown("### 🔮 盤後快速特打查詢艙（不需切換分頁，原地直接剖析個股資金與波段轉折）")
             search_code = st.text_input("請輸入台股四位數代號（例如輸入 8046 查詢南電，或 2481 查詢強茂）：", key="tab1_ext_search").strip()
@@ -673,7 +672,7 @@ if FILTERED_TICKERS:
                             trend_text_s = f"目前股價已無情跌破 10MA 控盤線（10MA 乖離率為 **{bias_10_s:+.2f}%**），短線技術面結構正式轉落進入空方修正背景。由於下方的底部分形信號尚未確立，此時不具備落底反彈特徵，強烈建議雙手抱胸、保持冷靜觀望。"
                             box_color_s = "warning"; title_text_s = "⏳【AI 智庫觀望判定：股價破位控盤線，靜待底部止穩分形】"
                         else:
-                            trend_text_s = f"目前價格在 10MA 之上穩定多頭軌道向前運行（5MA 乖離 **{bias_5_s:+.2f}%**，10MA 乖離 **{bias_10_s:+.2f}%**）。空間結構並未出現過熱，屬於常態波段鎖碼洗盤或健康推進位階。"
+                            trend_text_s = f"目前價格在 10MA 之上穩定多頭軌道向前運行（5MA 乖離 **{bias_5_s:+.2f}%**，10MA 乖離 **{bias_10_s:+.2f}%**）。空間結構並未出現過熱，屬於常態多頭鎖碼洗盤或健康推進位階。"
                             box_color_s = "info"; title_text_s = "🔵【AI 智庫常態判定：個股處於多頭常態洗盤或推進位階】"
                         
                         is_kd_div_s = False; div_day_kd_s = -1; curr_k_s = float(tod_s['K'])
@@ -684,12 +683,12 @@ if FILTERED_TICKERS:
                                 if hist_d['Close'] >= p_close_s and hist_d['K'] < curr_k_s and hist_d['K'] < 40:
                                     is_kd_div_s = True; div_day_kd_s = idx_back; break
                                     
-                        is_macd_div_s = False; div_day_macd_s = -1; curr_hist_s = float(tod_s['HIST'])
-                        if curr_hist_s > 0:
+                        is_macd_div_s = False; div_day_macd_s = -1; current_hist_s = float(tod_s['HIST'])
+                        if current_hist_s > 0:
                             for idx_back in range(3, 21):
                                 if idx_back >= len(df_search): break
                                 hist_d = df_search.iloc[-idx_back]
-                                if hist_d['Close'] <= p_close_s and hist_d['HIST'] > curr_hist_s and hist_d['HIST'] > 0:
+                                if hist_d['Close'] <= p_close_s and hist_d['HIST'] > current_hist_s and hist_d['HIST'] > 0:
                                     is_macd_div_s = True; div_day_macd_s = idx_back; break
                         
                         div_text_s = ""
@@ -697,7 +696,7 @@ if FILTERED_TICKERS:
                             div_text_s = f"🎯 **【轉折特徵：20日結構 KD 底背離】** 技術指標與 **{div_day_kd_s} 天前** 的波段低點確立了完美的結構型底背離！股價雖然在震盪洗盤，但底層指標動能已提前暗中大副抬頭。大戶壓價吃貨痕跡敗露，這就是小波段落底反彈準備點火的最強烽火訊號！"
                             if box_color_s in ["success", "info"]: box_color_s = "success"; title_text_s = f"🔥【AI 智庫共振判定：貼緊控盤線 × {div_day_kd_s}天結構底背離黃金買點】"
                         elif is_macd_div_s:
-                            div_text_s = f"🚨 **【轉折特徵：20日結構 MACD 頂背離】** 股價在表面刷出反彈新高，但與 **{div_day_macd_s} 天前** 的高峰相比，實質推土能量紅柱體卻出現了嚴重的結構性委縮！主力正在拉高掩護倒貨，小心隨時引發高點暴跌修正，請立刻利索準備停利逃生！"
+                            div_text_s = f"🚨 **【轉折特徵：20日結構 MACD 頂背離】** 股價在表面刷出反彈新高，打與 **{div_day_macd_s} 天前** 的高峰相比，實質推土能量紅柱體卻出現了嚴重的結構性委縮！主力正在拉高掩護倒貨，小心隨時引發高點暴跌修正，請立刻利索準備停利逃生！"
                             box_color_s = "error"; title_text_s = f"💥【AI 智庫危險判定：價格虛漲 × {div_day_macd_s}天結構頂背離逃生賣點】"
                         else:
                             div_text_s = "⚖️ **【轉折特徵：多空常態同步】** 經 20 日滾動比對，目前 KD 與 MACD 紅綠柱動能波動與價格走勢完全同步，未見任何結構性底背離大戶進貨或頂背離出貨特徵。"
@@ -728,8 +727,8 @@ if FILTERED_TICKERS:
                             action_title = "🚨 【實戰終極戰略決策：絕對不可買進！現持股請利索執行停利】"
                             action_desc = (
                                 f"* 📈 **高空追價被套牢機率**：` 高達 85% 以上 `（此位階期望值極差，嚴禁當肉墊）\n"
-                                f"* 🟢 **完全白話【賣出 / 拒絕進場原因】**：千萬不要進去送死！這檔股票現在股價離均線太遙遠了（10MA乖離率高達偏高的 `{bias_10_s:+.1f}%`），最致命的是，它觸發了【{div_day_macd_s}天結構型MACD頂背離】。白話講就是：股價這兩天雖然看起來還在拼命噴發刷短線新高，但其實主力大戶的真金白銀力道早就洩氣萎縮了，這叫『外強中乾的虛漲』，是大戶在刻意拉高誘騙散戶、掩護主力倒貨抽水。現在進場無異於在懸崖邊幫主力接飛刀！\n"
-                                f"* 🔴 **完全白話【撤退與換股大方針】**：如果手上持有這檔股票，請啟動彈射停利，利索把幾十%的獲利收進對帳單，絕對不要捨不得；如果手上是現金，請收起手癢的心魔，冷眼看全市場沒看報告的散戶在高檔洗碗套牢即可！"
+                                f"* 🟢 **完全白話【賣出 / 拒絕進場原因】**：千萬不要進去送死！這檔股票現在股價離均線太遙遠了（10MA乖離率高達偏高的 `{bias_10_s:+.2f}%`），最致命的是，它觸發了【{div_day_macd_s}天結構型MACD頂背離】。白話講就是：股價這兩天雖然看起來還在拼命噴發刷短線新高，但其實主力大戶的真金白銀力道早就洩氣萎縮了，這叫『外強中乾的虛漲』，是大戶在刻意拉高誘騙散戶、掩護主力倒貨抽水。現在進場無異於在懸崖邊幫主力接飛刀！\n"
+                                f"* 🔴 **完全白話【撤退與換股大方針】**：如果手上持有這檔股票，請啟動彈射停利，利索把幾十%的獲利收進對帳單，絕對不要捨不得；如果手上是現金，請收起手癢的心模，冷眼看全市場沒看報告的散戶在高檔洗碗套牢即可！"
                             )
                         elif box_color_s == "warning":
                             action_title = "⏳ 【實戰終極戰略決策：全面冷靜觀望，雙手抱胸嚴禁伸手接刀】"
@@ -742,8 +741,7 @@ if FILTERED_TICKERS:
                             action_title = "🔵 【實戰終極戰略決策：多頭常態洗盤，有持股安心續抱，無持股不需追高】"
                             action_desc = (
                                 f"* 📈 **波段趨勢常態推進期望值勝率**：` 約 65% 穩定推進 `\n"
-                                f"* 🟢 **完全白話【續抱與操作原因】**：目前走勢非常健康。股價乖乖地沿著 10MA 多頭控盤線向上推進（10MA 乖離率為健康的 {bias_10_s:.2f}%），沒有過熱發散，也沒有任何人暗中倒貨（指標多空同步）。如果你手上本來就有這檔股票，代表正在賺錢，請不要被主力的常態震盪給嚇跑，請直接對齊 60分K 的 20MA 生死線移動停利，放任利潤在多頭軌道裡奔跑！\n"
-                                f"* 🔴 **完全白話【無持股者的戰術盲點】**：如果你現在手上是現金，由於現價並非壓縮回踩的主力成本換手點，此時進場會白白承擔常態拉回的洗盤成本，建議按兵不動，等它拉回踩線再開槍。"
+                                f"* 🟢 **完全白話【續抱與操作原因】**：目前走勢非常健康。股價乖乖地沿著 10MA 多頭控盤線向上推進（10MA 乖離率為健康的 {bias_10_s:.2f}%），沒有過熱發散，也沒有任何人暗中倒貨（指標多空同步）。如果你手上本來就有這檔股票，代表正在賺錢，請按照 60分K 的 20MA 生死線的紀律『讓利潤奔跑、安心續抱』即可；如果你現在手上是現金想買，由於現價並非壓縮回踩的主力成本換手點，此時進場會白白承擔常態拉回的洗盤成本，建議按兵不動，等它拉回踩線再開槍。"
                             )
                         
                         box_dispatcher = {"success": st.success, "error": st.error, "warning": st.warning, "info": st.info}
@@ -885,7 +883,7 @@ if FILTERED_TICKERS:
                     chips_text = ""
                     if "狂掃" in chips["評級"]: chips_text = f"目前大戶籌碼展現出強烈的**【主力連夜狂掃】**格局。小波段上攻底氣十足。"
                     elif "調節" in chips["五日總量"]: chips_text = f"目前大戶籌碼呈現持續流出的**【大戶反手調節】**格局。切勿盲目戀戰。"
-                    else: chips_text = f"目前主力與法人呈現量縮觀望、常態小幅換手.盤面正在積蓄能量，靜待下半週資金題材重新點火拉升。"
+                    else: chips_text = f"目前主力與法人呈現量縮觀望、常態小幅換手。盤面正在積蓄能量，靜待下半週資金題材重新點火拉升。"
 
                     vol_ma5 = df_d['Volume'].rolling(window=5).mean().iloc[-1]
                     vol_ratio = float(tod_d['Volume'] / vol_ma5 if vol_ma5 > 0 else 1.0)
@@ -1040,7 +1038,7 @@ if FILTERED_TICKERS:
                             if vol_ratio >= 1.4: drop_reasons.append(f"💥 **籌碼恐慌爆量**：下殺成交量達5日均量 {vol_ratio:.1f} 倍！有主力砍倉。")
                             else: drop_reasons.append(f"🛡️ **籌碼量縮洗盤**：下跌量僅5日均量 {vol_ratio:.1f} 倍，屬於量縮良性震盪。")
                                 
-                        reason_text = "\n\n**🔍 60分K極速轉弱/下跌原因診斷（盤中監控）：**\n" + "\n".join([f"{i+1}. {r}" for i, r in enumerate(drop_reasons)]) if drop_reasons else "\n\n**⚖️ 原因診斷**：目前 60分K 多頭結構完美，現價極其強勢！"
+                        reason_text = "\n\n**🔍 60分K極速轉弱/下跌原因診斷（盤中监控）：**\n" + "\n".join([f"{i+1}. {r}" for i, r in enumerate(drop_reasons)]) if drop_reasons else "\n\n**⚖️ 原因診斷**：目前 60分K 多頭結構完美，現價極其強勢！"
                         
                         disp_title = f"{tk}{name}" if name else tk
                         res_base = f"**{disp_title}** | 60分K現價:{price_h:.2f} | {pnl_str} | (10MA:{ma10_h:.2f} , 20MA:{ma20_h:.2f})"
