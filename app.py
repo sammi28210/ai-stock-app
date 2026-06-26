@@ -94,7 +94,7 @@ AI_STOCKS_DICT = {
     '5483.TWO': {'name': '中美晶', 'group': '04. 晶圓代工與先進製程'},
     '3532.TW': {'name': '台勝科', 'group': '04. 晶圓代工與先進製程'},
 
-    # ─── 05. 先進封裝與測試 (CoWoS/FOPLP) ⚡南茂精準歸位！ ───
+    # ─── 05. 先進封裝與測試 (CoWoS/FOPLP) ───
     '3711.TW': {'name': '日月光投控', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
     '2449.TW': {'name': '京元電子', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
     '6239.TW': {'name': '力成', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
@@ -156,7 +156,7 @@ AI_STOCKS_DICT = {
     # ─── 08. 矽光子、CPO 與光收發模組 ───
     '3081.TWO': {'name': '聯亞', 'group': '08. 矽光子、CPO 與光收發模組'},
     '6451.TW': {'name': '訊芯-KY', 'group': '08. 矽光子、CPO 與光收發模組'},
-    '3363.TWO': {'name': '上詮', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '3363.TWO': {'name': '上詮', 'group': '08. 矽光子 + CPO光收發'},
     '3450.TW': {'name': '聯鈞', 'group': '08. 矽光子、CPO 與光收發模組'},
     '6442.TW': {'name': '光聖', 'group': '08. 矽光子、CPO 與光收發模組'},
     '4979.TW': {'name': '華星光', 'group': '08. 矽光子、CPO 與光收發模組'},
@@ -198,7 +198,7 @@ AI_STOCKS_DICT = {
     '2377.TW': {'name': '微星', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
     '2353.TW': {'name': '宏碁', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
     '2357.TW': {'name': '華碩', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
-    '2301.TW': {'name': '光寶科', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2308.TW': {'name': '台達電組裝', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
 
     # ─── 11. 核心液冷、風扇與核心散熱 ───
     '3017.TW': {'name': '奇鋐', 'group': '11. 核心液冷、風扇與核心散熱'},
@@ -288,7 +288,6 @@ AI_STOCKS_DICT = {
     '2392.TW': {'name': '正崴', 'group': '17. NVLink 連接線、連接器與高速線束'},
     '3005.TW': {'name': '神基', 'group': '17. NVLink 連接線、連接器與高速線束'},
     '6115.TW': {'name': '鎰勝', 'group': '17. NVLink 連接線、連接器與高速線束'},
-    '5258.TW': {'name': '虹堡', 'group': '17. NVLink 連接線、連接器與高速線束'},
 
     # ─── 18. 特高壓重電與不斷電配電系統 ───
     '1519.TW': {'name': '華城', 'group': '18. 特高壓重電與不斷電配電系統'},
@@ -650,7 +649,7 @@ if FILTERED_TICKERS:
                         g_pct = row["p_change"]
                         sub_stocks = flow_df[flow_df["group"] == g_name]
                         target_lead = sub_stocks.sort_values(by="value_today", ascending=False).iloc[0]
-                        st.error(f"* **{g_name}**（族群資金佔比委縮至前波 {row['ratio']:.2f}x，平均跌幅 {g_pct:+.2f}%）➔ 🚨 **主力大提款標的：{target_lead['name']} ({str(sub['ticker']).split('.')[0]})**")
+                        st.error(f"* **{g_name}**（族群資金佔比委縮至前波 {row['ratio']:.2f}x，平均跌幅 {g_pct:+.2f}%）➔ 🚨 **主力大提款標的：{target_lead['name']} ({str(target_lead['ticker']).split('.')[0]})**")
                     
                     st.markdown("---")
                     st.markdown("#### 🎯 【資金正在連夜開進的進駐區 (To)】")
@@ -659,7 +658,7 @@ if FILTERED_TICKERS:
                         g_pct = row["p_change"]
                         sub_stocks = flow_df[flow_df["group"] == g_name]
                         target_lead = sub_stocks.sort_values(by="stock_vol_ratio", ascending=False).iloc[0]
-                        st.success(f"* **{g_name}**（族群量能瘋狂放大 **{row['ratio']:.2f} 倍**，平均漲幅 {g_pct:+.2f}%）➔ 🔥 **核心吸籌指標箭頭：{target_lead['name']} ({str(sub['ticker']).split('.')[0]})** ── 量增 {sub['stock_vol_ratio']:.2f} 倍！")
+                        st.success(f"* **{g_name}**（族群量能瘋狂放大 **{row['ratio']:.2f} 倍**，平均漲幅 {g_pct:+.2f}%）➔ 🔥 **核心吸籌指標箭頭：{target_lead['name']} ({str(target_lead['ticker']).split('.')[0]})** ── 成交量暴增 **{target_lead['stock_vol_ratio']:.2f} 倍**！")
                     
                     st.markdown("---")
                     
@@ -771,7 +770,7 @@ if FILTERED_TICKERS:
                         
                         chips_txt_s = ""
                         if "狂超" in chips_s["評級"] or "狂掃" in chips_s["評級"]:
-                            chips_txt_s = f"且籌碼面呈現**【主力連夜狂掃】**。大戶資金完全無視短線洗盤震盪，技術面的換手或推進背後有莊家意志在撐腰，小波段上攻底氣十足。"
+                            chips_txt_s = f"且籌碼面呈現**【主力連夜狂掃】**。大戶資金完全無視慢線洗盤震盪，技術面的換手或推進背後有莊家意志在撐腰，小波段上攻底氣十足。"
                         elif "調節" in chips_s["五日總量"]:
                             chips_txt_s = f"且籌碼面呈現**【大戶反手調節】**。大戶主力正趁熱度升溫時逢高出脫，即使技術面有短線反彈也缺乏大資金續航，切勿盲目搶反彈。"
                         else:
@@ -795,7 +794,7 @@ if FILTERED_TICKERS:
                             action_title = "🚨 【實戰終極戰略決策：絕對不可買進！現持股請利索執行停利】"
                             action_desc = (
                                 f" * 📈 **高空追價被套牢機率**：` 高達 85% 以上 `（此位階期望值極差，嚴禁當肉墊）\n"
-                                f" * 🟢 **完全白話【賣出 / 拒絕進場原因】**：絕對不要進去送死！這檔股票現在股價離均線太遙遠了（10MA乖離率高達偏高的 `{bias_10_s:+.1f}%`），最致命的是，它觸發了【{div_day_macd_s}天結構型MACD頂背離】。白話講就是：股價這兩天雖然看起來還在拼命噴發刷短線新高，但其實主力大戶的真金白銀力道早就洩氣萎縮了，這叫『外強中乾的虛漲』，是大戶在刻意拉高誘騙散戶、掩護主力倒貨抽水。現在進場無異於在懸崖邊幫主力接飛刀！\n"
+                                f" * 🟢 **完全白話【賣出 / 拒絕進場原因】**：絕對不要進去送死！這檔股票現在股價離均線太遙遠了（10MA乖離率高達偏高的 `{bias_10_s:+.2f}%`），最致命的是，它觸發了【{div_day_macd_s}天結構型MACD頂背離】。白話講就是：股價這兩天表面上雖然看起來還在拼命噴發刷短線新高，但其實主力大戶的真金白銀力道早就洩氣萎縮了，這叫『外強中乾的虛漲』，是大戶在刻意拉高誘騙散戶、掩護主力倒貨抽水。現在進場無異於在懸崖邊幫主力接飛刀！\n"
                                 f" * 🔴 **完全白話【撤退與換股大方針】**：如果手上持有這檔股票，請啟動彈射停利，利索把幾十%的獲利收進對帳單，絕對不要捨不得；如果手上是現金，請收起手癢的心魔，冷眼看全市場沒看報告的散戶在高檔洗碗套牢即可！"
                             )
                         elif box_color_s == "warning":
@@ -944,7 +943,7 @@ if FILTERED_TICKERS:
                         div_text = f"🎯 **【指標特徵：20日滾動型 KD 底背離】** 經活體晶片比對，個股與 **{kd_div_day_idx} 天前** 的結構波段低點呈現完美的『真底背離』！小波段反彈重砲已上膛！"
                         if box_color in ["success", "info"]: box_color = "success"; title_text = f"🔥【AI 智庫共振判定：回踩 10MA × 契合 {kd_div_day_idx}天大底背離黃金買點】"
                     elif is_macd_top_div:
-                        div_text = f"🚨 **【指標特徵：20日滾動型 MACD 頂背離】** 股價今日雖然刷出短線反彈新高，但與 **{macd_div_day_idx} 天前** 的前波高點相比，MACD 紅柱能量竟然出現了嚴重的結構性委縮（頂背離）！請立刻準備執行彈射停利！"
+                        div_text = f"🚨 **【指標特徵：20日滾動型 MACD 頂背離】** 股價今日雖然刷出短線反彈新新高，但與 **{macd_div_day_idx} 天前** 的前波高點相比，MACD 紅柱能量竟然出現了嚴重的結構性委縮（頂背離）！請立刻準備執行彈射停利！"
                         box_color = "error"; title_text = "### 💥【AI 智庫危險判定：價格虛漲 × {macd_div_day_idx}天結構頂背離逃生點】"
                     else:
                         div_text = "⚖️ **【指標特徵：動能常態同步】** 經 20 日滾動背景比對，目前 KD 與 MACD 動能並未與過去一個月內的高低點發生 any 結構性背離。"
