@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈监控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 200+ 大軍終極永久看板")
-st.caption("🎯 戰略完全體：【獨立資金換手地圖分頁】× 【20日滾動結構背離】× 【蓄勢發发射球動能偵測】")
+st.caption("🎯 戰略完全體：【獨立資金換手地圖分頁】× 【20日滾動結構背離】× 【蓄勢發射球動能偵測】")
 
 # --- ⚙️【持股永久固定區】---
 if 'my_portfolio' not in st.session_state:
@@ -176,7 +176,7 @@ AI_STOCKS_DICT = {
     '4967.TW': {'name': '十銓', 'group': '15. 記憶體顆粒、模組與控制晶片'},
     '8271.TW': {'name': '宇瞻', 'group': '15. 記憶體顆粒、模組與控制晶片'},
     '2308.TW': {'name': '台達電', 'group': '16. 高階高功率電源供應器與配電'},
-    '2301.TW': LOG_OPTS = {'name': '光寶科', 'group': '16. 高階高功率電源供應器與配電'},
+    '2301.TW': {'name': '光寶科', 'group': '16. 高階高功率電源供應器與配電'},
     '6282.TW': {'name': '康舒', 'group': '16. 高階高功率電源供應器與配電'},
     '3015.TW': {'name': '全漢', 'group': '16. 高階高功率電源供應器與配電'},
     '3032.TW': {'name': '偉訓', 'group': '16. 高階高功率電源供應器與配電'},
@@ -238,7 +238,7 @@ AI_STOCKS_DICT = {
     '2395.TW': {'name': '研華', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
     '6414.TW': {'name': '樺漢', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
     '6206.TW': {'name': '飛捷', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
-    '6166.TW': {'name': '開單', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
+    '6166.TW': {'name': '研華', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
     '8050.TW': {'name': '廣積', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
     '6160.TWO': {'name': '欣技', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
     '6245.TWO': {'name': '立端', 'group': '22. 工業電腦與嵌入式系統 (IPC)'},
@@ -312,7 +312,7 @@ def calculate_institutional_flows(df_ticker_d):
         tod_trust = tod_flow * 0.16 if df['Price_Chg'].iloc[-1] > 0 else tod_flow * 0.04
         def format_chip(val):
             return f"＋ {int(abs(val))} 張" if val >= 0 else f"－ {int(abs(val))} 張"
-        status = "🔥 主力連夜狂掃" if five_day_sum > 1500 else ("📈 法人合力吃貨" if five_day_sum > 0 else "⏳ 主力洗盤調整")
+        status = "🔥 主力連夜狂扫" if five_day_sum > 1500 else ("📈 法人合力吃貨" if five_day_sum > 0 else "⏳ 主力洗盤調整")
         return {"今日主力": format_chip(tod_main), "今日外資": format_chip(tod_foreign), "今日投信": format_chip(tod_trust), "五日總量": f"＋ {int(abs(five_day_sum))} 張 (連買)" if five_day_sum >= 0 else f"－ {int(abs(five_day_sum))} 張 (調節)", "評級": status}
     except:
         return {"今日主力": "暫無數據", "今日外資": "暫無數據", "今日投信": "暫無數據", "五日總量": "暫無數據", "評級": "⏳ 籌碼冷靜區"}
@@ -357,15 +357,14 @@ MOBILE_TABLE_CONFIG = {
     "停損價": st.column_config.NumberColumn("停損", width="small")
 }
 
-# --- 🎯 這裡加上修復用的 SEARCH_TABLE_CONFIG 即可 ---
 SEARCH_TABLE_CONFIG = {
     "代號": st.column_config.TextColumn("代號", width="small"),
     "名稱": st.column_config.TextColumn("名稱", width="small"),
     "市價": st.column_config.NumberColumn("市價", width="small"),
-    "進場成本防線": st.column_config.TextColumn("回踩進場防線", width="medium"),
-    "15-20%目標區": st.column_config.TextColumn("游擊波段利潤目標", width="medium"),
-    "預估點火勝率": st.column_config.TextColumn("🔥 預估點火勝率", width="small"),
-    "主力支撐": st.column_config.NumberColumn("下檔支撐", width="small"),
+    "進場成本防線": st.column_config.TextColumn("進場成本防線", width="medium"),
+    "15-20%目標區": st.column_config.TextColumn("15-20%目標區", width="medium"),
+    "預估點火勝率": st.column_config.TextColumn("預估點火勝率", width="small"),
+    "主力支撐": st.column_config.NumberColumn("主力支撐", width="small"),
     "極控停損": st.column_config.NumberColumn("極控停損", width="small")
 }
 
@@ -389,7 +388,7 @@ if FILTERED_TICKERS:
         tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
             "🚀 今日實戰精選買入名單", "🔄 AI次族群資金換手地圖", "🔥 日K核心動能大篩選", 
             "🛡️ 日線級別均線防守選股", "💎 個股日K智庫全景診斷", "📊 AI大軍日K成交量排行", 
-            "💰 族群日K資金輪動監控", "📱 持股防守艙"
+            "💰 族群日K資金輪動监控", "📱 持股防守艙"
         ])
 
         # 大數據流向核心矩陣計算
