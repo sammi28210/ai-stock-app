@@ -289,7 +289,7 @@ AI_STOCKS_DICT = {
     '3406.TW': {'name': '玉晶光', 'group': '23. 光學鏡頭、面板與車用電子'},
     '3008.TW': {'name': '大立光', 'group': '23. 光學鏡頭、面板與車用電子'}, 
     '3362.TWO': {'name': '先進光', 'group': '23. 光學鏡頭、面板與車用電子'},
-    '3019.TW': {'name': '亞光', 'group': '23. 光學鏡鏡、面板與車用電子'},
+    '3019.TW': {'name': '亞光', 'group': '23. 光學鏡頭、面板與車用電子'},
     '4976.TWO': {'name': '佳凌', 'group': '23. 光學鏡頭、面板與車用電子'},
     '2409.TW': {'name': '友達', 'group': '23. 光學鏡頭、面板與車用電子'},
     '6116.TW': {'name': '彩晶', 'group': '23. 光學鏡頭、面板與車用電子'},
@@ -537,7 +537,7 @@ if FILTERED_TICKERS:
                                 })
                 except: continue
             
-            st.markdown("### 👑 🔮 👑 頂級操盤手特製：【今日最完美量化共振 ➔ 🌟 蓄勢待發發發射球】")
+            st.markdown("### ### 👑 🔮 👑 頂級操盤手特製：【今日最完美量化共振 ➔ 🌟 蓄勢待發發發射球】")
             st.caption("💡 點火原理：前一晚均線價格處於『極致壓縮壓彈簧』狀態，且20日K線被抓包『真結構底背離大戶狂掃』，隔早只要爆量即是總攻訊號！")
             if ignition_sphere_confirmed:
                 st.data_editor(pd.DataFrame(ignition_sphere_confirmed), column_config=SEARCH_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
@@ -599,7 +599,7 @@ if FILTERED_TICKERS:
                     )
             else: st.info("⏳ 次族群資金遷徙數據同步中...")
 
-            # 🛠️ 鋼鐵特打查詢艙（變數名稱、大小寫與對帳邏輯徹底完美修復！）
+            # 🛠️ 鋼鐵特打查詢艙
             st.markdown("---")
             st.markdown("### 🔮 盤後快速特打查詢艙（不需切換分頁，原地直接剖析個股資金與波段轉折）")
             search_code = st.text_input("請輸入台股四位數代號（例如輸入 8046 查詢南電，或 2481 查詢強茂）：", key="tab1_search").strip()
@@ -615,6 +615,10 @@ if FILTERED_TICKERS:
                     df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
                     if df_search.empty: st.error("❌ 無此標的")
                     else:
+                        # ─── 🛡️ 活體雙層索引完美扁平化外掛，全面防止 KeyError 內鬼（修復特打核心） ───
+                        if isinstance(df_search.columns, pd.MultiIndex):
+                            df_search.columns = [col[0] if col[0] in ['Open', 'High', 'Low', 'Close', 'Volume', 'Adj Close'] else col[1] for col in df_search.columns]
+
                         df_search['MA5'] = df_search['Close'].rolling(window=5).mean()
                         df_search['MA10'] = df_search['Close'].rolling(window=10).mean()
                         df_search['MA20'] = df_search['Close'].rolling(window=20).mean()
@@ -684,7 +688,7 @@ if FILTERED_TICKERS:
                         
                         div_text_s = ""
                         if is_kd_div_s:
-                            div_text_s = f"🎯 **【轉折特徵：20日結構 KD 底背離】** 技術指標與 **{div_day_kd_s} 天前** 的波段低點確立了完美的結構型底背離！股價雖然在震盪洗盤，但底層指標動能已提前暗中大幅抬頭。大戶壓價吃貨痕跡敗露，這就是小波段落底反彈準備點火的最強烽火訊號！"
+                            div_text_s = f"🎯 **【轉折特徵：20日結構 KD 底背離】** 技術指標與 **{div_day_kd_s} 天前** 的波段低點確立了完美的結構型底背離！股價雖然在震盪洗盤，但底層指標動能已提前暗中大副抬頭。大戶壓價吃貨痕跡敗露，這就是小波段落底反彈準備點火的最強烽火訊號！"
                             if box_color_s in ["success", "info"]: box_color_s = "success"; title_text_s = f"🔥【AI 智庫共振判定：貼緊控盤線 × {div_day_kd_s}天結構底背離黃金買點】"
                         elif is_macd_div_s:
                             div_text_s = f"🚨 **【轉折特徵：20日結構 MACD 頂背離】** 股價在表面刷出反彈新高，但與 **{div_day_macd_s} 天前** 的高峰相比，實質推土能量紅柱體卻出現了嚴重的結構性委縮！主力正在拉高掩護倒貨，小心隨時引發高點暴跌修正，請立刻利索準備停利逃生！"
@@ -868,7 +872,7 @@ if FILTERED_TICKERS:
                         if box_color in ["success", "info"]: box_color = "success"; title_text = f"🔥【AI 智庫共振判定：回踩 10MA × 契合 {kd_div_day_idx}天大底背離黃金買點】"
                     elif is_macd_top_div:
                         div_text = f"🚨 **【指標特徵：20日滾動型 MACD 頂背離】** 股價今日雖然刷出短線反彈新高，但與 **{macd_div_day_idx} 天前** 的前波高點相比，MACD 紅柱能量竟然出現了嚴重的結構性委縮（頂背離）！請立刻準備執行彈射停利！"
-                        box_color = "error"; title_text = f"💥【AI 智庫危險判定：價格虛漲 × {macd_div_day_idx}天結構頂背離逃生點】"
+                        box_color = "error"; title_text = "### 💥【AI 智庫危險判定：價格虛漲 × {macd_div_day_idx}天結構頂背離逃生點】"
                     else:
                         div_text = "⚖️ **【指標特徵：動能常態同步】** 經 20 日滾動背景比對，目前 KD 與 MACD 動能並未與過去一個月內的高低點發生 any 結構性背離。"
 
@@ -1024,7 +1028,7 @@ if FILTERED_TICKERS:
                         if price_h < ma20_h: drop_reasons.append("🚨 **生命線失守**：股價無情跌破 60分K 20MA 波段防守點，移動停利點/停損點觸發！")
                         if tod_h['HIST'] < yes_h['HIST']:
                             if tod_h['HIST'] < 0: drop_reasons.append("🔴 **MACD 動能下殺**：60分K綠柱持續拉長，空方修正動能放大。")
-                            else: drop_reasons.append("⏳ **MACD 多頭熄火**：60分K紅柱連續縮短，推升力道告吹。")
+                            else: drop_reasons.append("⏳ **MACD 多頭熄火**：60分K紅柱連續縮短，推升力道告告。")
                         if tod_h['K'] < tod_h['D']: drop_reasons.append(f"🌀 **KD 指標死叉**：60分K呈現死叉 (K:{tod_h['K']:.1f} < D:{tod_h['D']:.1f})。")
                         if price_h < ma10_h or price_h < ma20_h:
                             if vol_ratio >= 1.4: drop_reasons.append(f"💥 **籌碼恐慌爆量**：下殺成交量達5日均量 {vol_ratio:.1f} 倍！有主力砍倉。")
