@@ -16,7 +16,7 @@ if 'my_portfolio' not in st.session_state:
         {"代號": "2308", "買入成本": 2038.64},  # 💡 您的國巨真實成本
         {"代號": "", "買入成本": 0.0},   # 💡 您的台達電真實成本
         {"代號": "", "買入成本": 0.0},      # 💡 您的強茂成本
-        {"代號": "2492", "買入成本": 0.0}       # 💡 您的華新科成本
+        {"代號": "", "買入成本": 0.0}       # 💡 您的華新科成本
     ])
 
 # 🔒 200+ 大軍完全體字典：所有繁簡體、錯字漏字（廣閎科、昆盈、東捷、澤米等）已全部鋼鐵校對歸位！
@@ -28,7 +28,7 @@ AI_STOCKS_DICT = {
     '6643.TWO': {'name': 'M31', 'group': '01. 矽智財 (IP/ASIC)'},
     '6533.TWO': {'name': '晶心科', 'group': '01. 矽智財 (IP/ASIC)'},
     '6684.TWO': {'name': '安格', 'group': '01. 矽智財 (IP/ASIC)'},
-    '6756.TW': {'name': '威鋒電子', 'group': '01. 矽智財 (IP/ASIC)'},
+    '756.TW': {'name': '威鋒電子', 'group': '01. 矽智財 (IP/ASIC)'},
 
     # ─── 02. AI 晶片 & 主流 IC 設計 ───
     '2454.TW': {'name': '聯發科', 'group': '02. AI 晶片 & 主流 IC 設計'},
@@ -77,7 +77,7 @@ AI_STOCKS_DICT = {
     '3265.TWO': {'name': '台星科', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
     '8110.TW': {'name': '華東', 'group': '05. 先進封裝與測試 (CoWoS/FOPLP)'},
 
-    # ─── 06. 半導體設備、濕製程與材料（🔥 東捷、雷科完美對齊） ───
+    # ─── 06. 半導體設備、濕製程與材料 ───
     '3131.TWO': {'name': '弘塑', 'group': '06. 半導體設備、濕製程與材料'},
     '3583.TW': {'name': '辛耘', 'group': '06. 半導體設備、濕製程與材料'},
     '6187.TWO': {'name': '萬潤', 'group': '06. 半導體設備、濕製程與材料'},
@@ -127,7 +127,7 @@ AI_STOCKS_DICT = {
     # ─── 09. 網路通訊、交換器與 5G 設備 ───
     '2345.TW': {'name': '智邦', 'group': '09. 網路通訊、交換器與 5G 設備'},
     '3380.TW': {'name': '明泰', 'group': '09. 網路通訊、交換器與 5G 設備'},
-    '6285.TW': {'name': '啟碁', 'group': '09. 網路通訊、交換器 與 5G 設備'},
+    '6285.TW': {'name': '啟碁', 'group': '09. 網路通訊、交換器與 5G 設備'},
     '5388.TW': {'name': '中磊', 'group': '09. 網路通訊、交換器與 5G 設備'},
     '4906.TW': {'name': '正文', 'group': '09. 網路通訊、交換器與 5G 設備'},
     '2332.TW': {'name': '友訊', 'group': '09. 網路通訊、交換器與 5G 設備'},
@@ -222,7 +222,7 @@ AI_STOCKS_DICT = {
     '3003.TW': {'name': '健和興', 'group': '17. NVLink 連接線、連接器與高速線束'},
     '3526.TWO': {'name': '凡甲', 'group': '17. NVLink 連接線、連接器與高速線束'},
     '3710.TW': {'name': '連展投控', 'group': '17. NVLink 連接線、連接器與高速線束'},
-    '6290.TW': {'name': '良維', 'group': '17. NVLink 連接線、連接器與高速線束'},
+    '6290.TW': {'name': '良維', 'group': '17. NVLink 連展投控', 'group': '17. NVLink 連接線、連接器與高速線束'},
     '3605.TW': {'name': '宏致', 'group': '17. NVLink 連接線、連接器與高速線束'},
 
     # ─── 18. 特高壓重電與不斷電配電系統 ───
@@ -246,7 +246,7 @@ AI_STOCKS_DICT = {
     '3090.TW': {'name': '日電貿', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
     '6284.TWO': {'name': '佳邦', 'group': '19. 被動元件 (MLCC/電感/電阻)'},
 
-    # ─── 20. 二極體、MOSFET 與功率半導體（🔥 全宇昕、力士、廣閎科、朋程、德微完美編入） ───
+    # ─── 20. 二極體、MOSFET 與功率半導體（🔥 全宇昕、力士、廣閎科完美補齊） ───
     '3675.TWO': {'name': '德微', 'group': '20. 二極體、MOSFET 與功率半導體'},
     '2481.TW': {'name': '強茂', 'group': '20. 二極體、MOSFET 與功率半導體'},
     '2425.TW': {'name': '鼎元', 'group': '20. 二極體、MOSFET 與功率半導體'},
@@ -264,7 +264,7 @@ AI_STOCKS_DICT = {
     '6759.TWO': {'name': '力士', 'group': '20. 二極體、MOSFET 與功率半導體'},
     '6693.TWO': {'name': '廣閎科', 'group': '20. 二極體、MOSFET 與功率半導體'},
 
-    # ─── 21. 智慧視覺、機器人與自動化具身智能（🔥 完美校正昆盈字串） ───
+    # ─── 21. 智慧視覺、機器人與自動化具身智能（🔥 完美修正昆盈字串） ───
     '2359.TW': {'name': '所羅門', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
     '6188.TW': {'name': '廣明', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
     '2464.TW': {'name': '盟立', 'group': '21. 智慧視覺、機器人與自動化具身智能'},
@@ -340,7 +340,7 @@ def calculate_historical_win_rate(df_d):
         else: return "85%"
     except: return "83%"
 
-# 💡 億萬級別：【大戶三大法人籌碼即時回溯推算晶片】
+# 💡 核心晶片：【大戶三大法人籌碼即時量價能量回溯推算晶片】
 # 完美算出當日主力、外資、投信每日買賣超（張）與 5 日累計吸籌天數，徹底解決網頁 Timeout 崩潰！
 def calculate_institutional_flows(df_ticker_d):
     try:
@@ -432,10 +432,10 @@ if FILTERED_TICKERS:
 
         tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
             "🚀 今日實戰精選買入名單", "🔥 日K核心動能大篩選", "🛡️ 日線級別均線防守選股", 
-            "💎 個股日K智庫全景診斷", "📊 AI大軍日K成交量排行", "💰 族群日K資金輪動監控", "📱 持股防守艙"
+            "💎 個股日K智庫全景診斷", "📊 AI大軍日K成交量排行", "💰 族群日K資金輪動监控", "📱 持股防守艙"
         ])
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 0【今日實戰精選買入名單】（🔥 移除限制，純均線貼緊度） ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 0【今日實戰精選買入名單】 ＝＝＝＝＝＝＝＝＝＝
         with tab0:
             st.markdown("### 🦅 台股 AI 雙軌日K期望值波段作戰艙（純看均線貼緊換手）")
             rocket_confirmed = []
@@ -532,7 +532,7 @@ if FILTERED_TICKERS:
                 except: continue
             if correction_list: st.dataframe(pd.DataFrame(correction_list).reset_index(drop=True), use_container_width=True)
 
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 3【個股日K智庫全景診斷艙】（⚡完全體：大師級五合一完美解說） ＝＝＝＝＝＝＝＝＝＝
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 3【個股日K智庫全景診斷艙】（⚡骨架級別全面解構修復！） ＝＝＝＝＝＝＝＝＝＝
         with tab3:
             st.subheader("💎 個股日K數據智慧解密與完美註解智庫艙")
             selector_options = {t: f"{t} {FILTERED_STOCKS_DICT[t]['name']}" for t in FILTERED_TICKERS}
@@ -560,8 +560,8 @@ if FILTERED_TICKERS:
                     df_d['HIST'] = df_d['DIF'] - df_d['MACD_Sig']
                     
                     tod_d = df_d.iloc[-1]; yes_d = df_d.iloc[-2]
-                    p_close = LATEST_PRICES_DAILY.get(selected_ticker, tod_d['Close']) 
-                    yesterday_close = YESTERDAY_CLOSES_DAILY.get(selected_ticker, p_close)
+                    p_close = float(LATEST_PRICES_DAILY.get(selected_ticker, tod_d['Close']))
+                    yesterday_close = float(YESTERDAY_CLOSES_DAILY.get(selected_ticker, p_close))
                     daily_support = (2 * ((yes_d['High'] + yes_d['Low'] + yes_d['Close']) / 3)) - yes_d['High']
                     
                     # 🥇 1. 頂層即時法人籌碼戰情看板
@@ -574,55 +574,87 @@ if FILTERED_TICKERS:
                     with col3: st.metric("🛡️ 投信加碼張數", chips["今日投信"])
                     with col4: st.metric("📊 5日籌碼大累計", chips["五日總量"])
                     
-                    # 🥈 2. 空間乖離與指標雙背離偵測晶片
-                    trend_lbl = diagnose_trend_status(p_close, df_d['MA20'].iloc[-1], df_d['MA60'].iloc[-1])
-                    bias_5 = ((p_close - df_d['MA5'].iloc[-1]) / df_d['MA5'].iloc[-1]) * 100
-                    bias_10 = ((p_close - df_d['MA10'].iloc[-1]) / df_d['MA10'].iloc[-1]) * 100
+                    # 取出均線純數值避免 pandas Series 衝突
+                    ma5_val = float(df_d['MA5'].iloc[-1])
+                    ma10_val = float(df_d['MA10'].iloc[-1])
+                    ma20_val = float(df_d['MA20'].iloc[-1])
+                    ma60_val = float(df_d['MA60'].iloc[-1])
                     
-                    kd_div_text = "正常健康波動"
-                    macd_div_text = "多空量能平衡"
+                    # 計算核心空間乖離率
+                    bias_5 = ((p_close - ma5_val) / ma5_val) * 100
+                    bias_10 = ((p_close - ma10_val) / ma10_val) * 100
+                    bias_20 = ((p_close - ma20_val) / ma20_val) * 100
+                    trend_lbl = diagnose_trend_status(p_close, ma20_val, ma60_val)
                     
-                    # 🎯 落底反彈流核心：KD底背離演算法
-                    if p_close <= df_d['Close'].iloc[-5] and tod_d['K'] > df_d['K'].iloc[-5] and tod_d['K'] < 35:
-                        kd_div_text = "🟢【黃金底背離確認】股價雖然拉回洗盤，但低檔 KD 指標已暗中抬頭！大戶進貨痕跡敗露，強烈支持落底反彈！"
-                    # 🎯 高點修正流核心：MACD頂背離演算法
-                    if p_close >= df_d['Close'].iloc[-5] and tod_d['HIST'] < df_d['HIST'].iloc[-5] and tod_d['HIST'] > 0:
-                        macd_div_text = "🚨【高檔頂背離警報】股價雖然創高，但 MACD 紅柱動能已一波比一波矮！大戶拉高倒貨，小心隨時引發高點暴跌修正！"
+                    # 🧠 核心重寫：【解構級別文字組裝晶片】── 依據物理現況「全自動拼接段落文字」，絕不鬼打牆！
+                    trend_text = ""
+                    box_color = "info"
+                    title_text = ""
+                    
+                    if bias_10 > 6.0:
+                        trend_text = f"目前 5MA 短線乖離為 **{bias_5:+.2f}%**，10MA 控盤線乖離已偏高達 **{bias_10:+.2f}%**。這說明短期價格在太空中嚴重向外發散！對於你操作的『落底反彈到高點修正』小波段戰術來說，這時進場無異於在懸崖邊幫大戶主力接刀，風險報酬比極差。強烈建議展現狙擊手克制力，絕對不要手癢追高，耐心等待股價回踩均線支撐！"
+                        box_color = "error"
+                        title_text = "🚨【AI 智庫警戒判定：個股高空嚴重發散，嚴禁手癢追高】"
+                    elif -1.5 <= bias_10 <= 1.5:
+                        trend_text = f"目前價格與 10MA 控盤線緊緊貼合（10MA 乖離率僅有漂亮的 **{bias_10:+.2f}%**）。這代表股價先前的高空火氣已完全退去，剛好安全回踩到波段主力的防守大本營。這對於小波段戰術來說，就是回檔風險最低、向上反彈彈力最大的完美『均線換手落底發射台』，下檔防守極其好設定！"
+                        box_color = "success"
+                        title_text = "🟢【AI 智庫買入判定：精準回踩 10MA 控盤安全換手區】"
+                    elif p_close < ma10_val:
+                        trend_text = f"目前股價已無情跌破 10MA 控盤線（10MA 乖離率來到弱勢的 **{bias_10:.2f}%**）。短線走勢正式轉落進入空方震盪修正背景，下方的底部分形或止穩信號尚未完全確立。此時不符合落底反彈的發動時機，操作應保持冷靜觀望，切勿盲目進場猜底、徒手接下殺的飛刀。"
+                        box_color = "warning"
+                        title_text = "⏳【AI 智庫觀望判定：股價跌破控盤線，靜待底部分形確立】"
+                    else:
+                        trend_text = f"目前股價穩健運行於 10MA 控盤線之上的健康多頭軌道（5MA 乖離 **{bias_5:+.2f}%**，10MA 乖離 **{bias_10:+.2f}%**）。空間結構並未出現極端的過熱或破位發散，屬於小波段常態強勢推進、或是高檔良性的正常鎖碼洗盤位階。"
+                        box_color = "info"
+                        title_text = "🔵【AI 智庫常態判定：個股處於多頭常態洗盤或推進位階】"
+
+                    # ⚡ 雙指標背離鑑定文字動態拼接
+                    is_kd_bottom_div = (p_close <= float(df_d['Close'].iloc[-5])) and (float(tod_d['K']) > float(df_d['K'].iloc[-5])) and (float(tod_d['K']) < 35)
+                    is_macd_top_div = (p_close >= float(df_d['Close'].iloc[-5])) and (float(tod_d['HIST']) < float(df_d['HIST'].iloc[-5])) and (float(tod_d['HIST']) > 0)
+                    
+                    div_text = ""
+                    if is_kd_bottom_div:
+                        div_text = "🎯 **【指標特徵：低檔KD底背離】** 日K級別的 KD 技術指標在低檔區確立黃金交叉，且呈現一底比一底高的底背離結構！這強烈暗示著面盤價格雖然拉回洗盤，但底層的實際賣壓已經被大戶暗中死鎖接走。這就是落底反彈波段準備點火發動的最強技術烽火訊號！"
+                        if box_color == "success": title_text = "🔥【AI 智庫共振判定：10MA換手 × KD低檔底背離黃金買點】"
+                    elif is_macd_top_div:
+                        div_text = "🚨 **【指標特徵：高檔MACD頂背離】** 股價在外表刷出反彈新高，但代表實質大戶資金推土力道的 MACD 紅柱體卻出現一峰比一峰低的嚴重頂背離！主力正在用價格『拉高掩護倒貨』，小波段隨時面臨高點修正無情下殺，請務必開啟逃生艙、利索獲利了結！"
+                        box_color = "error"
+                        title_text = "💥【AI 智庫危險判定：股價創高 + MACD頂背離力竭賣點】"
+                    else:
+                        div_text = "⚖️ **【指標特徵：動能常態同步】** 目前 KD 指標與 MACD 紅綠柱的動能波動與現價走勢完全同步，未檢測到任何明顯的頂背離力竭或底背離大戶吃貨特徵，多空動能維持既有常態波段軌道運行。"
+
+                    # ⚡ 籌碼法人段落文字動態拼接
+                    chips_text = ""
+                    if "狂掃" in chips["評級"]:
+                        chips_text = f"目前大戶籌碼展現出強烈的**【主力連夜狂掃】**格局。大戶資金完全無視短線洗盤震盪，技術面的均線換手（或高空推進）背後有真金白銀的鋼鐵莊家意志在撐腰，小波段上攻底氣十足。"
+                    elif "調節" in chips["五日總量"]:
+                        chips_text = f"目前大戶籌碼呈現持續流出的**【大戶反手調節】**格局。法人與主力正趁市場熱度升溫時逢高出脫。此時即使技術面出現短線反彈，也極度缺乏核心大資金續航，切勿盲目戀戰。"
+                    else:
+                        chips_text = f"目前主力與法人呈現量縮觀望、常態小幅換手。籌碼面純淨度中等，並未見到散戶大面積恐慌盤或大戶瘋狂拋售。盤面正在積蓄能量，靜待下半週資金題材重新點火拉升。"
 
                     vol_ma5 = df_d['Volume'].rolling(window=5).mean().iloc[-1]
                     vol_ratio = tod_d['Volume'] / vol_ma5 if vol_ma5 > 0 else 1.0
                     
-                    # 🥉 3. 完全體智慧報告派生
+                    # 🏅 4. 列印完全動態拆解的完美智庫大報告
                     with st.container(border=True):
                         st.markdown(f"### 🦅 {FILTERED_STOCKS_DICT[selected_ticker]['name']} AI 全方位量化全景完美報告")
                         st.markdown(
-                            f"**🔍 核心量化空間引數對帳：**\n"
+                            f"**🔬 實戰核心空間參數對帳：**\n"
                             f"* 🌡️ **5日均線（5MA）當前乖離**：`{bias_5:+.2f}%` | 🚀 **10日均線（10MA）控盤線乖離**：`{bias_10:+.2f}%`\n"
                             f"* 🛡️ **日線 20MA 生命防護線**：`{df_d['MA20'].iloc[-1]:.2f} 元` | 📌 **明日盤中支撐防守點**：`{daily_support:.2f} 元`\n"
                             f"* 🌟 **目前波段趨勢位階背景**：`{trend_lbl}` | 📈 **歷史長線量化期望值勝率**：`{calculate_historical_win_rate(df_d)}`"
                         )
                         st.markdown("---")
                         
-                        if bias_10 <= 1.5 and tod_d['K'] > tod_d['D']:
-                            st.success(
-                                f"### 🟢【AI 智庫落底判定：安全換手區，多頭動能準備點火】\n\n"
-                                f"**🔍 智慧買賣核心數據註解診斷：**\n\n"
-                                f"1. **📈 趨勢與乖離位階**：目前整體趨勢處於 **{trend_lbl}**。現價距離 10MA 控盤線只有 **{bias_10:.2f}%**，均線空間極致收斂。這說明散戶恐慌、大戶踩煞車，洗盤已經洗到核心成本區，下檔停損極小，期望值極大！\n\n"
-                                f"2. **🔥 轉折與雙指標背離鑑定**：\n"
-                                f"   * **落底轉折偵測（看KD）**：{st.session_state.get('kd_div', kd_div_text)}\n"
-                                f"   * **高點修正偵測（看MACD）**：{macd_div_text}\n\n"
-                                f"3. **💰 籌碼法人動向**：今日日K成交量為 5 日均量的 **{vol_ratio:.1f} 倍**。籌碼面三大法人呈現 **{chips['評級']}**。主力大戶的真金白銀已在 10MA 成本防線集結完畢，小波段彈升行情正式起跑！"
-                            )
-                        else:
-                            st.info(
-                                f"### 🔵【AI 智庫常態判定：個股處於高空洗盤或盤整休息位階】\n\n"
-                                f"**🔍 智慧買賣核心數據註解診斷：**\n\n"
-                                f"1. **📈 趨勢與乖離位階**：目前 5MA 乖離為 **{bias_5:.2f}%**，10MA 乖離為 **{bias_10:.2f}%**。目前短線價格在高空發散，由於你操作的是『落底反彈到高點修正』的小波段，這時候進場會平白幫別人扛 3%~5% 的拉回成本，強烈建議拒絕手癢，耐心等待其回踩均線。\n\n"
-                                f"2. **🔥 轉折與雙指標背離鑑定**：\n"
-                                f"   * **落底轉折偵測（看KD）**：{kd_div_text}\n"
-                                f"   * **高點修正偵測（看MACD）**：{macd_div_text}\n\n"
-                                f"3. **💰 籌碼法人動向**：目前大戶籌碼處於 **{chips['評級']}**。放長線釣大魚，讓子彈飛一會，直到 10MA 乖離率自動修正回安全的黃金壓縮區，我們再發動致命一擊！"
-                            )
+                        # 呼叫動態拼接文字
+                        box_dispatcher = {"success": st.success, "error": st.error, "warning": st.warning, "info": st.info}
+                        box_dispatcher[box_color](
+                            f"### {title_text}\n\n"
+                            f"**🔍 智慧買賣核心數據註解診斷：**\n\n"
+                            f"1. **📈 趨勢與乖離空間診斷**：{trend_text}\n\n"
+                            f"2. **🔥 轉折與雙指標背離鑑定**：{div_text}\n\n"
+                            f"3. **💰 籌碼法人動態方向**：今日日K成交量為 5 日均量的 **{vol_ratio:.1f} 倍**。{chips_text}"
+                        )
             except Exception as e: st.info("數據初始化整合中，請稍候...")
 
         # ＝＝＝＝＝＝＝＝＝＝ Tab 4 到 Tab 5 ＝＝＝＝＝＝＝＝＝＝
@@ -718,13 +750,13 @@ if FILTERED_TICKERS:
                     "名稱": st.column_config.TextColumn("名稱", width="small"),
                     "現價": st.column_config.NumberColumn("現價", width="small"),
                     "漲跌幅": st.column_config.TextColumn("漲跌幅", width="small"),
-                    "5日線乖離": st.column_config.NumberColumn("5日乖離", width="small", format="%+.1f%%"),
+                    "5日乖離": st.column_config.NumberColumn("5日乖離", width="small", format="%+.1f%%"),
                     "🔮 個股診斷": st.column_config.TextColumn("🔮 個股診斷", width="medium"),
                     "個股量增": st.column_config.NumberColumn("量增", width="small", format="%.2f x")
                 }
                 
                 st.data_editor(
-                    flow_display[["族群", "代號", "名稱", "現價", "漲跌幅", "5日線乖離", "🔮 個股診斷", "個股量增"]],
+                    flow_display[["族群", "代號", "名稱", "現價", "漲跌幅", "5日乖離", "🔮 個股診斷", "個股量增"]],
                     column_config=detail_table_config, hide_index=True, disabled=True, use_container_width=True
                 )
 
