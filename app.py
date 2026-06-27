@@ -600,7 +600,7 @@ if FILTERED_TICKERS:
                         stock_name = AI_STOCKS_DICT[ticker]['name']
                         group_name = AI_STOCKS_DICT[ticker]['group'].split(' ')[1] if ' ' in AI_STOCKS_DICT[ticker]['group'] else AI_STOCKS_DICT[ticker]['group']
                         
-                        # --- 🛠️ 鋼鐵校對：將 Payload 所有對應欄位全部修正為正統中文！ ───
+                        # --- 🛠️ 鋼鐵校對：將 Payload 所有對應欄位全部修正為正統中文對齊 ───
                         analysis_payload = {
                             "代號": ticker.split('.')[0],
                             "名稱": stock_name,
@@ -676,7 +676,7 @@ if FILTERED_TICKERS:
                 
             st.markdown("---")
             # ─── 渲染區 2：潛力黑馬榜 ───
-            st.markdown("### 🌱 🟢 潛力黑馬榜：日K底部穩健反彈（精準貼緊 20MA 生命線）")
+            st.markdown("### 🌱 🟢 潛力黑馬榜：日K底部穩健反彈（精穩貼緊 20MA 生命線）")
             if rebound_confirmed:
                 df_reb = pd.DataFrame(rebound_confirmed)
                 st.data_editor(df_reb[["代號", "名稱", "市價", "進場區間", "目標區", "勝率", "今日支撐", "停損價"]], column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
@@ -742,7 +742,7 @@ if FILTERED_TICKERS:
                     to_names = "、".join([f"【{x.split(' ')[1]}】" for x in to_groups["group"].tolist()])
                     st.info(
                         f"🔮 **操盤手實戰換手完美註解**：\n\n"
-                        f"💡 **大脈絡監測**：目前大戶資金正連續 2-3 天從過熱的 {from_names} 板塊執行『暗中抽血與利潤套現』。**主力已將其當作波段大提款機**，手上若有相關持股，請立刻收緊 60分K 生命防線，嚴禁看新聞利多傻傻進場幫大戶接刀！\n\n"
+                        f"💡 **大脈絡監測**：currently大戶資金正連續 2-3 天從過熱的 {from_names} 板塊執行『暗中抽血與利潤套現』。**主力已將其當作波段大提款機**，手上若有相關持股，請立刻收緊 60分K 生命防線，嚴禁看新聞利多傻傻進場幫大戶接刀！\n\n"
                         f"與此同時，由提款區抽離的百億巨資，正無聲無息地**搬風並全面建倉到低位階的 {to_names} 龍頭指標股身邊**！這完全契合你『落底反彈流』的黃金狩獵背景，晚上做功課請直接鎖定這些吸籌指標個股，明天早盤動能點火即是發射信號！"
                     )
             else: st.info("⏳ 次族群資金遷徙數據同步中...")
@@ -863,7 +863,7 @@ if FILTERED_TICKERS:
                             action_title = "🎯 【實戰終極戰略決策：完全符合買進標準，明早準備大膽開擊！】"
                             action_desc = (
                                 f" * 📈 **預估早盤點火換手勝率**：` {win_rate_val_s} `（高達八成以上的歷史期望值優勢）\n"
-                                f" * 🟢 **完全白話【買進原因】**：目前的狀況非常好！這檔股票現在剛好跌回大戶波段防守的成本大本營（10MA控盤線），同時觸發了【{div_day_kd_s}天真結構KD底背離】。白話來說，過去一到往週股價雖然在洗盤下跌，但大戶其實一直在暗中偷偷吃貨。加上今天主力進駐，說明彈簧已經壓到最底，明天早盤只要看成交量比平常放大1.2倍以上、且開高走高拉出紅K，就是大戶正式踩油門的『點火發射訊號』，進場虧損風險不到2%', 極度肥美！\n"
+                                f" * 🟢 **完全白話【買進原因】**：目前的狀況非常好！這檔股票現在剛好跌回大戶波段防守的成本大本營（10MA控盤線），同時觸發了【{div_day_kd_s}天真結構KD底背離】。白話來說，過去一到往週股價雖然在洗盤下跌，但大戶其實一直在暗中偷偷吃貨。加上今天主力進駐，說明彈簧已經壓到最底，明天早盤只要看成交量比平常放大1.2倍以上、且開高走高拉出紅K，就是大戶正式踩油門的『點火發射訊號』，進場虧損風險不到2%，極度肥美！\n"
                                 f" * 🔴 **完全白話【防守撤退停損條件】**：買進後絕不戀戰，下檔防守線直接死守日線 10MA（現價約 `{ma10_s:.1f}` 元）。一旦收盤無情破位跌破這條主力成本線，說明大戶防線棄守，我們立刻利索換股停損，用2%的極小代價去博取上方15-20%的爆發肉量！"
                             )
                         elif box_color_s == "error":
@@ -995,7 +995,7 @@ if FILTERED_TICKERS:
                         trend_text = f"目前股價已無情跌破 10MA 控盤線（10MA 乖離為 **{bias_10:.2f}%**），短線走勢正式轉落進入空方震盪修正背景，下方的底部分形或止穩信號尚未完全確立。"
                         box_color = "warning"; title_text = "⏳【AI 智庫觀望判定：股價跌破控盤線，靜待底部分形確立】"
                     else:
-                        trend_text = f"法律股價穩健運行於 10MA 控盤線之漸健康的多頭軌道（5MA 乖離 **{bias_5:+.2f}%**，10MA 乖離 **{bias_10:+.2f}%**）。空間結構並未出現極端的過熱或破位發散。"
+                        trend_text = f"目前股價穩健運行於 10MA 控盤線之漸健康的多頭軌道（5MA 乖離 **{bias_5:+.2f}%**，10MA 乖離 **{bias_10:+.2f}%**）。空間結構並未出現極端的過熱或破位發散。"
                         box_color = "info"; title_text = "🔵【AI 智庫常態判定：個股處於多頭常態洗盤或推進位階】"
 
                     is_kd_bottom_div = False; kd_div_day_idx = -1; current_k = float(tod_d['K'])
@@ -1111,7 +1111,7 @@ if FILTERED_TICKERS:
                     "現價": st.column_config.NumberColumn("現價", width="small"),
                     "漲跌幅": st.column_config.TextColumn("漲跌幅", width="small"),
                     "5日線乖離": st.column_config.NumberColumn("5日線乖離", width="small", format="%+.1f%%"),
-                    "🔮 個股診斷"] = flow_display["stock_trend"]
+                    "🔮 個股診斷": st.column_config.TextColumn("🔮 個股診斷", width="medium")
                 }
                 st.data_editor(flow_display[["族群", "代號", "名稱", "現價", "漲跌幅", "5日線乖離", "🔮 個股診斷"]], column_config=detail_table_config, hide_index=True, disabled=True, use_container_width=True)
 
