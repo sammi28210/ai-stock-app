@@ -156,10 +156,10 @@ AI_STOCKS_DICT = {
     # ─── 08. 矽光子、CPO 與光收發模組 ───
     '3081.TWO': {'name': '聯亞', 'group': '08. 矽光子、CPO 與光收發模組'},
     '6451.TW': {'name': '訊芯-KY', 'group': '08. 矽光子、CPO 與光收發模組'},
-    '3363.TWO': {'name': '上詮', 'group': '08. 矽光子 + CPO光收發'},
+    '3363.TWO': {'name': '上詮', 'group': '08. 矽光子、CPO 與光收發模組'},
     '3450.TW': {'name': '聯鈞', 'group': '08. 矽光子、CPO 與光收發模組'},
     '6442.TW': {'name': '光聖', 'group': '08. 矽光子、CPO 與光收發模組'},
-    '4979.TW': {'name': '華星光', 'group': '08. 矽光子、CPO 與光收發模組'},
+    '4979.TW': {'name': '學星光', 'group': '08. 矽光子、CPO 與光收發模組'},
     '4908.TWO': {'name': '前鼎', 'group': '08. 矽光子、CPO 與光收發模組'},
     '4977.TW': {'name': '眾達-KY', 'group': '08. 矽光子、CPO 與光收發模組'},
     '3163.TWO': {'name': '波若威', 'group': '08. 矽光子、CPO 與光收發模組'},
@@ -198,7 +198,7 @@ AI_STOCKS_DICT = {
     '2377.TW': {'name': '微星', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
     '2353.TW': {'name': '宏碁', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
     '2357.TW': {'name': '華碩', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
-    '2308.TW': {'name': '台達電組裝', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
+    '2308.TW': {'name': '台達電', 'group': '10. AI 伺服器代工組裝 (ODM/EMS/品牌)'},
 
     # ─── 11. 核心液冷、風扇與核心散熱 ───
     '3017.TW': {'name': '奇鋐', 'group': '11. 核心液冷、風扇與核心散熱'},
@@ -546,6 +546,18 @@ if FILTERED_TICKERS:
                 })
             except: continue
 
+        # 🚀 預先為 Tab 0 萃取大挪移註解需要的動態變態
+        from_names_tab0, to_names_tab0 = "", ""
+        if group_flows:
+            flow_df_calc = pd.DataFrame(group_flows)
+            agg_df_calc = flow_df_calc.groupby("group").agg({"value_today": "sum", "value_ma5": "sum", "p_change": "mean"}).reset_index()
+            agg_df_calc["ratio"] = agg_df_calc["value_today"] / agg_df_calc["value_ma5"]
+            from_groups_calc = agg_df_calc.sort_values(by="ratio", ascending=True).head(2)
+            to_groups_calc = agg_df_calc.sort_values(by="ratio", ascending=False).head(2)
+            from_names_tab0 = "、".join([f"【{x.split(' ')[1]}】" for x in from_groups_calc["group"].tolist()])
+            to_names_tab0 = "、".join([f"【{x.split(' ')[1]}】" for x in to_groups_calc["group"].tolist()])
+
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 0【今日實戰精選買入名單】 ＝＝＝＝＝＝＝＝＝＝
         with tab0:
             st.markdown("### 🦅 台股 AI 期望值波段作戰發射艙")
             rocket_confirmed, rebound_confirmed, ignition_sphere_confirmed = [], [], []
@@ -574,18 +586,18 @@ if FILTERED_TICKERS:
                         target_15, target_20 = p_close * 1.15, p_close * 1.20
                         stock_win_rate = calculate_historical_win_rate(df_d)
                         
-                        is_kd_div = False
+                        is_tab0_kd_div = False
                         if tod_d['K'] < 40:
                             for idx_b in range(3, 21):
                                 if idx_b >= len(df_d): break
                                 hist_row = df_d.iloc[-idx_b]
                                 if hist_row['Close'] >= p_close and hist_row['K'] < tod_d['K'] and hist_row['K'] < 40:
-                                    is_kd_div = True
+                                    is_tab0_kd_div = True
                                     break
                         
                         bias_10_val = ((p_close - df_d['MA10'].iloc[-1]) / df_d['MA10'].iloc[-1]) * 100
                         
-                        if abs(bias_10_val) <= 1.5 and is_kd_div:
+                        if abs(bias_10_val) <= 1.5 and is_tab0_kd_div:
                             ignition_sphere_confirmed.append({
                                 "代號": ticker.split('.')[0], "名稱": FILTERED_STOCKS_DICT[ticker]['name'], "市價": round(p_close, 2),
                                 "進場成本防線": f"{(df_d['MA10'].iloc[-1]*0.985):.1f}~{(df_d['MA10'].iloc[-1]*1.015):.1f}",
@@ -626,6 +638,16 @@ if FILTERED_TICKERS:
             if rebound_confirmed:
                 st.data_editor(pd.DataFrame(rebound_confirmed), column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
             else: st.info("⏳ 目前暫時沒有標的『溫和黏在日線 20MA 防守線身邊』。")
+
+            # 🔥 【極致共振外掛】：把資金遷徙評語直接原地烙印在 Tab 0 的最下方！
+            if from_names_tab0 and to_names_tab0:
+                st.markdown("---")
+                st.markdown("### 🗺️ 當前市場大資金板塊星移大局觀（跨族群換手脈絡）")
+                st.info(
+                    f"🔮 **操盤手實戰換手大局完美註解**：\n\n"
+                    f"💡 **大脈絡監測**：目前大戶資金正連續 2-3 天從過熱的 {from_names_tab0} 板塊執行『暗中抽血與利潤套現』。**主力已將其當作波段大提款機**，手上若有相關持股，請立刻收緊 60分K 生命防線，嚴禁看新聞利多傻傻進場幫大戶接刀！\n\n"
+                    f"與此同時，由提款區抽離的百億巨資，正無聲無息地**搬風並全面建倉到低位階的 {to_names_tab0} 龍頭指標股身邊**！這完全契合你『落底反彈流』的黃金狩獵背景，晚上做功課請直接鎖定這些吸籌指標個股，明天早盤動能點火即是發射信號！"
+                )
 
         # ＝＝＝＝＝＝＝＝＝＝ Tab 1【🔄 獨立：次族群資金換手地圖分頁】（🔥 特打活體查詢功能） ＝＝＝＝＝＝＝＝＝＝
         with tab1:
@@ -787,7 +809,7 @@ if FILTERED_TICKERS:
                             action_title = "🎯 【實戰終極戰略決策：完全符合買進標準，明早準備大膽開擊！】"
                             action_desc = (
                                 f" * 📈 **預估早盤點火換手勝率**：` {win_rate_val_s} `（高達八成以上的歷史期望值優勢）\n"
-                                f" * 🟢 **完全白話【買進原因】**：目前的狀況非常好！這檔股票現在剛好跌回大戶波段防守的成本大本營（10MA控盤線），同時觸發了【{div_day_kd_s}天真結構KD底背離】。白話來說，過去一到兩週股價雖然在洗盤下跌，但大戶其實一直在暗中偷偷吃貨。加上今天主力進駐，說明彈簧已經壓到最底，明天早盤只要看成交量比平常放大1.2倍以上、且開高走高拉出紅K，就是大戶正式踩油門的『點火發射訊號』，進場虧損風險不到2%，極度肥美！\n"
+                                f" * 🟢 **完全白話【買進原因】**：目前的狀況非常好！這檔股票現在剛好跌回大戶波段防守的成本大本營（10MA控盤線），同時觸發了【{div_day_kd_s}天真結構KD底背離】。白話來說，過去一到往週股價雖然在洗盤下跌，但大戶其實一直在暗中偷偷吃貨。加上今天主力進駐，說明彈簧已經壓到最底，明天早盤只要看成交量比平常放大1.2倍以上、且開高走高拉出紅K，就是大戶正式踩油門的『點火發射訊號』，進場虧損風險不到2%，極度肥美！\n"
                                 f" * 🔴 **完全白話【防守撤退停損條件】**：買進後絕不戀戰，下檔防守線直接死守日線 10MA（現價約 `{ma10_s:.1f}` 元）。一旦收盤無情破位跌破這條主力成本線，說明大戶防線棄守，我們立刻利索換股停損，用2%的極小代價去博取上方15-20%的爆發肉量！"
                             )
                         elif box_color_s == "error":
@@ -943,7 +965,7 @@ if FILTERED_TICKERS:
                         div_text = f"🎯 **【指標特徵：20日滾動型 KD 底背離】** 經活體晶片比對，個股與 **{kd_div_day_idx} 天前** 的結構波段低點呈現完美的『真底背離』！小波段反彈重砲已上膛！"
                         if box_color in ["success", "info"]: box_color = "success"; title_text = f"🔥【AI 智庫共振判定：回踩 10MA × 契合 {kd_div_day_idx}天大底背離黃金買點】"
                     elif is_macd_top_div:
-                        div_text = f"🚨 **【指標特徵：20日滾動型 MACD 頂背離】** 股價今日雖然刷出短線反彈新新高，但與 **{macd_div_day_idx} 天前** 的前波高點相比，MACD 紅柱能量竟然出現了嚴重的結構性委縮（頂背離）！請立刻準備執行彈射停利！"
+                        div_text = f"🚨 **【指標特徵：20日滾動型 MACD 頂背離】** 股價今日雖然刷出短線反彈新高，但與 **{macd_div_day_idx} 天前** 的前波高點相比，MACD 紅柱能量竟然出現了嚴重的結構性委縮（頂背離）！請立刻準備執行彈射停利！"
                         box_color = "error"; title_text = "### 💥【AI 智庫危險判定：價格虛漲 × {macd_div_day_idx}天結構頂背離逃生點】"
                     else:
                         div_text = "⚖️ **【指標特徵：動能常態同步】** 經 20 日滾動背景比對，目前 KD 與 MACD 動能並未與過去一個月內的高低點發生 any 結構性背離。"
