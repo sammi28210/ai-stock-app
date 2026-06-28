@@ -1079,7 +1079,7 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                 except: continue
             if correction_list: st.dataframe(pd.DataFrame(correction_list).reset_index(drop=True), use_container_width=True)
 
-                with tab4:
+        with tab4:
             st.subheader("💎 個股日K數據智慧解密與完美註解智庫艙")
             selector_options = {t: f"{t} {FILTERED_STOCKS_DICT[t]['name']}" for t in FILTERED_TICKERS}
             selected_ticker = st.selectbox("請選擇你想查看全景完美註解的 AI 股：", options=FILTERED_TICKERS, format_func=lambda x: selector_options[x])
