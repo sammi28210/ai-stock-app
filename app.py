@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈监控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 350+ 大軍終極永久看板")
-st.caption("🎯 戰略完全體：【獨立資金換手地圖分頁】× 【20日滾動結構背離】× 【蓄勢發射球動能偵測】")
+st.caption("🎯 戰略完全體：【大仁哥週報分頁】× 【獨立資金換手地圖分頁】× 【20日結構背離】× 【2日留存觀察防線】")
 
 # --- ⚙️【持股永久固定區】修改您的真實庫存與成本，重新整理絕不消失！ ---
 if 'my_portfolio' not in st.session_state:
@@ -365,7 +365,7 @@ AI_STOCKS_DICT = {
     '6116.TW': {'name': '彩晶', 'group': '23. 光學鏡頭、面板與車用電子'},
     '2393.TW': {'name': '億光', 'group': '23. 光學鏡頭、面板與車用電子'},
     '3714.TW': {'name': '富采', 'group': '23. 光學鏡頭、面板與車用電子'},
-    '3552.TWO': {'name': '同致', 'group': '23. 光學鏡頭、面板與車用電子'},
+    '3552.TWO': {'name': '同致', 'group': '23. 光學鏡頭、面板車用電子'},
     '1533.TW': {'name': '車王電', 'group': '23. 光學鏡頭、面板與車用電子'},
     '2231.TW': {'name': '為升', 'group': '23. 光學鏡頭、面板與車用電子'},
     '2497.TW': {'name': '怡利電', 'group': '23. 光學鏡頭、面板與車用電子'},
@@ -687,7 +687,7 @@ if FILTERED_TICKERS:
                             f"* 🚀 **確定能進場的原因**：均線價格壓彈簧壓到最極致，大戶籌碼完成吸籌，今天主力大資金再度表態！\n"
                             f"* ⚠️ **進場後預防針（波動防守）**：進場後主力通常會有常態性的洗盤震盪，明早若遇到小幅拉回，**只要不跌破極控停損價 `{item['極控停損']}` 元，就絕對不要被洗出場**。防守點卡死 10MA，我們用極小風險，去博取上方 `{item['target_str']}` 元的波段肥美利潤！"
                         )
-            else: st.info("⏳ 今晚全市場大數據掃描：暫無個股同時完美符合『10MA壓縮 ＋ 20日指標真底背離』發发射球特徵。")
+            else: st.info("⏳ 今晚全市場大數據掃描：暫無個股同時完美符合『10MA壓縮 ＋ 20日指標真底背離』發射特徵。")
             
             st.markdown("---")
             # ─── 渲染區 1：狂飆悍馬榜 ───
@@ -698,14 +698,14 @@ if FILTERED_TICKERS:
                 
                 for item in rocket_confirmed:
                     with st.expander(f"🔥 飆股換手動作查閱：{item['代號']} {item['名稱']} 實戰指引與即時動作指令", expanded=False):
-                        box_dispatcher = {"success": st.success, "info": st.info, "warning": st.warning, "error": st.error}
+                        box_dispatcher = {"success": st.success, "info": st.info}
                         box_dispatcher[item["box_style"]](f"### 🛡️ 實戰動作手令：{item['發射指令']}")
                         st.write(
                             f"#### ⚡ {item['名稱']}（{item['代號']}）── 【強勢悍馬常態軌道・主升換手動作】\n"
                             f"* 📈 **技術主升勝率**：` {item['勝率']} ` | 💰 **短線籌碼實況**：` {item['chips_str']} `\n\n"
                             f"--- \n"
                             f"* 🟢 **基本面特徵**：作為 **{item['group_str']}** 族群的強勢多頭箭頭，基本面業績爆發力非常強悍，是多頭大戶鎖碼的必爭之地。\n"
-                            f"* 📈 **技術面解析**：目前該股日K處於常態主升段，今天股價出現了非常健康的『拉回換手點』，精準靠攏在 5MA / 10MA 控盤線身邊。這不是多頭要死掉，而是狂飆途中的良性中繼站！\n"
+                            f"* 📈 **技術面解析**：目前該股日K處於常態主升段，今天股價出現了非常健康的『拉回換手點』，精準靠攏在 5MA / 10MA 控盤線身邊。這不是多頭要死掉，而是狂飆途途中良性中繼站！\n"
                             f"* 🚀 **確定能進場的原因**：股價沒有過熱高空發散，回踩短期控盤線給予了游擊隊最舒服的『順勢搭便車』進場黃金空間。\n"
                             f"* ⚠️ **進場後預防針（波動防守）**：強勢飆股的缺點就是盤中震盪非常劇烈。**進場後明後天盤中可能會有暴震，只要收盤不無情跌破 10MA 強勢控盤防線（約 `{item['停損價']}` 元），就代表大戶莊家依然在車上**。對齊防守點，放任利潤向 `{item['target_str']}` 元常態推進！"
                         )
@@ -720,7 +720,7 @@ if FILTERED_TICKERS:
                 
                 for item in rebound_confirmed:
                     with st.expander(f"🌱 穩健黑馬安全查閱：{item['代號']} {item['名稱']} 實戰指引與即時動作指令", expanded=False):
-                        box_dispatcher = {"success": st.success, "info": st.info, "warning": st.warning, "error": st.error}
+                        box_dispatcher = {"success": st.success, "info": st.info}
                         box_dispatcher[item["box_style"]](f"### 🛡️ 實戰動作手令：{item['發射指令']}")
                         st.write(
                             f"#### 🛡️ {item['名稱']}（{item['代號']}）── 【底部黑馬復甦・穩健打底動作】\n"
@@ -840,7 +840,6 @@ if FILTERED_TICKERS:
                         ma5_s = float(tod_s['MA5']); ma10_s = float(tod_s['MA10']); ma20_s = float(tod_s['MA20']); ma60_s = float(tod_s['MA60'])
                         bias_5_s = ((p_close_s - ma5_s) / ma5_s) * 100
                         bias_10_s = ((p_close_s - ma10_s) / ma10_s) * 100
-                        trend_lbl_s = diagnose_trend_status(p_close_s, ma20_s, ma60_s)
                         
                         box_color_s = "info"; title_text_s = ""; trend_text_s = ""
                         if bias_10_s > 6.0:
@@ -888,7 +887,7 @@ if FILTERED_TICKERS:
                         elif "調節" in chips_s["五日總量"]:
                             chips_txt_s = f"且籌碼面呈現**【大戶反手調節】**。大戶主力正趁熱度升溫時逢高出脫，即使技術面有短線反彈也缺乏大資金續航，切勿盲目搶反彈。"
                         else:
-                            chips_txt_s = f"目前主力法人量縮小幅換手。籌碼純淨度中等，並未見到大面積散戶狂倒盤或大戶瘋狂拋售，盤面正在積蓄能量靜待點火。"
+                            chips_txt_s = f"目前主力法人量縮小幅換手. 籌碼純淨度中等，並未見到大面積散戶狂倒盤或大戶瘋狂拋售，盤面正在積蓄能量靜待點火。"
                         
                         v_ma5_s = df_search['Volume'].rolling(window=5).mean().iloc[-1]
                         v_ratio_s = tod_s['Volume'] / v_ma5_s if v_ma5_s > 0 else 1.0
@@ -901,15 +900,15 @@ if FILTERED_TICKERS:
                             action_title = "🎯 【實戰終極戰略決策：完全符合買進標準，明早準備大膽開擊！】"
                             action_desc = (
                                 f" * 📈 **預估早盤點火換手勝率**：` {win_rate_val_s} `（高達八成以上的歷史期望值優勢）\n"
-                                f" * 🟢 **完全白話【買進原因】**：目前的狀況非常好！這檔股票現在剛好跌回大戶波段防守的成本大本營（10MA控盤線），同時觸發了【{div_day_kd_s}天真結構KD底背離】。白話來說，過去一到往週股價雖然在洗盤下跌，但大戶其實一直在暗中偷偷吃貨。加上今天主力進駐，說明彈簧已經壓到最底，明天早盤只要看成交量比平常放大1.2倍以上、且開高走高拉出紅K，就是大戶正式踩油門的『點火發射訊號』，進場虧損風險不到2%，極度肥美！\n"
+                                f" * 🟢 **完全白話【買進原因】**：目前的狀況非常好！這檔股票現在剛好跌回大戶波段防守的成本大本營（10MA控盤線），同時觸發了【{div_day_kd_s}天真結構KD底背離】。白話來說，過去一到往週股價雖然在洗盤下跌，打大戶其實一直在暗中偷偷吃貨。加上今天主力進駐，說明彈簧已經壓到最底，明天早盤只要看成交量比平常放大1.2倍以上、且開高走高拉出紅K，就是大戶正式踩油門的『點火發射訊號』，進場虧損風險不到2%，極度肥美！\n"
                                 f" * 🔴 **完全白話【防守撤退停損條件】**：買進後絕不戀戰，下檔防守線直接死守日線 10MA（現價約 `{ma10_s:.1f}` 元）。一旦收盤無情破位跌破這條主力成本線，說明大戶防線棄守，我們立刻利索換股停損，用2%的極小代價去博取上方15-20%的爆發肉量！"
                             )
                         elif box_color_s == "error":
                             action_title = "🚨 【實戰終極戰略決策：絕對不可買進！現持股請利索執行停利】"
                             action_desc = (
                                 f" * 📈 **高空追價被套牢機率**：` 高達 85% 以上 `（此位階期望值極差，嚴禁當肉墊）\n"
-                                f" * 🟢 **完全白話【賣出 / 拒絕進場原因】**：絕對不要進去送死！這檔股票現在股價離均線太遙遠了（10MA乖離率高達偏高的 `{bias_10_s:+.2f}%`），最致命的是，它觸發了【{div_day_macd_s}天結構型MACD頂背離】。白話講就是：股價這兩天表面上雖然看起來還在拼命噴發刷短線新高，但其實主力大戶的真金白銀力道早就洩氣萎縮了，這叫『外強中乾的虛漲』，是大戶在刻意拉高誘騙散戶、掩護主力倒貨抽水。現在進場無異於在懸崖邊幫主力接飛刀！\n"
-                                f" * 🔴 **完全白話【撤退與換股大方針】**：如果手上持有這檔股票，請啟動彈射停利，利索把幾十%的獲利收進對帳單，絕對不要捨不得；如果手上是現金，請收起手癢的心魔，冷眼看全市場沒看報告的散戶在高檔洗碗套牢即可！"
+                                f" * 🟢 **完全白話【賣出 / 拒絕進場原因】**：絕對不要進去送死！這檔股票現在股價離均線太遙遠了（10MA乖離率高達偏高的 `{bias_10_s:+.2f}%`），最致命的是，它觸發了【{div_day_macd_s}天結構型MACD頂背離】。白話講就是：股價這兩天表面上雖然看起來還在拼命噴發刷短線新高，但其實主力大戶的真金白銀力道早就洩氣委縮了，這叫『外強中乾的虛漲』，是大戶在刻意拉高誘騙散戶、掩護主力倒貨抽水。現在進場無異於在懸崖邊幫主力接飛刀！\n"
+                                f" * 🔴 **完全白話【撤退與換股大方針】**：如果手上持有這檔股票，請啟動彈射停利，利索把幾十%的獲利收進對帳單，絕對不要捨不得；如果手上是現金，請收起手癢的心模，冷眼看全市場沒看報告的散戶在高檔洗碗套牢即可！"
                             )
                         elif box_color_s == "warning":
                             action_title = "⏳ 【實戰終極戰略決策：全面冷靜觀望，雙手抱胸嚴禁伸手接刀】"
@@ -933,7 +932,7 @@ if FILTERED_TICKERS:
                             f"--- \n\n"
                             f"**📈 1. 趨勢與乖離空間診斷**：{trend_text_s}\n\n"
                             f"**🔥 2. 轉折與雙指標背離鑑定**：{div_text_s}\n\n"
-                            f"**💰 3. 籌碼法人動態方向**：今日日K成交量為 5 日均量的 **{v_ratio_s:.1f} 倍**。{chips_txt_s}"
+                            f"**💰 3. 籌碼法人動態方向**：今日日K成交量為 5 日均量的 **{v_ratio_s:.1f} 倍**。{chips_s['五日總量']}"
                         )
                 except Exception as ex: st.warning(f"⚠️ {search_code} 數據活體同步中，請確保代號輸入正確並重新整理...")
 
@@ -1062,34 +1061,16 @@ if FILTERED_TICKERS:
                     else:
                         div_text = "⚖️ **【指標特徵：動能常態同步】** 經 20 日滾動背景比對，目前 KD 與 MACD 動能並未與過去一個月內的高低點發生 any 結構性背離。"
 
-                    chips_text = ""
-                    if "狂掃" in chips["評級"]: chips_text = f"目前大戶籌碼展現出強烈的**【主力連夜狂掃】**格局。小波段上攻底氣十足。"
-                    elif "調節" in chips["五日總量"]: chips_text = f"目前大戶籌碼呈現持續流出的**【大戶反手調節】**格局。切勿盲目戀戰。"
-                    else: chips_text = f"目前主力與法人呈現量縮觀望、常態小幅換手。盤面正在積蓄能量，靜待下半週資金題材重新點火拉升。"
+                    box_dispatcher = {"success": st.success, "error": st.error, "warning": st.warning, "info": st.info}
+                    box_dispatcher[box_color](
+                        f"### {title_text}\n\n"
+                        f"**🔍 智慧買賣核心數據註解診斷：**\n\n"
+                        f"1. **📈 趨勢與乖離空間診斷**：{trend_text}\n\n"
+                        f"2. **🔥 轉折與雙指標背離鑑定**：{div_text}\n\n"
+                        f"3. **💰 籌碼法人動態方向**：今日日K成交量為 5 日均量的 **{vol_ratio:.1f} 倍**。{chips['評級']}"
+                    )
+            except: pass
 
-                    vol_ma5 = df_d['Volume'].rolling(window=5).mean().iloc[-1]
-                    vol_ratio = float(tod_d['Volume'] / vol_ma5 if vol_ma5 > 0 else 1.0)
-                    
-                    with st.container(border=True):
-                        st.markdown(f"### 🦅 {FILTERED_STOCKS_DICT[selected_ticker]['name']} AI 全方位量化全景完美報告")
-                        st.markdown(
-                            f"**🔍 核心量化空間參數對帳：**\n"
-                            f"* 🌡️ **5日均線（5MA）當前乖離**：`{bias_5:+.2f}%` | 🚀 **10日均線（10MA）控盤線乖離**：`{bias_10:+.2f}%`\n"
-                            f"* 🛡️ **日線 20MA 生命防護線**：`{df_d['MA20'].iloc[-1]:.2f} 元` | 📌 **明日盤中支撐防守點**：`{daily_support:.2f} 元`\n"
-                            f"* 🌟 **目前波段趨勢位階背景**：`{trend_lbl}` | 📈 **歷史長線量化期望值勝率**：`{calculate_historical_win_rate(df_d)}`"
-                        )
-                        st.markdown("---")
-                        box_dispatcher = {"success": st.success, "error": st.error, "warning": st.warning, "info": st.info}
-                        box_dispatcher[box_color](
-                            f"### {title_text}\n\n"
-                            f"**🔍 智慧買賣核心數據註解診斷：**\n\n"
-                            f"1. **📈 趨勢與乖離空間診斷**：{trend_text}\n\n"
-                            f"2. **🔥 轉折與雙指標背離鑑定**：{div_text}\n\n"
-                            f"3. **💰 籌碼法人動態方向**：今日日K成交量為 5 日均量的 **{vol_ratio:.1f} 倍**。{chips_text}"
-                        )
-            except Exception as e: st.info("數據初始化整合中，請稍候...")
-
-        # ＝＝＝＝＝＝＝＝＝＝ Tab 5 到 Tab 7 ＝＝＝＝＝＝＝＝＝＝
         with tab5:
             st.subheader("📊 已選 AI 細分供應鏈 - 當日日K大數據量能與趨勢排行")
             volume_list = []
