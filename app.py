@@ -905,18 +905,32 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         break
                 
                 try:
-                    if matched_ticker:
-                        df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
+                                if search_code:
+                matched_ticker = None
+                for k in AI_STOCKS_DICT.keys():
+                    if k.startswith(search_code + "."):
+                        matched_ticker = k
+                        break
+                
+                if not matched_ticker:
+                    matched_ticker = search_code + ".TW"
+                    
+                try:
+                    # 第一次嘗試下載
+                    df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
+                    
+                    # 💡 終極防呆機制：如果字典建檔寫錯後綴 (例如 5347 寫成 .TW，但其實是 .TWO)，系統會自動切換重抓！
+                if df_search.empty:
+                        alt_ticker = matched_ticker.replace(".TW", ".TWO") if ".TW" in matched_ticker else matched_ticker.replace(".TWO", ".TW")
+                        df_search = yf.download(alt_ticker, period="8mo", interval="1d", progress=False).dropna()
+                        if not df_search.empty:
+                            matched_ticker = alt_ticker # 校正回歸正確的代碼
+                            
+                if df_search.empty: 
+                        st.error("❌ 無此標的，請確認代號是否正確。")
                     else:
-                        matched_ticker = search_code + ".TW"
-                        df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
-                        if df_search.empty:
-                            matched_ticker = search_code + ".TWO"
-                            df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
 
-                    if df_search.empty: st.error("❌ 無此標的，請確認代號是否正確。")
-                    else:
-                        if isinstance(df_search.columns, pd.MultiIndex):
+                if isinstance(df_search.columns, pd.MultiIndex):
                             df_search.columns = [col[0] if col[0] in ['Open', 'High', 'Low', 'Close', 'Volume', 'Adj Close'] else col[1] for col in df_search.columns]
 
                         df_search['MA5'] = df_search['Close'].rolling(window=5).mean()
