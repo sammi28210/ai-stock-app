@@ -897,17 +897,27 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
             st.markdown("### 🔮 盤後快速特打查詢艙（不需切換分頁，原地直接剖析個股資金與波段轉折）")
             search_code = st.text_input("請輸入台股四位數代號（例如輸入 8046 查詢南電，或 2481 查詢強茂）：", key="tab1_search").strip()
             
-            if search_code:
+                        if search_code:
                 matched_ticker = None
                 for k in AI_STOCKS_DICT.keys():
                     if k.startswith(search_code + "."):
                         matched_ticker = k
                         break
-                if not matched_ticker: matched_ticker = search_code + ".TW"
+                
                 try:
-                    df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
+                    if matched_ticker:
+                        df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
+                    else:
+                        # 💡 升級邏輯：字典找不到時，先嘗試 .TW (上市)，若空值再嘗試 .TWO (上櫃)
+                        matched_ticker = search_code + ".TW"
+                        df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
+                        if df_search.empty:
+                            matched_ticker = search_code + ".TWO"
+                            df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
+
                     if df_search.empty: st.error("❌ 無此標的")
                     else:
+
                         if isinstance(df_search.columns, pd.MultiIndex):
                             df_search.columns = [col[0] if col[0] in ['Open', 'High', 'Low', 'Close', 'Volume', 'Adj Close'] else col[1] for col in df_search.columns]
 
