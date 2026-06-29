@@ -998,3 +998,5 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         else: st.error(f"🚨 {res_base} ➔ **執行紀律！** (已無情跌破 60分K 20MA 防守點，請依波段紀律停利/停損出場！){reason_text}")
                     except: st.warning(f"⚠️ {tk} 數據同步中...")
             else: st.info("💡 正在等待雷達數據初始化同步...")
+
+# 重新整理
