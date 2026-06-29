@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈监控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 350+ 大軍終極永久看板")
-st.caption("🎯 戰略完全體：【獨立資金換手地圖分頁】× 【20日滾動結構背離】× 【蓄勢發射球動能偵測】")
+st.caption("🎯 戰略完全體：【大仁哥週報特訓艙】× 【獨立資金換手地圖】× 【20日結構背離】× 【蓄勢發射球】")
 
 # --- ⚙️【持股永久固定區】修改您的真實庫存與成本，重新整理絕不消失！ ---
 if 'my_portfolio' not in st.session_state:
@@ -597,7 +597,6 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                 for tk in WEEKLY_TICKERS:
                     try:
                         df_w = daily_data[tk].dropna() if is_multi else daily_data.dropna()
-                        if len(df_w) < 20: continue
                         df_w['MA5'] = df_w['Close'].rolling(window=5).mean()
                         df_w['MA10'] = df_w['Close'].rolling(window=10).mean()
                         df_w['MA20'] = df_w['Close'].rolling(window=20).mean()
@@ -897,7 +896,8 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
             st.markdown("### 🔮 盤後快速特打查詢艙（不需切換分頁，原地直接剖析個股資金與波段轉折）")
             search_code = st.text_input("請輸入台股四位數代號（例如輸入 8046 查詢南電，或 2481 查詢強茂）：", key="tab1_search").strip()
             
-                        if search_code:
+            if search_code:
+                # 🛠️ 升級邏輯：字典找不到時，先嘗試 .TW (上市)，若空值再嘗試 .TWO (上櫃)
                 matched_ticker = None
                 for k in AI_STOCKS_DICT.keys():
                     if k.startswith(search_code + "."):
@@ -908,16 +908,14 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                     if matched_ticker:
                         df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
                     else:
-                        # 💡 升級邏輯：字典找不到時，先嘗試 .TW (上市)，若空值再嘗試 .TWO (上櫃)
                         matched_ticker = search_code + ".TW"
                         df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
                         if df_search.empty:
                             matched_ticker = search_code + ".TWO"
                             df_search = yf.download(matched_ticker, period="8mo", interval="1d", progress=False).dropna()
 
-                    if df_search.empty: st.error("❌ 無此標的")
+                    if df_search.empty: st.error("❌ 無此標的，請確認代號是否正確。")
                     else:
-
                         if isinstance(df_search.columns, pd.MultiIndex):
                             df_search.columns = [col[0] if col[0] in ['Open', 'High', 'Low', 'Close', 'Volume', 'Adj Close'] else col[1] for col in df_search.columns]
 
@@ -1175,7 +1173,7 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         if box_color in ["success", "info"]: box_color = "success"; title_text = f"🔥【AI 智庫共振判定：回踩 10MA × 契合 {kd_div_day_idx}天大底背離黃金買點】"
                     elif is_macd_top_div:
                         div_text = f"🚨 **【指標特徵：20日滾動型 MACD 頂背離】** 股價今日雖然刷出短線反彈新高，但與 **{macd_div_day_idx} 天前** 的前波高點相比，MACD 紅柱能量竟然出現了嚴重的結構性委縮（頂背離）！請立刻準備執行彈射停利！"
-                        box_color = "error"; title_text = f"💥【AI 智庫危險判定：價格虛漲 × {macd_div_day_idx}天結構頂背離逃生點】"
+                        box_color = "error"; title_text = "### 💥【AI 智庫危險判定：價格虛漲 × {macd_div_day_idx}天結構頂背離逃生點】"
                     else:
                         div_text = "⚖️ **【指標特徵：動能常態同步】** 經 20 日滾動背景比對，目前 KD 與 MACD 動能並未與過去一個月內的高低點發生 any 結構性背離。"
 
@@ -1207,7 +1205,7 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         )
             except Exception as e: st.info("數據初始化整合中，請稍候...")
 
-
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 5 到 Tab 7 ＝＝＝＝＝＝＝＝＝＝
         with tab5:
             st.subheader("📊 已選 AI 細分供應鏈 - 當日日K大數據量能與趨勢排行")
             volume_list = []
