@@ -306,10 +306,3 @@
     "6168.TW": {"name": "宏齊", "group": "23. 光學鏡頭、面板與車用電子"},
     "2426.TW": {"name": "鼎元光電", "group": "23. 光學鏡頭、面板與車用電子"}
 }
-
-# 保存到 stocks.json
-import json
-with open("stocks.json", "w", encoding="utf-8") as f:
-    json.dump(AI_STOCKS_DICT, f, ensure_ascii=False, indent=4)
-
-st.success("stocks.json 檔案已產生！請將此檔案放入與 app.py 同個資料夾中，然後在 app.py 裡用 json.load() 讀取即可。")
