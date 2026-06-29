@@ -3,7 +3,22 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import json
-from datetime import datetime, timedelta
+import os
+import streamlit as st
+
+# 強制定義路徑為 app.py 所在的目錄
+base_path = os.path.dirname(os.path.abspath(__file__))
+json_path = os.path.join(base_path, "stocks.json")
+
+try:
+    with open(json_path, "r", encoding="utf-8") as f:
+        AI_STOCKS_DICT = json.load(f)
+    st.sidebar.success("✅ 股票資料庫載入成功！")
+except Exception as e:
+    st.error(f"❌ 找不到資料庫檔案，路徑為: {json_path}")
+    st.error(f"錯誤訊息: {e}")
+    st.stop()
+
 
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈监控系統", layout="wide")
