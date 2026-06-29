@@ -6,19 +6,20 @@ import json
 import os
 import streamlit as st
 
-# 強制定義路徑為 app.py 所在的目錄
-base_path = os.path.dirname(os.path.abspath(__file__))
-json_path = os.path.join(base_path, "stocks.json")
+# 核心修正：直接定位 app.py 所在的目錄，不管系統路徑怎麼跳
+current_dir = os.path.dirname(os.path.abspath(__file__))
+json_path = os.path.join(current_dir, "stocks.json")
 
 try:
     with open(json_path, "r", encoding="utf-8") as f:
         AI_STOCKS_DICT = json.load(f)
-    st.sidebar.success("✅ 股票資料庫載入成功！")
+    # st.sidebar.success("✅ 股票資料庫載入成功！") # 開發測試完可隱藏
 except Exception as e:
-    st.error(f"❌ 找不到資料庫檔案，路徑為: {json_path}")
-    st.error(f"錯誤訊息: {e}")
+    st.error(f"❌ 依然找不到 stocks.json。路徑偵測: {json_path}")
+    st.error(f"系統錯誤訊息: {e}")
+    # 這裡顯示目錄下到底有哪些檔案，幫我們除錯
+    st.write("目前目錄下的檔案:", os.listdir(current_dir))
     st.stop()
-
 
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈监控系統", layout="wide")
