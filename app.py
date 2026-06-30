@@ -10,17 +10,17 @@ st.set_page_config(page_title="台股AI全鏈监控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 350+ 大軍終極永久看板")
 st.caption("🎯 戰略完全體：【大仁哥週報特訓艙】× 【獨立資金換手地圖】× 【20日結構背離】× 【蓄勢發射球】")
 
-# --- ⚙️【持股永久固定區】 ---
+# --- ⚙️【持股永久固定區】修改您的真實庫存與成本，重新整理絕不消失！ ---
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
-        {"代號": "2356", "買入成本": 70.57},    
-        {"代號": "2308", "買入成本": 2038.64},  
-        {"代號": "", "買入成本": 0.0},          
-        {"代號": "", "買入成本": 0.0},          
-        {"代號": "", "買入成本": 0.0}           
+        {"代號": "2356", "買入成本": 70.57},    # 💡 您的英業達真實成本
+        {"代號": "2308", "買入成本": 2038.64},  # 💡 您的國巨真實成本
+        {"代號": "", "買入成本": 0.0},          # 💡 您的台達電真實成本
+        {"代號": "", "買入成本": 0.0},          # 💡 您的強茂成本
+        {"代號": "", "買入成本": 0.0}           # 💡 您的華新科成本
     ])
 
-# 🔒 自動讀取外部資料庫
+# 🔒 自動讀取 350+ 全產業鏈大軍外部資料庫
 try:
     with open("stocks.json", "r", encoding="utf-8") as f:
         AI_STOCKS_DICT = json.load(f)
@@ -193,7 +193,6 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
 
     with st.expander(f"📊 點擊查看【{stock_name} ({ticker})】綜合 AI 診斷 ｜ 現價: {p_close:.2f} ({sign}{chg_pct:.2f}%) ｜ {action}", expanded=expanded):
         st.markdown("#### 🏷️ 核心 AI 戰略與行動指南")
-        # 💡 HTML 色碼修正區：拿掉反引號，正確渲染綠色數字
         st.markdown(f"**健康度評分：** <span style='color: #4CAF50; font-size: 1.1em; font-weight: bold;'>{score} / 100</span>", unsafe_allow_html=True)
         st.markdown(f"**實戰戰略總結：**\n{summary}")
 
@@ -207,7 +206,7 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
         st.markdown("#### 💎 個股日K數據智慧解密與完美註解")
         st.markdown(f"**📈 1. 趨勢與乖離空間診斷：**\n{trend_text}")
         st.markdown(f"**🔥 2. 轉折與雙指標背離鑑定：**\n{div_text}")
-        st.markdown(f"**💰 3. 籌碼法人動態方向：**\n今日成交量為 5 日均量的 **{vol_ratio:.1f} 倍**。{chips_text}")
+        st.markdown(f"**💰 3. 籌碼法人動態方向：**\n今日日K成交量為 5 日均量的 **{vol_ratio:.1f} 倍**。{chips_text}")
 
         st.markdown("---")
         st.markdown("#### 🏦 法人即時籌碼動向")
@@ -220,13 +219,14 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
         st.markdown(f"- **綜合籌碼評級：** `{chips['評級']}`")
         st.markdown(f"- **波段歷史勝率：** `{win_rate}` ｜ **所屬族群：** `{group_name}`")
 
-# 🛡️ 戰略位階防護
+# 🛡️ 戰略位階防護：將 Sidebar 過濾代碼與全球變數定義鋼鐵歸位
 st.sidebar.header("🎯 AI 供應鏈群組過濾")
 all_available_groups = sorted(list(set([v['group'] for v in AI_STOCKS_DICT.values()])))
 selected_groups = st.sidebar.multiselect("選擇監控群組：", options=all_available_groups, default=all_available_groups)
 FILTERED_STOCKS_DICT = {k: v for k, v in AI_STOCKS_DICT.items() if v['group'] in selected_groups}
 FILTERED_TICKERS = list(FILTERED_STOCKS_DICT.keys())
 
+# === 👑 全新擴建：大仁哥週報快速輸入艙 (SideBar) ===
 st.sidebar.markdown("---")
 st.sidebar.header("📋 大仁哥週報快速輸入艙")
 st.sidebar.caption("✏️ 請照著圖片最下方的四位數代號打字（多檔用英文逗號隔開）")
@@ -261,6 +261,7 @@ def fetch_all_data(tickers):
         import requests
         clean_session = requests.Session()
         clean_session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+        
         portfolio_tickers = st.session_state.my_portfolio['代號'].dropna().tolist()
         yf_portfolio_tickers = []
         for t in portfolio_tickers:
@@ -271,6 +272,7 @@ def fetch_all_data(tickers):
                     if matched: yf_portfolio_tickers.append(matched[0])
                     else: yf_portfolio_tickers.append(t_str + '.TW')
                 else: yf_portfolio_tickers.append(t_str)
+                    
         all_fetch = sorted(list(set(tickers + yf_portfolio_tickers)))
         hourly = yf.download(all_fetch, period="2mo", interval="1h", group_by='ticker', progress=False, threads=False, session=clean_session)
         daily = yf.download(all_fetch, period="8mo", interval="1d", group_by='ticker', progress=False, threads=False, session=clean_session)
@@ -421,7 +423,6 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                                 f"  * 🔴 **冷靜觀望**：{wait_reason}\n"
                                 f"* 🛡️ **伏擊作戰方針**：{wait_guard}"
                             )
-                        # 💡 增加統一診斷面板 (分頁一)
                         group_val = AI_STOCKS_DICT.get(tk, {}).get("group", "未分類")
                         render_unified_diagnosis_expander(tk, df_w, stock_name, group_val, expanded=False)
                         st.markdown("---")
@@ -527,7 +528,6 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         box_dispatcher = {"success": st.success, "info": st.info, "warning": st.warning, "error": st.error}
                         box_dispatcher[item["box_style"]](f"### 🛡️ 實戰動作手令：{item['發射指令']}")
                         st.write(f"#### 🎯 {item['名稱']}（{item['代號']}）── 【核心共振發射球・落底戰略動作】")
-                    # 💡 增加統一診斷面板 (分頁二)
                     matched_tk = [k for k in FILTERED_TICKERS if k.startswith(item['代號'])]
                     if matched_tk: render_unified_diagnosis_expander(matched_tk[0], daily_data[matched_tk[0]].dropna() if is_multi else daily_data.dropna(), item['名稱'], item['group_str'], expanded=False)
             
@@ -540,7 +540,6 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                     with st.expander(f"🔥 飆股換手動作查閱：{item['代號']} {item['名稱']} 實戰指引與即時動作指令", expanded=False):
                         box_dispatcher = {"success": st.success, "info": st.info, "warning": st.warning, "error": st.error}
                         box_dispatcher[item["box_style"]](f"### 🛡️ 實戰動作手令：{item['發射指令']}")
-                    # 💡 增加統一診斷面板 (分頁二)
                     matched_tk = [k for k in FILTERED_TICKERS if k.startswith(item['代號'])]
                     if matched_tk: render_unified_diagnosis_expander(matched_tk[0], daily_data[matched_tk[0]].dropna() if is_multi else daily_data.dropna(), item['名稱'], item['group_str'], expanded=False)
 
@@ -553,7 +552,6 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                     with st.expander(f"🌱 穩健黑馬安全查閱：{item['代號']} {item['名稱']} 實戰指引與即時動作指令", expanded=False):
                         box_dispatcher = {"success": st.success, "info": st.info, "warning": st.warning, "error": st.error}
                         box_dispatcher[item["box_style"]](f"### 🛡️ 實戰動作手令：{item['發射指令']}")
-                    # 💡 增加統一診斷面板 (分頁二)
                     matched_tk = [k for k in FILTERED_TICKERS if k.startswith(item['代號'])]
                     if matched_tk: render_unified_diagnosis_expander(matched_tk[0], daily_data[matched_tk[0]].dropna() if is_multi else daily_data.dropna(), item['名稱'], item['group_str'], expanded=False)
 
@@ -571,21 +569,26 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                 
                 with st.container(border=True):
                     st.markdown("### 🦅 AI 次族群資金跨板塊乾坤大挪移連線")
+                    
                     st.markdown("#### 💸 【資金正在撤退的提款區 (From)】")
                     for _, row in from_groups.iterrows():
                         g_name = row["group"]; g_pct = row["p_change"]
                         sub_stocks = flow_df[flow_df["group"] == g_name]
-                        target_lead = sub_stocks.sort_values(by="value_today", ascending=False).iloc[0]
-                        st.error(f"* **{g_name}**（族群資金委縮至前波 {row['ratio']:.2f}x）➔ 🚨 **主力大提款標的：{target_lead['name']}**")
+                        top5_withdraw = sub_stocks.sort_values(by="value_today", ascending=False).head(5)
+                        
+                        items_str = "\n".join([f"  {i+1}. **{s['name']}** ({str(s['ticker']).split('.')[0]})" for i, s in enumerate(top5_withdraw.to_dict('records'))])
+                        st.error(f"**{g_name}**（族群資金委縮至前波 {row['ratio']:.2f}x）➔ 🚨 **主力大提款標的 Top 5：**\n{items_str}")
                     
+                    st.markdown("---")
                     st.markdown("#### 🎯 【資金正在連夜開進的進駐區 (To)】")
                     for _, row in to_groups.iterrows():
                         g_name = row["group"]; g_pct = row["p_change"]
                         sub_stocks = flow_df[flow_df["group"] == g_name]
-                        target_lead = sub_stocks.sort_values(by="stock_vol_ratio", ascending=False).iloc[0]
-                        st.success(f"* **{g_name}**（族群量能放大 **{row['ratio']:.2f} 倍**）➔ 🔥 **核心吸籌指標箭頭：{target_lead['name']}** ── 成交量暴增 **{target_lead['stock_vol_ratio']:.2f} 倍**！")
+                        top5_inflow = sub_stocks.sort_values(by="stock_vol_ratio", ascending=False).head(5)
+                        
+                        items_str = "\n".join([f"  {i+1}. **{s['name']}** ({str(s['ticker']).split('.')[0]}) ── 成交量暴增 **{s['stock_vol_ratio']:.2f} 倍**" for i, s in enumerate(top5_inflow.to_dict('records'))])
+                        st.success(f"**{g_name}**（族群量能放大 **{row['ratio']:.2f} 倍**）➔ 🔥 **核心吸籌指標箭頭 Top 5：**\n{items_str}")
 
-            # 🌟🌟 統一規格套用：盤後特打查詢艙 (分頁三) 🌟🌟
             st.markdown("---")
             st.markdown("### 🔮 盤後快速特打查詢艙（統一規格 AI 展開面板）")
             search_code = st.text_input("請輸入台股四位數代號（例如輸入 8046 或 2481）：", key="tab1_search").strip()
@@ -610,7 +613,6 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                             df_search.columns = [col[0] if col[0] in ['Open', 'High', 'Low', 'Close', 'Volume', 'Adj Close'] else col[1] for col in df_search.columns]
                         stock_name_s = AI_STOCKS_DICT[matched_ticker]['name'] if matched_ticker in AI_STOCKS_DICT else f"全台股通用標的"
                         group_name_s = AI_STOCKS_DICT[matched_ticker]['group'] if matched_ticker in AI_STOCKS_DICT else "未分類"
-                        # 呼叫完美的智庫統一面板！
                         render_unified_diagnosis_expander(matched_ticker, df_search, stock_name_s, group_name_s, expanded=True)
                 except Exception as ex: st.warning(f"⚠️ {search_code} 數據活體同步中，請重新整理...")
 
@@ -703,6 +705,30 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                     "🔮 主力資金流向診斷": st.column_config.TextColumn("🎯 資金診斷", width="small")
                 }
                 st.data_editor(agg_df[["group", "今日總成交額 (億元)", "量能放大倍數 (較5日)", "🔮 主力資金流向診斷"]].sort_values(by="今日總成交額 (億元)", ascending=False), column_config=group_table_config, hide_index=True, disabled=True, use_container_width=True)
+                
+                st.markdown("---")
+                flow_display = flow_df.copy()
+                flow_display["代號"] = flow_display["ticker"].apply(lambda x: str(x).split('.')[0])
+                flow_display["名稱"] = flow_display["name"]
+                flow_display["族群"] = flow_display["group"].apply(lambda x: str(x).split(' ')[1] if ' ' in str(x) else str(x))
+                flow_display["現價"] = round(flow_display["price"], 2)
+                flow_display["漲跌幅"] = flow_display["p_change"].apply(lambda x: f"{x:+.2f}%")
+                flow_display["5日線乖離"] = flow_display["bias_5"]
+                flow_display["🔮 個股診斷"] = flow_display["stock_trend"]
+                flow_display["個股量增"] = round(flow_display["stock_vol_ratio"], 2)
+                
+                flow_display = flow_display.sort_values(by=["group", "value_today"], ascending=[True, False])
+                
+                detail_table_config = {
+                    "族群": st.column_config.TextColumn("族群", width="small"),
+                    "代號": st.column_config.TextColumn("代號", width="small"),
+                    "名稱": st.column_config.TextColumn("名稱", width="small"),
+                    "現價": st.column_config.NumberColumn("現價", width="small"),
+                    "漲跌幅": st.column_config.TextColumn("漲跌幅", width="small"),
+                    "5日線乖離": st.column_config.NumberColumn("5日線乖離", width="small", format="%+.1f%%"),
+                    "🔮 個股診斷": st.column_config.TextColumn("🔮 個股診斷", width="medium")
+                }
+                st.data_editor(flow_display[["族群", "代號", "名稱", "現價", "漲跌幅", "5日線乖離", "🔮 個股診斷"]], column_config=detail_table_config, hide_index=True, disabled=True, use_container_width=True)
 
         with tab7:
             st.subheader("📱 我的持股鋼鐵防守與極速停利監控艙")
