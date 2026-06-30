@@ -182,11 +182,75 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
     else: div_text = "⚖️ **【轉折特徵：動能常態同步】** 經 20 日滾動背景比對，目前動能並未發生結構性背離，順勢操作即可。"
 
     chips = calculate_institutional_flows(df_d)
+    vol_ratio = vol_today / vol_5ma if vol_5ma > 0 else 1.0
+    
+    # ---------------------------------------------------------
+    # ⚔️ 新增：盤中多空交戰、爆量警報與主力倒貨解析邏輯
+    # ---------------------------------------------------------
+    today_o = float(df_d['Open'].iloc[-1])
+    today_h = float(df_d['High'].iloc[-1])
+    today_l = float(df_d['Low'].iloc[-1])
+    
+    # 計算實體柱與上下影線的長度
+    upper_shadow = today_h - max(today_o, p_close)
+    lower_shadow = min(today_o, p_close) - today_l
+    real_body = abs(p_close - today_o)
+    total_range = today_h - today_l if (today_h - today_l) > 0 else 0.001
+    
+    # 計算各部分佔全天波動的比例
+    upper_ratio = upper_shadow / total_range
+    lower_ratio = lower_shadow / total_range
+    body_ratio = real_body / total_range
+    
+    # 定義爆量標準 (今日成交量大於 5日均量的 1.5 倍以上)
+    is_high_volume = vol_ratio >= 1.5
+    
+    # 解析chips 字典，判斷主力今日是否為賣超 (字串中包含 '－')
+    is_main_dumping = "－" in chips.get("今日主力", "")
+    is_main_buying = "＋" in chips.get("今日主力", "")
+    
+    # 判斷多空交戰結果與買賣壓
+    battle_text = f"今日開盤價為 `{today_o:.2f}`，盤中最高觸及 `{today_h:.2f}`，最低來到 `{today_l:.2f}`。"
+    
+    if total_range <= 0.001:
+        battle_text += "\n> 📌 **【型態結果】：一字線（極端鎖碼）**\n> 今日籌碼處於極度鎖碼狀態，未見明顯的多空交戰。"
+    
+    elif body_ratio < 0.1 and upper_ratio > 0.4 and lower_ratio > 0.4:
+        battle_text += "\n> 📌 **【型態結果】：長十字星（多空僵局）**\n> 盤後留下了長十字型態。多空雙方激烈廝殺但勢均力敵，即將面臨方向表態。"
+        if is_high_volume:
+            battle_text += f"\n> 🚨 **【爆量警報】：今日爆出 {vol_ratio:.1f} 倍天量！** 高檔爆量十字星是變盤前兆，請嚴格綁緊安全帶！"
+
+    elif upper_ratio > 0.5:
+        battle_text += "\n> 📌 **【型態結果】：長上影線（上檔賣壓沉重）**\n> 盤中多方發起突襲，但在高檔遭遇沉重解套賣壓或獲利了結，價格被無情壓回。"
+        if is_high_volume:
+            if is_main_dumping:
+                battle_text += f"\n> 💀 **【致命警報：主力高檔倒貨】**：今日爆出 **{vol_ratio:.1f} 倍**天量，且籌碼顯示**主力正在反手出貨**！這是標準的「避雷針」惡意倒貨訊號，短線極有可能見高點，強烈建議嚴格停利或避開！"
+            else:
+                battle_text += f"\n> 🚨 **【爆量警報】**：今日爆出 **{vol_ratio:.1f} 倍**量能。雖然主力並未全面撤退，但高檔籌碼已極度混亂，當沖客與散戶互相踩踏，請提高警覺嚴設停損。"
+
+    elif lower_ratio > 0.5:
+        battle_text += "\n> 📌 **【型態結果】：長下影線（低接買盤強勁）**\n> 盤中空方一度下殺，但在低檔遭遇強韌的防守買盤，成功將價格拉抬。"
+        if is_high_volume:
+            if is_main_buying:
+                battle_text += f"\n> 🔥 **【黃金訊號：主力低檔洗盤吃貨】**：今日爆出 **{vol_ratio:.1f} 倍**成交量，且籌碼顯示**主力正在逢低大舉掃貨**！這極可能是大戶趁恐慌洗出散戶的「黃金坑」，後續反彈爆發力極強！"
+            else:
+                battle_text += f"\n> ⚠️ **【爆量警報】**：今日爆出 **{vol_ratio:.1f} 倍**量能。下方雖有買盤抵抗，但主力尚未明顯表態進駐，需觀察明日是否能站穩。"
+
+    elif p_close > today_o and body_ratio > 0.6:
+        battle_text += "\n> 📌 **【型態結果】：實體長紅 K（多方壓倒性勝利）**\n> 多方完全掌握發球權，空方毫無招架之力。呈現明顯的追價意願。"
+        
+    elif p_close < today_o and body_ratio > 0.6:
+        battle_text += "\n> 📌 **【型態結果】：實體長黑 K（空方強勢進逼）**\n> 空方大舉進逼，賣單如倒貨般湧現。顯示恐慌或調節賣壓極度沉重。"
+        if is_high_volume and is_main_dumping:
+             battle_text += f"\n> 💀 **【致命警報：主力帶量摜破】**：爆出 **{vol_ratio:.1f} 倍**大量且**主力帶頭砸盤**，多頭結構全面潰敗，嚴禁手癢接刀！"
+             
+    else:
+        battle_text += "\n> 📌 **【型態結果】：中小實體 K 線（溫和換手）**\n> 盤中多空交戰相對溫和，處於正常的換手測試階段，未見單方面壓倒性的籌碼失控。"
+
     if "狂掃" in chips["評級"] or "狂超" in chips["評級"]: chips_text = f"目前大戶籌碼展現出強烈的**【主力連夜狂掃】**格局。小波段上攻底氣十足。"
     elif "調節" in chips["五日總量"]: chips_text = f"目前大戶籌碼呈現持續流出的**【大戶反手調節】**格局。切勿盲目戀戰，反彈宜減碼。"
     else: chips_text = f"目前主力與法人呈現量縮觀望、常態小幅換手。盤面正在積蓄能量。"
 
-    vol_ratio = vol_today / vol_5ma if vol_5ma > 0 else 1.0
     win_rate = calculate_historical_win_rate(df_d)
     color = "red" if chg_pct > 0 else "green" if chg_pct < 0 else "gray"
     sign = "+" if chg_pct > 0 else ""
@@ -207,6 +271,7 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
         st.markdown(f"**📈 1. 趨勢與乖離空間診斷：**\n{trend_text}")
         st.markdown(f"**🔥 2. 轉折與雙指標背離鑑定：**\n{div_text}")
         st.markdown(f"**💰 3. 籌碼法人動態方向：**\n今日日K成交量為 5 日均量的 **{vol_ratio:.1f} 倍**。{chips_text}")
+        st.markdown(f"**⚔️ 4. 盤中多空交戰與 K 線型態解析：**\n{battle_text}")
 
         st.markdown("---")
         st.markdown("#### 🏦 法人即時籌碼動向")
@@ -802,3 +867,4 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                             
                     except: st.warning(f"⚠️ {tk} 數據同步中...")
             else: st.info("💡 正在等待雷達數據初始化同步...")
+
