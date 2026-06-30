@@ -183,7 +183,11 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
 
     chips = calculate_institutional_flows(df_d)
     vol_ratio = vol_today / vol_5ma if vol_5ma > 0 else 1.0
-    
+
+    if "狂掃" in chips["評級"] or "狂超" in chips["評級"]: chips_text = f"目前大戶籌碼展現出強烈的**【主力連夜狂掃】**格局。小波段上攻底氣十足。"
+    elif "調節" in chips["五日總量"]: chips_text = f"目前大戶籌碼呈現持續流出的**【大戶反手調節】**格局。切勿盲目戀戰，反彈宜減碼。"
+    else: chips_text = f"目前主力與法人呈現量縮觀望、常態小幅換手。盤面正在積蓄能量。"
+
     # ---------------------------------------------------------
     # ⚔️ 新增：盤中多空交戰、爆量警報與主力倒貨解析邏輯
     # ---------------------------------------------------------
@@ -245,11 +249,20 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
              battle_text += f"\n> 💀 **【致命警報：主力帶量摜破】**：爆出 **{vol_ratio:.1f} 倍**大量且**主力帶頭砸盤**，多頭結構全面潰敗，嚴禁手癢接刀！"
              
     else:
-        battle_text += "\n> 📌 **【型態結果】：中小實體 K 線（溫和換手）**\n> 盤中多空交戰相對溫和，處於正常的換手測試階段，未見單方面壓倒性的籌碼失控。"
+        battle_text += "\n> 📌 **【型態結果】：中小實體 K 線（溫全面換手）**\n> 盤中多空交戰相對溫和，處於正常的換手測試階段，未見單方面壓倒性的籌碼失控。"
 
-    if "狂掃" in chips["評級"] or "狂超" in chips["評級"]: chips_text = f"目前大戶籌碼展現出強烈的**【主力連夜狂掃】**格局。小波段上攻底氣十足。"
-    elif "調節" in chips["五日總量"]: chips_text = f"目前大戶籌碼呈現持續流出的**【大戶反手調節】**格局。切勿盲目戀戰，反彈宜減碼。"
-    else: chips_text = f"目前主力與法人呈現量縮觀望、常態小幅換手。盤面正在積蓄能量。"
+    # ---------------------------------------------------------
+    # 🌅 新增：明日早盤實戰掛單與應對劇本
+    # ---------------------------------------------------------
+    tomorrow_plan = ""
+    if score >= 80:
+        tomorrow_plan = f"> 🟢 **【強勢進場 / 加碼劇本】**\n> - **開盤若平盤或小跌**：直接將「限價買單」掛在 `{ma5:.2f}` 到 `{p_close:.2f}` 區間分批進場。\n> - **開盤若跳空大漲 (超過 3%)**：嚴禁追高！請等待盤中獲利了結賣壓出籠，回測 `{p_close:.2f}` 有撐再打。\n> - **持股者停利設定**：可將一半籌碼的停利單預掛在波段壓力區 `{recent_high:.2f}` 附近，落袋為安。"
+    elif score >= 60:
+        tomorrow_plan = f"> 🟡 **【拉回低接 / 伏擊劇本】**\n> - **最佳買點**：明早絕對不要手癢追高！請將「限價買單」掛在 10MA (`{ma10:.2f}`) 到 20MA (`{ma20:.2f}`) 的大戶防守區間，等待主力洗盤時自動成交。\n> - **持股者動作**：目前處於安全換手區，今晚可安心睡覺，只要明天收盤沒有無情跌破 `{daily_support:.2f}`，就繼續死抱。"
+    elif score >= 40:
+        tomorrow_plan = f"> 👀 **【觀望 / 震盪劇本】**\n> - **空手者**：多空方向混沌，明早開盤請直接略過這檔，把資金留給其他強勢飆股。\n> - **持股者**：若明早開盤直接殺破 `{ma60:.2f}` (季線)，請考慮開盤半小時內趁反彈減碼，收回資金避免陷入長期盤整。"
+    else:
+        tomorrow_plan = f"> 🚨 **【逃命 / 停損劇本】**\n> - **空手者**：不管明天開盤怎麼彈，絕對不要進場接飛刀！\n> - **持股者**：若今晚檢視發現已跌破 `{daily_support:.2f}`，請直接用券商 APP 設定『觸價單』，明天一開盤只要觸價就用市價無情砍出，嚴格執行紀律保住本金！"
 
     win_rate = calculate_historical_win_rate(df_d)
     color = "red" if chg_pct > 0 else "green" if chg_pct < 0 else "gray"
@@ -272,6 +285,7 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
         st.markdown(f"**🔥 2. 轉折與雙指標背離鑑定：**\n{div_text}")
         st.markdown(f"**💰 3. 籌碼法人動態方向：**\n今日日K成交量為 5 日均量的 **{vol_ratio:.1f} 倍**。{chips_text}")
         st.markdown(f"**⚔️ 4. 盤中多空交戰與 K 線型態解析：**\n{battle_text}")
+        st.markdown(f"**🌅 5. 明日早盤實戰掛單劇本：**\n{tomorrow_plan}")
 
         st.markdown("---")
         st.markdown("#### 🏦 法人即時籌碼動向")
@@ -867,4 +881,3 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                             
                     except: st.warning(f"⚠️ {tk} 數據同步中...")
             else: st.info("💡 正在等待雷達數據初始化同步...")
-
