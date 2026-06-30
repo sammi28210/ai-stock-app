@@ -10,17 +10,17 @@ st.set_page_config(page_title="台股AI全鏈监控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 350+ 大軍終極永久看板")
 st.caption("🎯 戰略完全體：【大仁哥週報特訓艙】× 【獨立資金換手地圖】× 【20日結構背離】× 【蓄勢發射球】")
 
-# --- ⚙️【持股永久固定區】修改您的真實庫存與成本，重新整理絕不消失！ ---
+# --- ⚙️【持股永久固定區】 ---
 if 'my_portfolio' not in st.session_state:
     st.session_state.my_portfolio = pd.DataFrame([
-        {"代號": "2356", "買入成本": 70.57},    # 💡 您的英業達真實成本
-        {"代號": "2308", "買入成本": 2038.64},  # 💡 您的國巨真實成本
-        {"代號": "", "買入成本": 0.0},          # 💡 您的台達電真實成本
-        {"代號": "", "買入成本": 0.0},          # 💡 您的強茂成本
-        {"代號": "", "買入成本": 0.0}           # 💡 您的華新科成本
+        {"代號": "2356", "買入成本": 70.57},    
+        {"代號": "2308", "買入成本": 2038.64},  
+        {"代號": "", "買入成本": 0.0},          
+        {"代號": "", "買入成本": 0.0},          
+        {"代號": "", "買入成本": 0.0}           
     ])
 
-# 🔒 自動讀取 350+ 全產業鏈大軍外部資料庫
+# 🔒 自動讀取外部資料庫
 try:
     with open("stocks.json", "r", encoding="utf-8") as f:
         AI_STOCKS_DICT = json.load(f)
@@ -95,17 +95,13 @@ def calculate_institutional_flows(df_ticker_d):
         return {"今日主力": "暫無數據", "今日外資": "暫無數據", "今日投信": "暫無數據", "五日總量": "暫無數據", "評級": "⏳ 籌碼冷靜區"}
 
 # =======================================================
-# 💎 統一規格 UI：個股日K數據智慧解密與完美註解智庫艙 (豐富版)
+# 💎 統一規格 UI：個股日K數據智慧解密與完美註解智庫艙
 # =======================================================
 def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expanded=False):
-    """
-    繼承智庫艙的最強分析模板，並強化實戰戰略總結。
-    """
     if df_d is None or len(df_d) < 60:
         st.warning(f"資料不足，無法對 {stock_name} 進行深度智庫診斷。")
         return
 
-    # 1. 均線與技術指標計算
     df_d['MA5'] = df_d['Close'].rolling(window=5).mean()
     df_d['MA10'] = df_d['Close'].rolling(window=10).mean()
     df_d['MA20'] = df_d['Close'].rolling(window=20).mean()
@@ -141,7 +137,6 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
     bias_5 = ((p_close - ma5) / ma5) * 100 if ma5 != 0 else 0
     bias_10 = ((p_close - ma10) / ma10) * 100 if ma10 != 0 else 0
     
-    # 2. 評分與極度豐富的實戰戰略
     score = 40
     if p_close > ma5: score += 15
     if p_close > ma20: score += 20
@@ -161,17 +156,11 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
         action = "⚠️ 【嚴格停損 / 逃命撤退】"
         summary = "📊 **技術結構全面破敗，空方殺盤動能強烈！** 短中長均線已形成蓋頭反壓，且伴隨明顯的主力棄守或倒貨出逃跡象。\n📌 **逃命原因**：趨勢已正式轉空，逆勢接刀只會越套越深。\n💡 **操作紀律**：若手中持有且已跌破最後防守線，請閉眼執行紀律，立刻斷尾求生；若空手請完全避開，絕不留戀！"
 
-    # 3. 趨勢與乖離空間診斷 (完美繼承智庫艙)
-    if bias_10 > 6.0:
-        trend_text = f"目前 5MA 短線乖離為 **{bias_5:+.2f}%**，10MA 控盤線乖離已偏高達 **{bias_10:+.2f}%**。這說明短期價格在太空中嚴重向外發散！強烈建議絕對不要手癢追高，耐心等待股價回踩均線支撐！"
-    elif -1.5 <= bias_10 <= 1.5:
-        trend_text = f"目前價格與 10MA 控盤線空間極致收斂（10MA 乖離率僅有漂亮的 **{bias_10:+.2f}%**）。這代表股價先前的高空火氣已完全退去，剛好安全回踩到波段主力的防守大本營。"
-    elif p_close < ma10:
-        trend_text = f"目前股價已無情跌破 10MA 控盤線（10MA 乖離為 **{bias_10:.2f}%**），短線走勢正式轉落進入空方震盪修正背景，下方的底部分形或止穩信號尚未完全確立。"
-    else:
-        trend_text = f"目前股價穩健運行於 10MA 控盤線之上，處於健康的多頭軌道（5MA 乖離 **{bias_5:+.2f}%**，10MA 乖離 **{bias_10:+.2f}%**）。空間結構並未出現極端的過熱或破位發散。"
+    if bias_10 > 6.0: trend_text = f"目前 5MA 短線乖離為 **{bias_5:+.2f}%**，10MA 控盤線乖離已偏高達 **{bias_10:+.2f}%**。短期價格嚴重向外發散！強烈建議絕對不要手癢追高！"
+    elif -1.5 <= bias_10 <= 1.5: trend_text = f"目前價格與 10MA 控盤線空間極致收斂（10MA 乖離率僅 **{bias_10:+.2f}%**）。股價已安全回踩到波段主力的防守大本營。"
+    elif p_close < ma10: trend_text = f"目前股價已無情跌破 10MA 控盤線（10MA 乖離為 **{bias_10:.2f}%**），短線走勢正式轉落進入空方震盪修正背景。"
+    else: trend_text = f"目前股價穩健運行於 10MA 控盤線之上，處於健康的多頭軌道（5MA 乖離 **{bias_5:+.2f}%**，10MA 乖離 **{bias_10:+.2f}%**）。"
 
-    # 4. 雙指標背離鑑定 (完美繼承智庫艙)
     is_kd_div = False; div_day_kd = -1; curr_k = float(df_d['K'].iloc[-1])
     if curr_k < 40:
         for idx_back in range(3, 21):
@@ -188,33 +177,24 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
             if hist_d['Close'] <= p_close and hist_d['HIST'] > curr_hist and hist_d['HIST'] > 0:
                 is_macd_div = True; div_day_macd = idx_back; break
 
-    if is_kd_div:
-        div_text = f"🎯 **【轉折特徵：{div_day_kd}天大底 KD 結構背離】** 經活體比對，個股與前波低點呈現完美的『真底背離』！小波段反彈重砲已上膛！"
-    elif is_macd_div:
-        div_text = f"🚨 **【轉折特徵：{div_day_macd}天高檔 MACD 結構頂背離】** 股價刷出新高但推升動能嚴重委縮！主力拉高掩護倒貨嫌疑極大，隨時準備獲利了結！"
-    else:
-        div_text = "⚖️ **【轉折特徵：動能常態同步】** 經 20 日滾動背景比對，目前 KD 與 MACD 動能並未發生結構性背離，順勢操作即可。"
+    if is_kd_div: div_text = f"🎯 **【轉折特徵：{div_day_kd}天大底 KD 結構背離】** 經活體比對，個股與前波低點呈現完美的『真底背離』！小波段反彈重砲已上膛！"
+    elif is_macd_div: div_text = f"🚨 **【轉折特徵：{div_day_macd}天高檔 MACD 結構頂背離】** 股價刷出新高但推升動能嚴重委縮！主力拉高掩護倒貨嫌疑極大！"
+    else: div_text = "⚖️ **【轉折特徵：動能常態同步】** 經 20 日滾動背景比對，目前動能並未發生結構性背離，順勢操作即可。"
 
-    # 5. 籌碼法人動態
     chips = calculate_institutional_flows(df_d)
-    if "狂掃" in chips["評級"] or "狂超" in chips["評級"]:
-        chips_text = f"目前大戶籌碼展現出強烈的**【主力連夜狂掃】**格局。大戶資金完全無視震盪，小波段上攻底氣十足。"
-    elif "調節" in chips["五日總量"]:
-        chips_text = f"目前大戶籌碼呈現持續流出的**【大戶反手調節】**格局。切勿盲目戀戰，反彈宜減碼。"
-    else:
-        chips_text = f"目前主力與法人呈現量縮觀望、常態小幅換手。盤面正在積蓄能量，靜待資金題材重新點火拉升。"
+    if "狂掃" in chips["評級"] or "狂超" in chips["評級"]: chips_text = f"目前大戶籌碼展現出強烈的**【主力連夜狂掃】**格局。小波段上攻底氣十足。"
+    elif "調節" in chips["五日總量"]: chips_text = f"目前大戶籌碼呈現持續流出的**【大戶反手調節】**格局。切勿盲目戀戰，反彈宜減碼。"
+    else: chips_text = f"目前主力與法人呈現量縮觀望、常態小幅換手。盤面正在積蓄能量。"
 
     vol_ratio = vol_today / vol_5ma if vol_5ma > 0 else 1.0
     win_rate = calculate_historical_win_rate(df_d)
-
     color = "red" if chg_pct > 0 else "green" if chg_pct < 0 else "gray"
     sign = "+" if chg_pct > 0 else ""
 
-    # === 開始繪製 UI 面板 ===
     with st.expander(f"📊 點擊查看【{stock_name} ({ticker})】綜合 AI 診斷 ｜ 現價: {p_close:.2f} ({sign}{chg_pct:.2f}%) ｜ {action}", expanded=expanded):
-        
         st.markdown("#### 🏷️ 核心 AI 戰略與行動指南")
-        st.markdown(f"**健康度評分：** `<span style='color: #4CAF50; font-size: 1.1em; font-weight: bold;'>{score} / 100</span>`", unsafe_allow_html=True)
+        # 💡 HTML 色碼修正區：拿掉反引號，正確渲染綠色數字
+        st.markdown(f"**健康度評分：** <span style='color: #4CAF50; font-size: 1.1em; font-weight: bold;'>{score} / 100</span>", unsafe_allow_html=True)
         st.markdown(f"**實戰戰略總結：**\n{summary}")
 
         st.markdown("---")
@@ -227,7 +207,7 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
         st.markdown("#### 💎 個股日K數據智慧解密與完美註解")
         st.markdown(f"**📈 1. 趨勢與乖離空間診斷：**\n{trend_text}")
         st.markdown(f"**🔥 2. 轉折與雙指標背離鑑定：**\n{div_text}")
-        st.markdown(f"**💰 3. 籌碼法人動態方向：**\n今日日K成交量為 5 日均量的 **{vol_ratio:.1f} 倍**。{chips_text}")
+        st.markdown(f"**💰 3. 籌碼法人動態方向：**\n今日成交量為 5 日均量的 **{vol_ratio:.1f} 倍**。{chips_text}")
 
         st.markdown("---")
         st.markdown("#### 🏦 法人即時籌碼動向")
@@ -240,14 +220,13 @@ def render_unified_diagnosis_expander(ticker, df_d, stock_name, group_name, expa
         st.markdown(f"- **綜合籌碼評級：** `{chips['評級']}`")
         st.markdown(f"- **波段歷史勝率：** `{win_rate}` ｜ **所屬族群：** `{group_name}`")
 
-# 🛡️ 戰略位階防護：將 Sidebar 過濾代碼與全球變數定義鋼鐵歸位
+# 🛡️ 戰略位階防護
 st.sidebar.header("🎯 AI 供應鏈群組過濾")
 all_available_groups = sorted(list(set([v['group'] for v in AI_STOCKS_DICT.values()])))
 selected_groups = st.sidebar.multiselect("選擇監控群組：", options=all_available_groups, default=all_available_groups)
 FILTERED_STOCKS_DICT = {k: v for k, v in AI_STOCKS_DICT.items() if v['group'] in selected_groups}
 FILTERED_TICKERS = list(FILTERED_STOCKS_DICT.keys())
 
-# === 👑 全新擴建：大仁哥週報快速輸入艙 (SideBar) ===
 st.sidebar.markdown("---")
 st.sidebar.header("📋 大仁哥週報快速輸入艙")
 st.sidebar.caption("✏️ 請照著圖片最下方的四位數代號打字（多檔用英文逗號隔開）")
@@ -282,7 +261,6 @@ def fetch_all_data(tickers):
         import requests
         clean_session = requests.Session()
         clean_session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
-        
         portfolio_tickers = st.session_state.my_portfolio['代號'].dropna().tolist()
         yf_portfolio_tickers = []
         for t in portfolio_tickers:
@@ -293,7 +271,6 @@ def fetch_all_data(tickers):
                     if matched: yf_portfolio_tickers.append(matched[0])
                     else: yf_portfolio_tickers.append(t_str + '.TW')
                 else: yf_portfolio_tickers.append(t_str)
-                    
         all_fetch = sorted(list(set(tickers + yf_portfolio_tickers)))
         hourly = yf.download(all_fetch, period="2mo", interval="1h", group_by='ticker', progress=False, threads=False, session=clean_session)
         daily = yf.download(all_fetch, period="8mo", interval="1d", group_by='ticker', progress=False, threads=False, session=clean_session)
@@ -324,7 +301,6 @@ SEARCH_TABLE_CONFIG = {
 
 if FILTERED_TICKERS or WEEKLY_TICKERS:
     with st.spinner("⚡ 350+ 大軍雷達 × 週報數據活體連線中..."):
-        # 💡 將 350+ 大軍與週報自選股合併取聯集下載，不破壞原結構
         hourly_data, daily_data, all_fetch = fetch_all_data(list(set(FILTERED_TICKERS + WEEKLY_TICKERS)))
     
     if hourly_data is not None and daily_data is not None and not hourly_data.empty:
@@ -340,14 +316,12 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                     else: LATEST_PRICES_DAILY[ticker] = df_ticker_d['Close'].iloc[-1]
             except: pass
 
-        # 💡 插隊擴建：將大仁哥週報分頁釘在最前面第一個 Tab！原本的 8 個 Tabs 滿血後推
         tab_weekly, tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
             "📋 大仁哥週報戰客特訓艙", "🚀 今日實戰精選買入名單", "🔄 AI次族群資金換手地圖", 
             "🔥 日K核心動能大篩選", "🛡️ 日線級別均線防守選股", "💎 個股日K智庫全景診斷", 
             "📊 AI大軍日K成交量排行", "💰 族群日K資金輪動監控", "📱 持股防守艙"
         ])
 
-        # 大數據流向核心矩陣計算
         group_flows = []
         for ticker in FILTERED_TICKERS:
             try:
@@ -375,7 +349,6 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                 })
             except: continue
 
-        # 🚀 預先為 Tab 0 萃取大挪移註解需要的動態群組字串
         from_names_tab0, to_names_tab0 = "", ""
         if group_flows:
             flow_df_calc = pd.DataFrame(group_flows)
@@ -386,13 +359,9 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
             from_names_tab0 = "、".join([f"【{x.split(' ')[1]}】" for x in from_groups_calc["group"].tolist()])
             to_names_tab0 = "、".join([f"【{x.split(' ')[1]}】" for x in to_groups_calc["group"].tolist()])
 
-        # =========================================================================
-        # 👑 全新獨立分頁：📋 大仁哥週報戰客特訓艙完全體
-        # =========================================================================
+        # ＝＝＝＝＝＝＝＝＝＝ 📋 大仁哥週報戰客特訓艙 ＝＝＝＝＝＝＝＝＝＝
         with tab_weekly:
             st.markdown("## 📋 【大仁哥投資週報 ➔ 活體量化交叉對帳特區】")
-            st.caption("💡 交叉原理：拿大仁哥圖片中最下方的分組『期望標籤』，全自動去對齊目前的均線支撐與背離公式，輸出最直白的明天早盤指令。")
-            
             if WEEKLY_TICKERS:
                 for tk in WEEKLY_TICKERS:
                     try:
@@ -411,72 +380,61 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         stock_name = WEEKLY_MAP[tk]["name"]
                         pure_code = WEEKLY_MAP[tk]["pure_code"]
                         
-                        # 💥 鋼鐵戰術判定線對齊：底部與守穩看 20MA；強勢與投信看 10MA
                         lower_w, upper_w = ma10_w * 0.985, ma10_w * 1.015
-                        if "底部" in tag_name or "守穩" in tag_name:
-                            lower_w, upper_w = ma20_w * 0.99, ma20_w * 1.015
+                        if "底部" in tag_name or "守穩" in tag_name: lower_w, upper_w = ma20_w * 0.99, ma20_w * 1.015
                             
                         chips_w = calculate_institutional_flows(df_w)
                         stock_win_rate_w = calculate_historical_win_rate(df_w)
                         
-                        # --- 💡 升級：根據四大標籤，給予完全專屬的實戰評語與劇本 ---
                         if "底部" in tag_name:
-                            buy_reason = "股價歷經長時間打底洗盤，目前精準回踩 20MA 底部防線。這是長線大戶偷偷吃貨的絕佳起漲點，風險極低，明天開盤爆量直接卡位！"
-                            buy_guard = f"底部股發動前較磨人，只要收盤不無情跌破 20MA 生死線 `{lower_w:.1f}` 元，就絕對不要被洗出場。放任利潤穩健推進！"
-                            wait_reason = "股價剛從底部脫離，目前價格偏離 20MA 老巢。千萬別急著追高，等主力震盪洗盤降回成本區再買，絕不吃虧！"
-                            wait_guard = "好獵物值得等待。底部股剛表態容易有回馬槍，放任它震盪跌回大戶的核心成本巢穴時，才是我們風險極小的最佳開火信號！"
+                            buy_reason = "股價歷經長時間打底洗盤，目前精準回踩 20MA 底部防線。這是大戶吃貨的起漲點，風險極低！"
+                            buy_guard = f"只要收盤不無情跌破 20MA 生死線 `{lower_w:.1f}` 元，就絕對不要被洗出場。"
+                            wait_reason = "股價剛從底部脫離，目前價格偏離 20MA 老巢。等主力震盪洗盤降回成本區再買！"
+                            wait_guard = "底部股容易有回馬槍，放任它震盪跌回大戶的核心成本巢穴時再進場！"
                         elif "投信" in tag_name:
-                            buy_reason = "投信大哥真金白銀砸出來的鎖碼股！目前價格完美貼合 10MA 控盤線，趁投信作帳行情還在風頭上，順勢搭上法人轎子就是現在！"
-                            buy_guard = f"法人認養股波動有時劇烈，只要收盤死守 10MA 防線 `{lower_w:.1f}` 元，代表投信還沒結帳。防守線抓死，跟著法人賺波段！"
-                            wait_reason = "投信認養股雖然強勢，但現在短線乖離已經過大。切勿在半空中幫投信抬轎，設定好警示，等它拉回 10MA 換手區再吃豆腐！"
-                            wait_guard = "買點決定勝率！現在衝進去極容易被投信短線倒貨洗盤，耐心等它價格降溫、回到大戶防守圈再開槍！"
+                            buy_reason = "投信大哥真金白銀砸出來的鎖碼股！目前價格完美貼合 10MA 控盤線，趁投信作帳順勢搭轎！"
+                            buy_guard = f"只要收盤死守 10MA 防線 `{lower_w:.1f}` 元，代表投信還沒結帳。"
+                            wait_reason = "投信認養股短線乖離已經過大。切勿在半空中幫投信抬轎！"
+                            wait_guard = "極容易被投信短線倒貨洗盤，耐心等它價格降溫、回到大戶防守圈再開槍！"
                         elif "守穩" in tag_name:
-                            buy_reason = "橫盤整理結束，均線糾結後正式表態！目前價格剛好踩在 20MA 轉強支撐帶，多頭發動機剛剛點火，正是期望值極高的起飆點！"
-                            buy_guard = f"剛轉強的股票極容易遇到前波解套賣壓，只要收盤能扛住 `{lower_w:.1f}` 元不破，代表換手成功，抱緊處理！"
-                            wait_reason = "剛剛表態轉強，但短線已經衝了一波。為了避免被主力回馬槍洗掉，請捏住滑鼠，等價格乖乖回到 20MA 守穩區再出手！"
-                            wait_guard = "不要看到紅K就興奮追價。轉強股必須經過回測確認支撐，等它降回伏擊圈，就是我們安全進場的最佳時機。"
-                        else: # 技術面強勢組
-                            buy_reason = "盤面最強悍的飆股箭頭！精準回踩 10MA 主升段換手點，沒有過熱發散。飆股不回頭，拉回就是給你上車的黃金機會！"
-                            buy_guard = f"強勢飆股的缺點就是盤中震盪非常劇烈。進場後只要收盤不跌破 10MA 強勢控盤線 `{lower_w:.1f}` 元，就代表大戶莊家還在車上！"
-                            wait_reason = "飆股動能太強，現在衝進去就是高空接飛刀！強勢股震盪大，等它漲多拉回、精準測試 10MA 支撐時，才是唯一的開槍時機！"
-                            wait_guard = "天上飛的刀子不要接！強制收起手癢的心魔，等它乖乖降溫跌回大戶換手圈，才是風險最小、爆發力最強的切入點。"
+                            buy_reason = "橫盤整理結束，目前價格剛好踩在 20MA 轉強支撐帶，多頭發動機點火！"
+                            buy_guard = f"只要收盤能扛住 `{lower_w:.1f}` 元不破，代表換手成功，抱緊處理！"
+                            wait_reason = "剛轉強但短線已經衝了一波。為了避免被洗掉，等價格乖乖回到 20MA 守穩區再出手！"
+                            wait_guard = "轉強股必須經過回測確認支撐，等它降回伏擊圈再進場。"
+                        else: 
+                            buy_reason = "盤面最強悍的飆股箭頭！精準回踩 10MA 主升段換手點，拉回就是黃金機會！"
+                            buy_guard = f"只要收盤不跌破 10MA 強勢控盤線 `{lower_w:.1f}` 元，就代表大戶莊家還在車上！"
+                            wait_reason = "現在衝進去就是高空接飛刀！等它漲多拉回、精準測試 10MA 支撐時再開槍！"
+                            wait_guard = "等它乖乖降溫跌回大戶換手圈，才是風險最小的切入點。"
 
                         if lower_w <= p_w <= upper_w:
                             st.success(
                                 f"#### 🎯 {stock_name} ({pure_code}) ── 【{tag_name}】\n"
-                                f"* **🔥 實戰動作手令**：` 🚀 劇本觸發：目前價格 ({p_w:.2f}) 已完美降回大戶防守圈 ({lower_w:.1f}~{upper_w:.1f})！ `\n"
+                                f"* **🔥 實戰動作手令**：` 🚀 劇本觸發：目前價格 ({p_w:.2f}) 已完美降回大戶防守圈！ `\n"
                                 f"  * 🟢 **進場戰略**：{buy_reason}\n"
-                                f"* 📈 **歷史量化優勢勝率**：` {stock_win_rate_w} ` | 💰 **大戶籌碼實況**：` {chips_w['今日主力']} / {chips_w['今日外資']} ({chips_w['評級']}) `\n"
-                                f"* ⚠️ **進場後預防針（波動防守）**：{buy_guard}"
+                                f"* ⚠️ **波動防守**：{buy_guard}"
                             )
                         else:
                             st.info(
                                 f"#### ⏳ {stock_name} ({pure_code}) ── 【{tag_name}】\n"
-                                f"* **🔥 實戰盲測發射指令**：` ⏳ 戰略潛伏：現價 ({p_w:.2f}) 離下方主力成本線過高、短線空間發散！ `\n"
+                                f"* **🔥 實戰盲測發射指令**：` ⏳ 戰略潛伏：現價 ({p_w:.2f}) 離下方主力成本線過高！ `\n"
                                 f"  * 🔴 **冷靜觀望**：{wait_reason}\n"
-                                f"* 📈 **歷史量化優勢勝率**：` {stock_win_rate_w} ` | 💰 **大戶籌碼實況**：` {chips_w['今日主力']} ({chips_w['評級']}) `\n"
                                 f"* 🛡️ **伏擊作戰方針**：{wait_guard}"
                             )
+                        # 💡 增加統一診斷面板 (分頁一)
+                        group_val = AI_STOCKS_DICT.get(tk, {}).get("group", "未分類")
+                        render_unified_diagnosis_expander(tk, df_w, stock_name, group_val, expanded=False)
                         st.markdown("---")
                     except: pass
-            else:
-                st.info("💡 目前側邊欄代號輸入艙為空，請輸入本週大仁哥週報圖片中最下方的四位數代號，新分頁立刻為您全自動交叉盲測對帳！")
+            else: st.info("💡 請輸入本週大仁哥週報代號，全自動交叉盲測對帳！")
 
         # ＝＝＝＝＝＝＝＝＝＝ Tab 0【今日實戰精選買入名單】 ＝＝＝＝＝＝＝＝＝＝
         with tab0:
             st.markdown("### 🦅 台股 AI 期望值波段作戰發射艙")
-            
-            # 🔒 初始化 Session State 鋼鐵記憶庫：防止隔天股票消失
             if 'locked_tab0_history' not in st.session_state:
-                st.session_state.locked_tab0_history = {
-                    "ignition": {}, "rocket": {}, "rebound": {}
-                }
-            
+                st.session_state.locked_tab0_history = {"ignition": {}, "rocket": {}, "rebound": {}}
             current_day_str = datetime.now().strftime("%Y-%m-%d")
             
-            raw_ign, raw_roc, raw_reb = [], [], []
-            
-            # 第一步：活體掃描當日前線數據
             for ticker in FILTERED_TICKERS:
                 try:
                     df_d = daily_data[ticker].dropna() if is_multi else daily_data.dropna()
@@ -544,111 +502,65 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                                 st.session_state.locked_tab0_history["rocket"][ticker] = (current_day_str, analysis_payload)
                 except: continue
             
-            # 第二步：鋼鐵留存觀察防線過濾
-            ignition_sphere_confirmed = []
-            rocket_confirmed = []
-            rebound_confirmed = []
-            
+            ignition_sphere_confirmed, rocket_confirmed, rebound_confirmed = [], [], []
             for list_key, target_list in [("ignition", ignition_sphere_confirmed), ("rocket", rocket_confirmed), ("rebound", rebound_confirmed)]:
                 for tk, (saved_date, payload) in list(st.session_state.locked_tab0_history[list_key].items()):
                     if saved_date == current_day_str or (datetime.now() - datetime.strptime(saved_date, "%Y-%m-%d")).days <= 1:
                         curr_p_now = LATEST_PRICES_DAILY.get(tk, payload["市價"])
                         payload["市價"] = round(curr_p_now, 2)
-                        
                         lower_bound, upper_bound = 0.0, 0.0
                         if "進場成本防線" in payload: lower_bound, upper_bound = map(float, payload["進場成本防線"].split('~'))
                         elif "進場區間" in payload: lower_bound, upper_bound = map(float, payload["進場區間"].split('~'))
-                        
                         if lower_bound <= curr_p_now <= upper_bound:
-                            payload["發射指令"] = "🔥 劇本觸發：目前已進入大戶換手防線，開盤爆量直接擊殺！"
-                            payload["box_style"] = "success"
+                            payload["發射指令"] = "🔥 劇本觸發：目前已進入大戶換手防線，開盤爆量直接擊殺！"; payload["box_style"] = "success"
                         else:
-                            payload["發射指令"] = f"⏳ 戰略潛伏：現價偏高，嚴禁手癢追高！請立刻設定價格警示，靜待降回【{lower_bound if lower_bound > 0 else '指定'}~{upper_bound if upper_bound > 0 else '指定'}】伏擊圈再開槍！"
-                            payload["box_style"] = "info"
-                            
+                            payload["發射指令"] = f"⏳ 戰略潛伏：現價偏高，嚴禁手癢追高！等降回【{lower_bound if lower_bound > 0 else '指定'}~{upper_bound if upper_bound > 0 else '指定'}】伏擊圈再開槍！"; payload["box_style"] = "info"
                         target_list.append(payload)
-                    else:
-                        del st.session_state.locked_tab0_history[list_key][tk]
+                    else: del st.session_state.locked_tab0_history[list_key][tk]
 
-            # ─── 渲染區 0：蓄勢發射球 ───
-            st.markdown("### 👑 🔮 👑 頂級操盤手特製：【今日最完美量化共振 ➔ 🌟 蓄勢待發發發射球】")
+            st.markdown("### 👑 🔮 👑 頂級操盤手特製：【今日最完美量化共振 ➔ 🌟 蓄勢待發發射球】")
             if ignition_sphere_confirmed:
                 df_ign = pd.DataFrame(ignition_sphere_confirmed)
                 st.data_editor(df_ign[["代號", "名稱", "市價", "進場成本防線", "15-20%目標區", "預估點火勝率", "主力支撐", "極控停損"]], column_config=SEARCH_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-                
                 for item in ignition_sphere_confirmed:
-                    with st.expander(f"🔬 智慧解密個別評語：詳細查閱 {item['代號']} {item['名稱']} 確定買進理由與即時動作指令", expanded=True):
+                    with st.expander(f"🔬 智慧解密個別評語：詳細查閱 {item['代號']} {item['名稱']} 確定買進理由與即時動作指令", expanded=False):
                         box_dispatcher = {"success": st.success, "info": st.info, "warning": st.warning, "error": st.error}
                         box_dispatcher[item["box_style"]](f"### 🛡️ 實戰動作手令：{item['發射指令']}")
-                        st.write(
-                            f"#### 🎯 {item['名稱']}（{item['代號']}）── 【核心共振發射球・落底戰略動作】\n"
-                            f"* 📈 **歷史量化勝率**：` {item['勝率']} ` | 💰 **大戶籌碼實況**：` {item['chips_str']} `\n\n"
-                            f"--- \n"
-                            f"* 🟢 **基本面背景**：該股屬於 **{item['group_str']}** 核心供應鏈，受惠於全球大戶資金從高位階板塊大搬風，實質產業需求正在強勢加溫中。\n"
-                            f"* 📈 **技術面與籌碼解析**：日線級別經過回踩洗盤，目前價格正精準壓縮在主力換手防線，系統抓包它出現了 **『真結構型指標底背離』**。白話講：過去兩週外面看是在下跌，但主力大戶在底層早就在暗中偷偷爆買、瘋狂接單！\n"
-                            f"* 🚀 **確定能進場的原因**：均線價格壓彈簧壓到最極致，大戶籌碼完成吸籌，今天主力大資金再度表態！\n"
-                            f"* ⚠️ **進場後預防針（波動防守）**：進場後主力通常會有常態性的洗盤震盪，明早若遇到小幅拉回，**只要收盤不無情跌破極控停損價 `{item['極控停損']}` 元，就絕對不要被洗出場**。防守點卡死 10MA，我們用極小風險，去博取上方 `{item['target_str']}` 元的波段肥美利潤！"
-                        )
-            else: st.info("⏳ 今晚全市場大數據掃描：暫無個股同時完美符合『10MA壓縮 ＋ 20日指標真底背離』發射特徵。")
+                        st.write(f"#### 🎯 {item['名稱']}（{item['代號']}）── 【核心共振發射球・落底戰略動作】")
+                    # 💡 增加統一診斷面板 (分頁二)
+                    matched_tk = [k for k in FILTERED_TICKERS if k.startswith(item['代號'])]
+                    if matched_tk: render_unified_diagnosis_expander(matched_tk[0], daily_data[matched_tk[0]].dropna() if is_multi else daily_data.dropna(), item['名稱'], item['group_str'], expanded=False)
             
             st.markdown("---")
-            # ─── 渲染區 1：狂飆悍馬榜 ───
             st.markdown("### 🔥 🔴 狂飆悍馬榜：日K強勢主升段（拉回 5MA/10MA 換手點）")
             if rocket_confirmed:
                 df_roc = pd.DataFrame(rocket_confirmed)
                 st.data_editor(df_roc[["代號", "名稱", "市價", "進場區間", "目標區", "勝率", "今日支撐", "停損價"]], column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-                
                 for item in rocket_confirmed:
                     with st.expander(f"🔥 飆股換手動作查閱：{item['代號']} {item['名稱']} 實戰指引與即時動作指令", expanded=False):
                         box_dispatcher = {"success": st.success, "info": st.info, "warning": st.warning, "error": st.error}
                         box_dispatcher[item["box_style"]](f"### 🛡️ 實戰動作手令：{item['發射指令']}")
-                        st.write(
-                            f"#### ⚡ {item['名稱']}（{item['代號']}）── 【強勢悍馬常態軌道・主升換手動作】\n"
-                            f"* 📈 **技術主升勝率**：` {item['勝率']} ` | 💰 **短線籌碼實況**：` {item['chips_str']} `\n\n"
-                            f"--- \n"
-                            f"* 🟢 **基本面特徵**：作為 **{item['group_str']}** 族群的強勢多頭箭頭，基本面業績爆發力非常強悍，是多頭大戶鎖碼的必爭之地。\n"
-                            f"* 📈 **技術面解析**：目前該股日K處於常態主升段，今天股價出現了非常健康的『拉回換手點』，精準靠攏在 5MA / 10MA 控盤線身邊。這不是多頭要死掉，而是狂飆途中的良性中繼站！\n"
-                            f"* 🚀 **確定能進場的原因**：股價沒有過熱高空發散，回踩短期控盤線給予了游擊隊最舒服的『順勢搭便車』進場黃金空間。\n"
-                            f"* ⚠️ **進場後預防針（波動防守）**：強勢飆股的缺點就是盤中震盪非常劇烈。**進場後明後天盤中可能會有暴震，只要收盤不無情跌破 10MA 強勢控盤防線（約 `{item['停損價']}` 元），就代表大戶莊家依然在車上**。對齊防守點，放任利潤向 `{item['target_str']}` 元常態推進！"
-                        )
-            else: st.info("⏳ 目前強勢飆股都在半空中，沒有任何一檔『精準拉回貼緊 5MA/10MA』。")
-                
+                    # 💡 增加統一診斷面板 (分頁二)
+                    matched_tk = [k for k in FILTERED_TICKERS if k.startswith(item['代號'])]
+                    if matched_tk: render_unified_diagnosis_expander(matched_tk[0], daily_data[matched_tk[0]].dropna() if is_multi else daily_data.dropna(), item['名稱'], item['group_str'], expanded=False)
+
             st.markdown("---")
-            # ─── 渲染區 2：潛力黑馬榜 ───
             st.markdown("### 🌱 🟢 潛力黑馬榜：日K底部穩健反彈（精穩貼緊 20MA 生命線）")
             if rebound_confirmed:
                 df_reb = pd.DataFrame(rebound_confirmed)
                 st.data_editor(df_reb[["代號", "名稱", "市價", "進場區間", "目標區", "勝率", "今日支撐", "停損價"]], column_config=MOBILE_TABLE_CONFIG, hide_index=True, disabled=True, use_container_width=True)
-                
                 for item in rebound_confirmed:
                     with st.expander(f"🌱 穩健黑馬安全查閱：{item['代號']} {item['名稱']} 實戰指引與即時動作指令", expanded=False):
                         box_dispatcher = {"success": st.success, "info": st.info, "warning": st.warning, "error": st.error}
                         box_dispatcher[item["box_style"]](f"### 🛡️ 實戰動作手令：{item['發射指令']}")
-                        st.write(
-                            f"#### 🛡️ {item['名稱']}（{item['代號']}）── 【底部黑馬復甦・穩健打底動作】\n"
-                            f"* 📈 **底部反彈勝率**：` {item['勝率']} ` | 💰 **大戶收集籌碼**：` {item['chips_str']} `\n\n"
-                            f"--- \n"
-                            f"* 🟢 **基本面特徵**：隸屬 **{item['group_str']}** 關鍵次產業，利空已完全出盡，產業基本面正迎來谷底全面復甦的拐點。\n"
-                            f"* 📈 **技術面解析**：這檔個股剛剛完成大底，目前股價溫和、非常乖巧地貼在日線 20MA 生命線身邊。這是多頭防禦最堅固的老巢，大戶資金在這裡築起了一道厚厚的防火牆。\n"
-                            f"* 🚀 **確定能進場的原因**：股價剛從底部爬起來，安全基底極厚，具備『低風險、高期望值』的防守反擊特徵。\n"
-                            f"* ⚠️ **進場後預防針（波動防守）**：底部黑馬股的缺點是『爆發前洗盤比較磨人』，它可能不會馬上拉出漲停，而是會沿著 20MA 溫吞磨蹭幾天。**你需要展現耐心，只要股價不跌破 20MA 生命線（現價 `{item['停損價']}` 元），大戶的方向就沒變**。等籌碼沉澱完畢、成交量爆量點火，就會瞬間向上噴發！"
-                        )
-            else: st.info("⏳ 目前暫時沒有標的『溫和黏在日線 20MA 防守線身邊』。")
-
-            if from_names_tab0 and to_names_tab0:
-                st.markdown("---")
-                st.markdown("### 🗺️ 當前市場大資金板塊星移大局觀（跨族群換手脈絡）")
-                st.info(
-                    f"🔮 **操盤手實戰換手大局完美註解**：\n\n"
-                    f"💡 **大脈絡監測**：目前大戶資金正連續 2-3 天從過熱的 {from_names_tab0} 板塊執行『暗中抽血與利潤套現』。**主力已將其當作波段大提款機**，手上若有相關持股，請立刻收緊 60分K 生命防線，嚴禁看新聞利多傻傻進場幫大戶接刀！\n\n"
-                    f"與此同時，由提款區抽離的百億巨資，正無聲無息地**搬風並全面建倉到低位階的 {to_names_tab0} 龍頭指標股身邊**！這完全契合你『落底反彈流』的黃金狩獵背景，晚上做功課請直接鎖定這些吸籌指標個股，明天早盤動能點火即是發射信號！"
-                )
+                    # 💡 增加統一診斷面板 (分頁二)
+                    matched_tk = [k for k in FILTERED_TICKERS if k.startswith(item['代號'])]
+                    if matched_tk: render_unified_diagnosis_expander(matched_tk[0], daily_data[matched_tk[0]].dropna() if is_multi else daily_data.dropna(), item['名稱'], item['group_str'], expanded=False)
 
         # ＝＝＝＝＝＝＝＝＝＝ Tab 1【🔄 獨立：次族群資金換手地圖分頁】 ＝＝＝＝＝＝＝＝＝＝
         with tab1:
             st.markdown("## 🗺️ 系統獨立監測：三大法人資金換手地圖")
             st.caption("💡 戰刻核心：本頁面全自動捕捉大資金從過熱區抽水、並同步注入低位階龍頭標的之完整遷徙軌跡。")
-            
             if group_flows:
                 flow_df = pd.DataFrame(group_flows)
                 agg_df = flow_df.groupby("group").agg({"value_today": "sum", "value_ma5": "sum", "p_change": "mean"}).reset_index()
@@ -659,36 +571,21 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                 
                 with st.container(border=True):
                     st.markdown("### 🦅 AI 次族群資金跨板塊乾坤大挪移連線")
-                    
                     st.markdown("#### 💸 【資金正在撤退的提款區 (From)】")
                     for _, row in from_groups.iterrows():
-                        g_name = row["group"]
-                        g_pct = row["p_change"]
+                        g_name = row["group"]; g_pct = row["p_change"]
                         sub_stocks = flow_df[flow_df["group"] == g_name]
                         target_lead = sub_stocks.sort_values(by="value_today", ascending=False).iloc[0]
-                        st.error(f"* **{g_name}**（族群資金佔比委縮至前波 {row['ratio']:.2f}x，平均跌幅 {g_pct:+.2f}%）➔ 🚨 **主力大提款標的：{target_lead['name']} ({str(target_lead['ticker']).split('.')[0]})**")
+                        st.error(f"* **{g_name}**（族群資金委縮至前波 {row['ratio']:.2f}x）➔ 🚨 **主力大提款標的：{target_lead['name']}**")
                     
-                    st.markdown("---")
                     st.markdown("#### 🎯 【資金正在連夜開進的進駐區 (To)】")
                     for _, row in to_groups.iterrows():
-                        g_name = row["group"]
-                        g_pct = row["p_change"]
+                        g_name = row["group"]; g_pct = row["p_change"]
                         sub_stocks = flow_df[flow_df["group"] == g_name]
                         target_lead = sub_stocks.sort_values(by="stock_vol_ratio", ascending=False).iloc[0]
-                        st.success(f"* **{g_name}**（族群量能瘋狂放大 **{row['ratio']:.2f} 倍**，平均漲幅 {g_pct:+.2f}%）➔ 🔥 **核心吸籌指標箭頭：{target_lead['name']} ({str(target_lead['ticker']).split('.')[0]})** ── 成交量暴增 **{target_lead['stock_vol_ratio']:.2f} 倍**！")
-                    
-                    st.markdown("---")
-                    
-                    from_names = "、".join([f"【{x.split(' ')[1]}】" for x in from_groups["group"].tolist()])
-                    to_names = "、".join([f"【{x.split(' ')[1]}】" for x in to_groups["group"].tolist()])
-                    st.info(
-                        f"🔮 **操盤手實戰換手完美註解**：\n\n"
-                        f"💡 **大脈絡監測**：目前大戶資金正連續 2-3 天從過熱的 {from_names} 板塊執行『暗中抽血與利潤套現』。**主力已將其當作波段大提款機**，手上若有相關持股，請立刻收緊 60分K 生命防線，嚴禁看新聞利多傻傻進場幫大戶接刀！\n\n"
-                        f"與此同時，由提款區抽離的百億巨資，正無聲無息地**搬風並全面建倉到低位階的 {to_names} 龍頭指標股身邊**！這完全契合你『落底反彈流』的黃金狩獵背景，晚上做功課請直接鎖定這些吸籌指標個股，明天早盤動能點火即是發射信號！"
-                    )
-            else: st.info("⏳ 次族群資金遷徙數據同步中...")
+                        st.success(f"* **{g_name}**（族群量能放大 **{row['ratio']:.2f} 倍**）➔ 🔥 **核心吸籌指標箭頭：{target_lead['name']}** ── 成交量暴增 **{target_lead['stock_vol_ratio']:.2f} 倍**！")
 
-            # 🌟🌟 統一規格套用：盤後特打查詢艙 🌟🌟
+            # 🌟🌟 統一規格套用：盤後特打查詢艙 (分頁三) 🌟🌟
             st.markdown("---")
             st.markdown("### 🔮 盤後快速特打查詢艙（統一規格 AI 展開面板）")
             search_code = st.text_input("請輸入台股四位數代號（例如輸入 8046 或 2481）：", key="tab1_search").strip()
@@ -697,8 +594,7 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                 matched_ticker = None
                 for k in AI_STOCKS_DICT.keys():
                     if k.startswith(search_code + "."):
-                        matched_ticker = k
-                        break
+                        matched_ticker = k; break
                 if not matched_ticker: matched_ticker = search_code + ".TW"
                     
                 try:
@@ -708,19 +604,15 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         df_search = yf.download(alt_ticker, period="8mo", interval="1d", progress=False).dropna()
                         if not df_search.empty: matched_ticker = alt_ticker
 
-                    if df_search.empty: 
-                        st.error("❌ 無此標的，請確認代號是否正確。")
+                    if df_search.empty: st.error("❌ 無此標的，請確認代號是否正確。")
                     else:
                         if isinstance(df_search.columns, pd.MultiIndex):
                             df_search.columns = [col[0] if col[0] in ['Open', 'High', 'Low', 'Close', 'Volume', 'Adj Close'] else col[1] for col in df_search.columns]
-
                         stock_name_s = AI_STOCKS_DICT[matched_ticker]['name'] if matched_ticker in AI_STOCKS_DICT else f"全台股通用標的"
                         group_name_s = AI_STOCKS_DICT[matched_ticker]['group'] if matched_ticker in AI_STOCKS_DICT else "未分類"
-                        
-                        # 呼叫超完美的智庫統一面板！
+                        # 呼叫完美的智庫統一面板！
                         render_unified_diagnosis_expander(matched_ticker, df_search, stock_name_s, group_name_s, expanded=True)
-
-                except Exception as ex: st.warning(f"⚠️ {search_code} 數據活體同步中，請確保代號輸入正確並重新整理...")
+                except Exception as ex: st.warning(f"⚠️ {search_code} 數據活體同步中，請重新整理...")
 
         # ＝＝＝＝＝＝＝＝＝＝ Tab 2 到 Tab 3 ＝＝＝＝＝＝＝＝＝＝
         with tab2:
@@ -763,18 +655,13 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
             st.subheader("💎 個股日K數據智慧解密與完美註解智庫艙")
             selector_options = {t: f"{t} {FILTERED_STOCKS_DICT[t]['name']}" for t in FILTERED_TICKERS}
             selected_ticker = st.selectbox("請選擇你想查看全景完美註解的 AI 股：", options=FILTERED_TICKERS, format_func=lambda x: selector_options[x])
-            
             try:
                 df_d = daily_data[selected_ticker].dropna() if is_multi else daily_data.dropna()
-                if len(df_d) < 65:
-                    st.info("💡 該標的歷史數據加載中...")
+                if len(df_d) < 65: st.info("💡 該標的歷史數據加載中...")
                 else:
                     stock_name = FILTERED_STOCKS_DICT[selected_ticker]['name']
                     group_name = FILTERED_STOCKS_DICT[selected_ticker]['group']
-                    
-                    # 直接呼叫超完美的智庫統一面板！
                     render_unified_diagnosis_expander(selected_ticker, df_d, stock_name, group_name, expanded=True)
-                    
             except Exception as e: st.info("數據初始化整合中，請稍候...")
 
         # ＝＝＝＝＝＝＝＝＝＝ Tab 5 到 Tab 6 ＝＝＝＝＝＝＝＝＝＝
@@ -816,46 +703,18 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                     "🔮 主力資金流向診斷": st.column_config.TextColumn("🎯 資金診斷", width="small")
                 }
                 st.data_editor(agg_df[["group", "今日總成交額 (億元)", "量能放大倍數 (較5日)", "🔮 主力資金流向診斷"]].sort_values(by="今日總成交額 (億元)", ascending=False), column_config=group_table_config, hide_index=True, disabled=True, use_container_width=True)
-                
-                st.markdown("---")
-                flow_display = flow_df.copy()
-                flow_display["代號"] = flow_display["ticker"].apply(lambda x: str(x).split('.')[0])
-                flow_display["名稱"] = flow_display["name"]
-                flow_display["族群"] = flow_display["group"].apply(lambda x: str(x).split(' ')[1] if ' ' in str(x) else str(x))
-                flow_display["現價"] = round(flow_display["price"], 2)
-                flow_display["漲跌幅"] = flow_display["p_change"].apply(lambda x: f"{x:+.2f}%")
-                flow_display["5日線乖離"] = flow_display["bias_5"]
-                flow_display["🔮 個股診斷"] = flow_display["stock_trend"]
-                flow_display["個股量增"] = round(flow_display["stock_vol_ratio"], 2)
-                
-                flow_display = flow_display.sort_values(by=["group", "value_today"], ascending=[True, False])
-                
-                detail_table_config = {
-                    "族群": st.column_config.TextColumn("族群", width="small"),
-                    "代號": st.column_config.TextColumn("代號", width="small"),
-                    "名稱": st.column_config.TextColumn("名稱", width="small"),
-                    "現價": st.column_config.NumberColumn("現價", width="small"),
-                    "漲跌幅": st.column_config.TextColumn("漲跌幅", width="small"),
-                    "5日線乖離": st.column_config.NumberColumn("5日線乖離", width="small", format="%+.1f%%"),
-                    "🔮 個股診斷": st.column_config.TextColumn("🔮 個股診斷", width="medium")
-                }
-                st.data_editor(flow_display[["族群", "代號", "名稱", "現價", "漲跌幅", "5日線乖離", "🔮 個股診斷"]], column_config=detail_table_config, hide_index=True, disabled=True, use_container_width=True)
 
         with tab7:
             st.subheader("📱 我的持股鋼鐵防守與極速停利監控艙")
             st.caption("💡 智慧守護：此分頁專門死守【60分K高頻機制】（5分鐘刷新），盤中幫您以快 4.5 倍的速度鎖住波段利潤、擊殺風險！")
-            
             edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
             st.session_state.my_portfolio = edited_df
-            
             st.markdown("---")
             if hourly_data is not None:
                 for idx, row in edited_df.iterrows():
                     tk = str(row["代號"]).strip().upper()
                     if not tk: continue
-                    
-                    yf_tk = tk; name = ""
-                    group = "自選持股"
+                    yf_tk = tk; name = ""; group = "自選持股"
                     if not tk.endswith('.TW') and not tk.endswith('.TWO'):
                         matched = [k for k in AI_STOCKS_DICT.keys() if k.startswith(tk + '.')]
                         if matched: 
@@ -864,24 +723,17 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         else: yf_tk = tk + '.TW'
                     else:
                         if yf_tk in AI_STOCKS_DICT: 
-                            name = AI_STOCKS_DICT[yf_tk]['name']
-                            group = AI_STOCKS_DICT[yf_tk]['group']
+                            name = AI_STOCKS_DICT[yf_tk]['name']; group = AI_STOCKS_DICT[yf_tk]['group']
                     
                     try:
                         df_p = hourly_data[yf_tk].dropna() if is_multi else hourly_data.dropna()
                         if df_p.empty: continue
-                        
                         price_h = df_p['Close'].iloc[-1]
                         ma10_h = df_p['Close'].rolling(10).mean().iloc[-1]
                         ma20_h = df_p['Close'].rolling(20).mean().iloc[-1]
-                        
                         yesterday_close_d = YESTERDAY_CLOSES_DAILY.get(yf_tk, price_h)
-                        if row['買入成本'] > 0:
-                            pnl = ((price_h - row['買入成本']) / row['買入成本']) * 100
-                            pnl_str = f"損益:{pnl:+.2f}%"
-                        else:
-                            pnl = ((price_h - yesterday_close_d) / yesterday_close_d) * 100
-                            pnl_str = f"今日即時幅:{pnl:+.2f}%"
+                        if row['買入成本'] > 0: pnl_str = f"損益:{((price_h - row['買入成本']) / row['買入成本']) * 100:+.2f}%"
+                        else: pnl_str = f"今日即時幅:{((price_h - yesterday_close_d) / yesterday_close_d) * 100:+.2f}%"
                         
                         df_d_ticker = daily_data[yf_tk].dropna() if is_multi else daily_data.dropna()
                         vol_ma5 = df_d_ticker['Volume'].rolling(window=5).mean().iloc[-1] if 'Volume' in df_d_ticker.columns else 0
@@ -896,8 +748,7 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         
                         low_60, high_60 = df_p['Low'].rolling(window=60).min(), df_p['High'].rolling(window=60).max()
                         df_p['RSV'] = (((df_p['Close'] - low_60) / (high_60 - low_60)) * 100).fillna(50)
-                        df_p['K'] = df_p['RSV'].ewm(alpha=1/3, adjust=False).mean()
-                        df_p['D'] = df_p['K'].ewm(alpha=1/3, adjust=False).mean()
+                        df_p['K'] = df_p['RSV'].ewm(alpha=1/3, adjust=False).mean(); df_p['D'] = df_p['K'].ewm(alpha=1/3, adjust=False).mean()
                         
                         tod_h = df_p.iloc[-1]; yes_h = df_p.iloc[-2]
                         
@@ -921,9 +772,7 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         elif ma20_h <= price_h < ma10_h: st.warning(f"⚠️ {res_base} ➔ **短線轉弱** (已破 10MA！移動停利機制準備，看 20MA 最後防守){reason_text}")
                         else: st.error(f"🚨 {res_base} ➔ **執行紀律！** (已無情跌破 60分K 20MA 防守點，請依波段紀律停利/停損出場！){reason_text}")
                         
-                        # 🌟🌟 統一規格套用：持股下方也掛上完美的智庫日K全景面板 🌟🌟
-                        if len(df_d_ticker) > 60:
-                            render_unified_diagnosis_expander(yf_tk, df_d_ticker, name, group, expanded=False)
+                        if len(df_d_ticker) > 60: render_unified_diagnosis_expander(yf_tk, df_d_ticker, name, group, expanded=False)
                             
                     except: st.warning(f"⚠️ {tk} 數據同步中...")
             else: st.info("💡 正在等待雷達數據初始化同步...")
