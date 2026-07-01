@@ -400,7 +400,7 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
         tab_weekly, tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
             "📋 大仁哥週報戰客特訓艙", "🚀 今日實戰精選買入名單", "🔄 AI次族群資金換手地圖", 
             "🔥 日K核心動能大篩選", "🛡️ 日線級別均線防守選股", "💎 個股日K智庫全景診斷", 
-            "📊 AI大軍日K成交量排行", "💰 族群日K資金輪動監控", "📱 持股防守艙"
+            "📊 AI大軍日K成交量排行", "💰 族群日K資金輪動監控", "🎯 60分K 戰情室"
         ])
 
         group_flows = []
@@ -809,75 +809,123 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                 }
                 st.data_editor(flow_display[["族群", "代號", "名稱", "現價", "漲跌幅", "5日線乖離", "🔮 個股診斷"]], column_config=detail_table_config, hide_index=True, disabled=True, use_container_width=True)
 
+        # ＝＝＝＝＝＝＝＝＝＝ Tab 7【🎯 60分K 戰情室：即時雷達與防守艙】 ＝＝＝＝＝＝＝＝＝＝
         with tab7:
-            st.subheader("📱 我的持股鋼鐵防守與極速停利監控艙")
-            st.caption("💡 智慧守護：此分頁專門死守【60分K高頻機制】（5分鐘刷新），盤中幫您以快 4.5 倍的速度鎖住波段利潤、擊殺風險！")
+            st.subheader("🎯 60分K 專屬戰情室：盤中主升段雷達 × 鋼鐵防守艙")
+            st.caption("💡 戰略核心：全視角鎖定 60分K 級別。尋找股價站穩 60MA (長線護體)，且 KD(60,3,3) K值剛突破 50 轉上之黃金起漲點！")
+            
+            # --- 📡 上半部：盤中即時雷達 ---
+            st.markdown("### 📡 第一防線：盤中黃金起漲點全網掃描")
+            matches_60m = []
+            if hourly_data is not None:
+                for ticker in FILTERED_TICKERS:
+                    try:
+                        df_p = hourly_data[ticker].dropna() if is_multi else hourly_data.dropna()
+                        if len(df_p) < 60: continue
+                        
+                        price_h = df_p['Close'].iloc[-1]
+                        ma60_h = df_p['Close'].rolling(60).mean().iloc[-1]
+                        
+                        low_60 = df_p['Low'].rolling(window=60).min()
+                        high_60 = df_p['High'].rolling(window=60).max()
+                        df_p['RSV'] = (((df_p['Close'] - low_60) / (high_60 - low_60)) * 100).fillna(50)
+                        df_p['K'] = df_p['RSV'].ewm(alpha=1/3, adjust=False).mean()
+                        
+                        tod_h = df_p.iloc[-1]
+                        yes_h = df_p.iloc[-2]
+                        
+                        # 核心戰略判斷條件：站上 60MA + K值轉上且大於等於 50
+                        is_above_ma60 = price_h >= ma60_h
+                        is_k_turning_up = (tod_h['K'] > yes_h['K']) and (tod_h['K'] >= 50)
+                        
+                        if is_above_ma60 and is_k_turning_up:
+                            stock_name = AI_STOCKS_DICT.get(ticker, {}).get('name', '')
+                            group_name = AI_STOCKS_DICT.get(ticker, {}).get('group', '').split(' ')[1] if ' ' in AI_STOCKS_DICT.get(ticker, {}).get('group', '') else ''
+                            
+                            matches_60m.append({
+                                "族群": group_name,
+                                "代號": ticker.split('.')[0], 
+                                "名稱": stock_name, 
+                                "現價": round(price_h, 2), 
+                                "60MA防線": round(ma60_h, 2),
+                                "當前K值": round(tod_h['K'], 1),
+                                "狀態": "🔥 黃金起漲"
+                            })
+                    except: continue
+                
+                if matches_60m: 
+                    st.data_editor(pd.DataFrame(matches_60m).reset_index(drop=True), hide_index=True, disabled=True, use_container_width=True)
+                else:
+                    st.info("💡 目前盤中雷達掃描：暫無標的符合 60分K 發動條件，請耐心等候下一個 60 分鐘洗牌。")
+
+            # --- 📱 下半部：我的持股鋼鐵防守 ---
+            st.markdown("---")
+            st.markdown("### 📱 第二防線：我的持股極速停利監控 (自選追蹤)")
             edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
             st.session_state.my_portfolio = edited_df
             st.markdown("---")
+            
             if hourly_data is not None:
                 for idx, row in edited_df.iterrows():
                     tk = str(row["代號"]).strip().upper()
                     if not tk: continue
+                    
                     yf_tk = tk; name = ""; group = "自選持股"
                     if not tk.endswith('.TW') and not tk.endswith('.TWO'):
                         matched = [k for k in AI_STOCKS_DICT.keys() if k.startswith(tk + '.')]
                         if matched: 
                             yf_tk = matched[0]; name = AI_STOCKS_DICT[yf_tk]['name']
                             group = AI_STOCKS_DICT[yf_tk]['group']
-                        else: yf_tk = tk + '.TW'
-                    else:
-                        if yf_tk in AI_STOCKS_DICT: 
-                            name = AI_STOCKS_DICT[yf_tk]['name']; group = AI_STOCKS_DICT[yf_tk]['group']
-                    
-                    try:
-                        df_p = hourly_data[yf_tk].dropna() if is_multi else hourly_data.dropna()
-                        if df_p.empty: continue
-                        price_h = df_p['Close'].iloc[-1]
-                        ma10_h = df_p['Close'].rolling(10).mean().iloc[-1]
-                        ma20_h = df_p['Close'].rolling(20).mean().iloc[-1]
-                        yesterday_close_d = YESTERDAY_CLOSES_DAILY.get(yf_tk, price_h)
-                        if row['買入成本'] > 0: pnl_str = f"損益:{((price_h - row['買入成本']) / row['買入成本']) * 100:+.2f}%"
-                        else: pnl_str = f"今日即時幅:{((price_h - yesterday_close_d) / yesterday_close_d) * 100:+.2f}%"
+                        else: 
+                            yf_tk = tk + '.TW'
+            else:
+                if yf_tk in AI_STOCKS_DICT: 
+                    name = AI_STOCKS_DICT[yf_tk]['name']; group = AI_STOCKS_DICT[yf_tk]['group']
+            
+            try:
+                df_p = hourly_data[yf_tk].dropna() if is_multi else hourly_data.dropna()
+                if df_p.empty: continue
+                
+                price_h = df_p['Close'].iloc[-1]
+                ma60_h = df_p['Close'].rolling(60).mean().iloc[-1]
+                
+                yesterday_close_d = YESTERDAY_CLOSES_DAILY.get(yf_tk, price_h)
+                if row['買入成本'] > 0: 
+                    pnl_str = f"損益:{((price_h - row['買入成本']) / row['買入成本']) * 100:+.2f}%"
+                else: 
+                    pnl_str = f"今日即時幅:{((price_h - yesterday_close_d) / yesterday_close_d) * 100:+.2f}%"
+                
+                low_60 = df_p['Low'].rolling(window=60).min()
+                high_60 = df_p['High'].rolling(window=60).max()
+                df_p['RSV'] = (((df_p['Close'] - low_60) / (high_60 - low_60)) * 100).fillna(50)
+                df_p['K'] = df_p['RSV'].ewm(alpha=1/3, adjust=False).mean()
+                df_p['D'] = df_p['K'].ewm(alpha=1/3, adjust=False).mean()
+                
+                tod_h = df_p.iloc[-1]; yes_h = df_p.iloc[-2]
+                
+                is_above_ma60 = price_h >= ma60_h
+                is_k_turning_up = (tod_h['K'] > yes_h['K']) and (tod_h['K'] >= 50)
+                
+                drop_reasons = []
+                if not is_above_ma60: 
+                    drop_reasons.append(f"📉 **未站上防線**：股價目前低於 60MA ({ma60_h:.2f})。")
+                if not is_k_turning_up:
+                    if tod_h['K'] < 50: 
+                        drop_reasons.append(f"⏳ **動能不足**：目前 K值 ({tod_h['K']:.1f}) 小於 50，尚未進入強勢區。")
+                    elif tod_h['K'] <= yes_h['K']: 
+                        drop_reasons.append(f"🌀 **動能下彎**：目前 K值 ({tod_h['K']:.1f}) 失去向上推力。")
                         
-                        df_d_ticker = daily_data[yf_tk].dropna() if is_multi else daily_data.dropna()
-                        vol_ma5 = df_d_ticker['Volume'].rolling(window=5).mean().iloc[-1] if 'Volume' in df_d_ticker.columns else 0
-                        tod_vol = df_d_ticker['Volume'].iloc[-1] if 'Volume' in df_d_ticker.columns else 0
-                        vol_ratio = tod_vol / vol_ma5 if vol_ma5 > 0 else 1.0
-                        
-                        df_p['EMA12'] = df_p['Close'].ewm(span=12, adjust=False).mean()
-                        df_p['EMA26'] = df_p['Close'].ewm(span=26, adjust=False).mean()
-                        df_p['DIF'] = df_p['Close'].ewm(span=12, adjust=False).mean() - df_p['Close'].ewm(span=26, adjust=False).mean()
-                        df_p['MACD_Sig'] = df_p['DIF'].ewm(span=9, adjust=False).mean()
-                        df_p['HIST'] = df_p['DIF'] - df_p['MACD_Sig']
-                        
-                        low_60, high_60 = df_p['Low'].rolling(window=60).min(), df_p['High'].rolling(window=60).max()
-                        df_p['RSV'] = (((df_p['Close'] - low_60) / (high_60 - low_60)) * 100).fillna(50)
-                        df_p['K'] = df_p['RSV'].ewm(alpha=1/3, adjust=False).mean(); df_p['D'] = df_p['K'].ewm(alpha=1/3, adjust=False).mean()
-                        
-                        tod_h = df_p.iloc[-1]; yes_h = df_p.iloc[-2]
-                        
-                        drop_reasons = []
-                        if price_h < ma10_h: drop_reasons.append("📉 **均線破防**：股價跌破 60分K 10MA 短線強勢線，短線利潤收斂，注意停利！")
-                        if price_h < ma20_h: drop_reasons.append("🚨 **生命線失守**：股價無情跌破 60分K 20MA 波段防守點，移動停利點/停損點觸發！")
-                        if tod_h['HIST'] < yes_h['HIST']:
-                            if tod_h['HIST'] < 0: drop_reasons.append("🔴 **MACD 動能下殺**：60分K綠柱持續拉長，空方修正動能放大。")
-                            else: drop_reasons.append("⏳ **MACD 多頭熄火**：60分K紅柱連續縮短，推力道告吹。")
-                        if tod_h['K'] < tod_h['D']: drop_reasons.append(f"🌀 **KD 指標死叉**：60分K呈現死叉 (K:{tod_h['K']:.1f} < D:{tod_h['D']:.1f})。")
-                        if price_h < ma10_h or price_h < ma20_h:
-                            if vol_ratio >= 1.4: drop_reasons.append(f"💥 **籌碼恐慌爆量**：下殺成交量達5日均量 {vol_ratio:.1f} 倍！有主力砍倉。")
-                            else: drop_reasons.append(f"🛡️ **籌碼量縮洗盤**：下跌量僅5日均量 {vol_ratio:.1f} 倍，屬於量縮良性震盪。")
-                                
-                        reason_text = "\n\n**🔍 60分K極速轉弱/下跌原因診斷（盤中监控）：**\n" + "\n".join([f"{i+1}. {r}" for i, r in enumerate(drop_reasons)]) if drop_reasons else "\n\n**⚖️ 原因診斷**：多頭結構完美，現價極其強勢！"
-                        
-                        disp_title = f"{tk}{name}" if name else tk
-                        res_base = f"**{disp_title}** | 60分K現價:{price_h:.2f} | {pnl_str} | (10MA:{ma10_h:.2f} , 20MA:{ma20_h:.2f})"
-                        
-                        if price_h >= ma10_h: st.success(f"🟢 {res_base} ➔ **強勢續抱** (站穩 10MA 與 20MA 之上，多頭格局強勁){reason_text}")
-                        elif ma20_h <= price_h < ma10_h: st.warning(f"⚠️ {res_base} ➔ **短線轉弱** (已破 10MA！移動停利機制準備，看 20MA 最後防守){reason_text}")
-                        else: st.error(f"🚨 {res_base} ➔ **執行紀律！** (已無情跌破 60分K 20MA 防守點，請依波段紀律停利/停損出場！){reason_text}")
-                        
-                        if len(df_d_ticker) > 60: render_unified_diagnosis_expander(yf_tk, df_d_ticker, name, group, expanded=False)
-                            
-                    except: st.warning(f"⚠️ {tk} 數據同步中...")
-            else: st.info("💡 正在等待雷達數據初始化同步...")
+                reason_text = "\n\n**🔍 60分K策略監控：**\n" + "\n".join([f"{i+1}. {r}" for i, r in enumerate(drop_reasons)]) if drop_reasons else "\n\n**⚖️ 策略狀態**：條件完美吻合，主升段動能發動！"
+                
+                disp_title = f"{tk}{name}" if name else tk
+                res_base = f"**{disp_title}** | 現價:{price_h:.2f} | {pnl_str} | (60MA:{ma60_h:.2f} , K值:{tod_h['K']:.1f})"
+                
+                if is_above_ma60 and is_k_turning_up: 
+                    st.success(f"🔥 {res_base} ➔ **【黃金買點觸發】** (站穩 60MA 且 K值 50 轉上！){reason_text}")
+                elif is_above_ma60: 
+                    st.info(f"🟢 {res_base} ➔ **安全整理區** (站在 60MA 之上，但 K值尚未發動){reason_text}")
+                else: 
+                    st.error(f"🚨 {res_base} ➔ **空手觀望** (未站上 60MA 生命線，嚴禁進場){reason_text}")
+                
+            except Exception as e: 
+                st.warning(f"⚠️ {tk} 數據處理中發生錯誤...")
