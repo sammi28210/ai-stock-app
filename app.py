@@ -878,54 +878,55 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                             group = AI_STOCKS_DICT[yf_tk]['group']
                         else: 
                             yf_tk = tk + '.TW'
-            else:
-                if yf_tk in AI_STOCKS_DICT: 
-                    name = AI_STOCKS_DICT[yf_tk]['name']; group = AI_STOCKS_DICT[yf_tk]['group']
-            
-            try:
-                df_p = hourly_data[yf_tk].dropna() if is_multi else hourly_data.dropna()
-                if df_p.empty: continue
-                
-                price_h = df_p['Close'].iloc[-1]
-                ma60_h = df_p['Close'].rolling(60).mean().iloc[-1]
-                
-                yesterday_close_d = YESTERDAY_CLOSES_DAILY.get(yf_tk, price_h)
-                if row['買入成本'] > 0: 
-                    pnl_str = f"損益:{((price_h - row['買入成本']) / row['買入成本']) * 100:+.2f}%"
-                else: 
-                    pnl_str = f"今日即時幅:{((price_h - yesterday_close_d) / yesterday_close_d) * 100:+.2f}%"
-                
-                low_60 = df_p['Low'].rolling(window=60).min()
-                high_60 = df_p['High'].rolling(window=60).max()
-                df_p['RSV'] = (((df_p['Close'] - low_60) / (high_60 - low_60)) * 100).fillna(50)
-                df_p['K'] = df_p['RSV'].ewm(alpha=1/3, adjust=False).mean()
-                df_p['D'] = df_p['K'].ewm(alpha=1/3, adjust=False).mean()
-                
-                tod_h = df_p.iloc[-1]; yes_h = df_p.iloc[-2]
-                
-                is_above_ma60 = price_h >= ma60_h
-                is_k_turning_up = (tod_h['K'] > yes_h['K']) and (tod_h['K'] >= 50)
-                
-                drop_reasons = []
-                if not is_above_ma60: 
-                    drop_reasons.append(f"📉 **未站上防線**：股價目前低於 60MA ({ma60_h:.2f})。")
-                if not is_k_turning_up:
-                    if tod_h['K'] < 50: 
-                        drop_reasons.append(f"⏳ **動能不足**：目前 K值 ({tod_h['K']:.1f}) 小於 50，尚未進入強勢區。")
-                    elif tod_h['K'] <= yes_h['K']: 
-                        drop_reasons.append(f"🌀 **動能下彎**：目前 K值 ({tod_h['K']:.1f}) 失去向上推力。")
+                    else:
+                        if yf_tk in AI_STOCKS_DICT: 
+                            name = AI_STOCKS_DICT[yf_tk]['name']; group = AI_STOCKS_DICT[yf_tk]['group']
+                    
+                    # 這裡就是剛才不小心掉出迴圈外面的部分，現在已經乖乖歸位了！
+                    try:
+                        df_p = hourly_data[yf_tk].dropna() if is_multi else hourly_data.dropna()
+                        if df_p.empty: continue
                         
-                reason_text = "\n\n**🔍 60分K策略監控：**\n" + "\n".join([f"{i+1}. {r}" for i, r in enumerate(drop_reasons)]) if drop_reasons else "\n\n**⚖️ 策略狀態**：條件完美吻合，主升段動能發動！"
-                
-                disp_title = f"{tk}{name}" if name else tk
-                res_base = f"**{disp_title}** | 現價:{price_h:.2f} | {pnl_str} | (60MA:{ma60_h:.2f} , K值:{tod_h['K']:.1f})"
-                
-                if is_above_ma60 and is_k_turning_up: 
-                    st.success(f"🔥 {res_base} ➔ **【黃金買點觸發】** (站穩 60MA 且 K值 50 轉上！){reason_text}")
-                elif is_above_ma60: 
-                    st.info(f"🟢 {res_base} ➔ **安全整理區** (站在 60MA 之上，但 K值尚未發動){reason_text}")
-                else: 
-                    st.error(f"🚨 {res_base} ➔ **空手觀望** (未站上 60MA 生命線，嚴禁進場){reason_text}")
-                
-            except Exception as e: 
-                st.warning(f"⚠️ {tk} 數據處理中發生錯誤...")
+                        price_h = df_p['Close'].iloc[-1]
+                        ma60_h = df_p['Close'].rolling(60).mean().iloc[-1]
+                        
+                        yesterday_close_d = YESTERDAY_CLOSES_DAILY.get(yf_tk, price_h)
+                        if row['買入成本'] > 0: 
+                            pnl_str = f"損益:{((price_h - row['買入成本']) / row['買入成本']) * 100:+.2f}%"
+                        else: 
+                            pnl_str = f"今日即時幅:{((price_h - yesterday_close_d) / yesterday_close_d) * 100:+.2f}%"
+                        
+                        low_60 = df_p['Low'].rolling(window=60).min()
+                        high_60 = df_p['High'].rolling(window=60).max()
+                        df_p['RSV'] = (((df_p['Close'] - low_60) / (high_60 - low_60)) * 100).fillna(50)
+                        df_p['K'] = df_p['RSV'].ewm(alpha=1/3, adjust=False).mean()
+                        df_p['D'] = df_p['K'].ewm(alpha=1/3, adjust=False).mean()
+                        
+                        tod_h = df_p.iloc[-1]; yes_h = df_p.iloc[-2]
+                        
+                        is_above_ma60 = price_h >= ma60_h
+                        is_k_turning_up = (tod_h['K'] > yes_h['K']) and (tod_h['K'] >= 50)
+                        
+                        drop_reasons = []
+                        if not is_above_ma60: 
+                            drop_reasons.append(f"📉 **未站上防線**：股價目前低於 60MA ({ma60_h:.2f})。")
+                        if not is_k_turning_up:
+                            if tod_h['K'] < 50: 
+                                drop_reasons.append(f"⏳ **動能不足**：目前 K值 ({tod_h['K']:.1f}) 小於 50，尚未進入強勢區。")
+                            elif tod_h['K'] <= yes_h['K']: 
+                                drop_reasons.append(f"🌀 **動能下彎**：目前 K值 ({tod_h['K']:.1f}) 失去向上推力。")
+                                
+                        reason_text = "\n\n**🔍 60分K策略監控：**\n" + "\n".join([f"{i+1}. {r}" for i, r in enumerate(drop_reasons)]) if drop_reasons else "\n\n**⚖️ 策略狀態**：條件完美吻合，主升段動能發動！"
+                        
+                        disp_title = f"{tk}{name}" if name else tk
+                        res_base = f"**{disp_title}** | 現價:{price_h:.2f} | {pnl_str} | (60MA:{ma60_h:.2f} , K值:{tod_h['K']:.1f})"
+                        
+                        if is_above_ma60 and is_k_turning_up: 
+                            st.success(f"🔥 {res_base} ➔ **【黃金買點觸發】** (站穩 60MA 且 K值 50 轉上！){reason_text}")
+                        elif is_above_ma60: 
+                            st.info(f"🟢 {res_base} ➔ **安全整理區** (站在 60MA 之上，但 K值尚未發動){reason_text}")
+                        else: 
+                            st.error(f"🚨 {res_base} ➔ **空手觀望** (未站上 60MA 生命線，嚴禁進場){reason_text}")
+                        
+                    except Exception as e: 
+                        st.warning(f"⚠️ {tk} 數據處理中發生錯誤...")
