@@ -812,7 +812,7 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
         # ＝＝＝＝＝＝＝＝＝＝ Tab 7【🎯 60分K 戰情室：即時雷達與防守艙】 ＝＝＝＝＝＝＝＝＝＝
         with tab7:
             st.subheader("🎯 60分K 專屬戰情室：盤中主升段雷達 × 鋼鐵防守艙")
-            st.caption("💡 戰略核心：全視角鎖定 60分K 級別。尋找股價站穩 60MA (長線護體)，且 KD(60,3,3) K值剛突破 50 轉上之黃金起漲點！")
+            st.caption("💡 戰略核心：全視角鎖定 60分K 級別。尋找股價站穩 60MA (長線護體)，且 KD(60,3,3) K值剛突破 50 且小於 60 之黃金起漲點！")
             
             # --- 📡 上半部：盤中即時雷達 ---
             st.markdown("### 📡 第一防線：盤中黃金起漲點全網掃描")
@@ -834,9 +834,9 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         tod_h = df_p.iloc[-1]
                         yes_h = df_p.iloc[-2]
                         
-                        # 核心戰略判斷條件：站上 60MA + K值轉上且大於等於 50
+                        # 核心戰略判斷條件：站上 60MA + K值轉上且在 50~60 之間 (過濾掉漲高的標的)
                         is_above_ma60 = price_h >= ma60_h
-                        is_k_turning_up = (tod_h['K'] > yes_h['K']) and (tod_h['K'] >= 50)
+                        is_k_turning_up = (tod_h['K'] > yes_h['K']) and (50 <= tod_h['K'] <= 60)
                         
                         if is_above_ma60 and is_k_turning_up:
                             stock_name = AI_STOCKS_DICT.get(ticker, {}).get('name', '')
@@ -856,7 +856,7 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                 if matches_60m: 
                     st.data_editor(pd.DataFrame(matches_60m).reset_index(drop=True), hide_index=True, disabled=True, use_container_width=True)
                 else:
-                    st.info("💡 目前盤中雷達掃描：暫無標的符合 60分K 發動條件，請耐心等候下一個 60 分鐘洗牌。")
+                    st.info("💡 目前盤中雷達掃描：暫無標的符合 60分K 發動條件 (K值 50~60)，請耐心等候下一個 60 分鐘洗牌。")
 
             # --- 📱 下半部：我的持股鋼鐵防守 ---
             st.markdown("---")
@@ -882,7 +882,6 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         if yf_tk in AI_STOCKS_DICT: 
                             name = AI_STOCKS_DICT[yf_tk]['name']; group = AI_STOCKS_DICT[yf_tk]['group']
                     
-                    # 這裡就是剛才不小心掉出迴圈外面的部分，現在已經乖乖歸位了！
                     try:
                         df_p = hourly_data[yf_tk].dropna() if is_multi else hourly_data.dropna()
                         if df_p.empty: continue
@@ -905,6 +904,7 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         tod_h = df_p.iloc[-1]; yes_h = df_p.iloc[-2]
                         
                         is_above_ma60 = price_h >= ma60_h
+                        # 持股邏輯不設上限 60，只要大於等於 50 都是多頭強勢區
                         is_k_turning_up = (tod_h['K'] > yes_h['K']) and (tod_h['K'] >= 50)
                         
                         drop_reasons = []
@@ -928,5 +928,10 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         else: 
                             st.error(f"🚨 {res_base} ➔ **空手觀望** (未站上 60MA 生命線，嚴禁進場){reason_text}")
                         
+                        # 把你不小心被我弄丟的「日K智庫點擊評語」加回來了！
+                        df_d_ticker = daily_data[yf_tk].dropna() if is_multi else daily_data.dropna()
+                        if len(df_d_ticker) > 60: 
+                            render_unified_diagnosis_expander(yf_tk, df_d_ticker, name, group, expanded=False)
+                            
                     except Exception as e: 
                         st.warning(f"⚠️ {tk} 數據處理中發生錯誤...")
