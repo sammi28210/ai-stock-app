@@ -3,7 +3,25 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import json
+import requests
 from datetime import datetime, timedelta
+
+# --- 🚀 Telegram 專屬推播設定 ---
+TELEGRAM_TOKEN = "8862461242:AAEprjEWfGaxygfjiTfAJoS37hAgWAx1pFk"
+CHAT_ID = "6623261984"
+
+def send_telegram_notify(message):
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": message,
+        "parse_mode": "Markdown"
+    }
+    try:
+        requests.post(url, json=payload, timeout=5)
+    except Exception as e:
+        print(f"Telegram 推播失敗: {e}")
+# ------------------------------------
 
 # 保持大器寬版配置
 st.set_page_config(page_title="台股AI全鏈监控系統", layout="wide")
@@ -337,7 +355,6 @@ WEEKLY_TICKERS = list(WEEKLY_MAP.keys())
 def fetch_all_data(tickers):
     if not tickers: return None, None, None
     try:
-        import requests
         clean_session = requests.Session()
         clean_session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
         
@@ -923,6 +940,11 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         
                         if is_above_ma60 and is_k_turning_up: 
                             st.success(f"🔥 {res_base} ➔ **【黃金買點觸發】** (站穩 60MA 且 K值 50 轉上！){reason_text}")
+                            
+                            # 🚀 發送 Telegram 推播通知
+                            notify_msg = f"🔥 **獵殺訊號出現** 🔥\n標的：{tk} {name}\n現價：{price_h:.2f}\n狀態：已站穩 60MA，且 60分K 值轉上進入強勢區！\n請立刻開啟券商 APP 準備掛單！"
+                            send_telegram_notify(notify_msg)
+                            
                         elif is_above_ma60: 
                             st.info(f"🟢 {res_base} ➔ **安全整理區** (站在 60MA 之上，但 K值尚未發動){reason_text}")
                         else: 
