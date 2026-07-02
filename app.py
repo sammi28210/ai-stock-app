@@ -6,11 +6,19 @@ import json
 import requests
 from datetime import datetime, timedelta
 
-# --- 🚀 Telegram 專屬推播設定 ---
-TELEGRAM_TOKEN = "8862461242:AAEprjEWfGaxygfjiTfAJoS37hAgWAx1pFk"
-CHAT_ID = "6623261984"
+# --- 🚀 Telegram 專屬推播設定 (安全隱匿版) ---
+# 系統將自動從 Streamlit Cloud 的 Secrets 保險箱提取密鑰，避開 GitHub 審查
+try:
+    TELEGRAM_TOKEN = st.secrets["TELEGRAM_TOKEN"]
+    CHAT_ID = st.secrets["CHAT_ID"]
+except KeyError:
+    TELEGRAM_TOKEN = ""
+    CHAT_ID = ""
 
 def send_telegram_notify(message):
+    if not TELEGRAM_TOKEN or not CHAT_ID:
+        return # 若尚未設定密鑰則跳過，保護系統不崩潰
+        
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     payload = {
         "chat_id": CHAT_ID,
