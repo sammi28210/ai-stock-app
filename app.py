@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import json
 import requests
+import os
 from datetime import datetime, timedelta
 
 # --- 🚀 Telegram 專屬推播設定 (安全隱匿版) ---
@@ -36,15 +37,26 @@ st.set_page_config(page_title="台股AI全鏈监控系統", layout="wide")
 st.title("🦅 台股 AI 全產業鏈 350+ 大軍終極永久看板")
 st.caption("🎯 戰略完全體：【大仁哥週報特訓艙】× 【獨立資金換手地圖】× 【20日結構背離】× 【蓄勢發射球】")
 
-# --- ⚙️【持股永久固定區】修改您的真實庫存與成本，重新整理絕不消失！ ---
+# --- ⚙️【持股動態存檔區】讓你在網頁修改後自動存檔，重新整理不消失！ ---
+PORTFOLIO_FILE = "my_portfolio.csv"
+
 if 'my_portfolio' not in st.session_state:
-    st.session_state.my_portfolio = pd.DataFrame([
-        {"代號": "2356", "買入成本": 70.57},    # 💡 您的英業達真實成本
-        {"代號": "2308", "買入成本": 2038.64},  # 💡 您的國巨真實成本
-        {"代號": "", "買入成本": 0.0},          # 💡 您的台達電真實成本
-        {"代號": "", "買入成本": 0.0},          # 💡 您的強茂成本
-        {"代號": "", "買入成本": 0.0}           # 💡 您的華新科成本
-    ])
+    if os.path.exists(PORTFOLIO_FILE):
+        # 若有暫存檔，則優先讀取暫存檔
+        df = pd.read_csv(PORTFOLIO_FILE)
+        # 確保代號格式乾淨，避免被轉成浮點數 (如 2356.0)
+        df['代號'] = df['代號'].fillna('').astype(str).str.replace(r'\.0$', '', regex=True)
+        df['買入成本'] = df['買入成本'].fillna(0.0).astype(float)
+        st.session_state.my_portfolio = df
+    else:
+        # 若無暫存檔（首次啟動），載入預設版型
+        st.session_state.my_portfolio = pd.DataFrame([
+            {"代號": "2356", "買入成本": 70.57},
+            {"代號": "2308", "買入成本": 2038.64},
+            {"代號": "", "買入成本": 0.0},
+            {"代號": "", "買入成本": 0.0},
+            {"代號": "", "買入成本": 0.0}
+        ])
 
 # 🔒 自動讀取 350+ 全產業鏈大軍外部資料庫
 try:
@@ -883,11 +895,20 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                 else:
                     st.info("💡 目前盤中雷達掃描：暫無標的符合 60分K 發動條件 (K值 50~60)，請耐心等候下一個 60 分鐘洗牌。")
 
-            # --- 📱 下半部：我的持股鋼鐵防守 ---
+            # --- 📱 第二部分：我的持股鋼鐵防守 (支援網頁動態編輯存檔) ---
             st.markdown("---")
             st.markdown("### 📱 第二防線：我的持股極速停利監控 (自選追蹤)")
+            
+            # 讓用戶在網頁上自由編輯 (新增、刪除、修改)
             edited_df = st.data_editor(st.session_state.my_portfolio, num_rows="dynamic", use_container_width=True)
-            st.session_state.my_portfolio = edited_df
+            
+            # 偵測：如果網頁上編輯的資料跟系統當前資料不同，就觸發「自動存檔」
+            if not edited_df.equals(st.session_state.my_portfolio):
+                st.session_state.my_portfolio = edited_df
+                # 將最新資料存入 CSV 檔案
+                edited_df.to_csv(PORTFOLIO_FILE, index=False)
+                st.rerun() # 強制刷新畫面，讓下方的防守診斷立即套用新持股
+                
             st.markdown("---")
             
             if hourly_data is not None:
@@ -958,10 +979,101 @@ if FILTERED_TICKERS or WEEKLY_TICKERS:
                         else: 
                             st.error(f"🚨 {res_base} ➔ **空手觀望** (未站上 60MA 生命線，嚴禁進場){reason_text}")
                         
-                        # 把你不小心被我弄丟的「日K智庫點擊評語」加回來了！
+                        # 展開日 K 完整評語
                         df_d_ticker = daily_data[yf_tk].dropna() if is_multi else daily_data.dropna()
                         if len(df_d_ticker) > 60: 
                             render_unified_diagnosis_expander(yf_tk, df_d_ticker, name, group, expanded=False)
                             
                     except Exception as e: 
                         st.warning(f"⚠️ {tk} 數據處理中發生錯誤...")
+
+            # --- 🔍 第三部分：單兵狙擊雷達 (全新搜股功能) ---
+            st.markdown("---")
+            st.markdown("### 🔍 第三防線：單兵狙擊雷達 (個股 60分K 即時診斷)")
+            search_tk_60 = st.text_input("輸入你想狙擊的台股代號 (如 2330 或 2356)，系統將為你啟動 60 分 K 與日 K 雙重掃描：", key="tab7_search").strip()
+            
+            if search_tk_60:
+                with st.spinner(f"📡 正在為您鎖定 {search_tk_60} 進行深度量化掃描..."):
+                    yf_tk = search_tk_60
+                    name_s = "自選標的"
+                    group_s = "未分類"
+                    
+                    if not yf_tk.endswith('.TW') and not yf_tk.endswith('.TWO'):
+                        matched = [k for k in AI_STOCKS_DICT.keys() if k.startswith(yf_tk + '.')]
+                        if matched:
+                            yf_tk = matched[0]
+                            name_s = AI_STOCKS_DICT[yf_tk]['name']
+                            group_s = AI_STOCKS_DICT[yf_tk]['group']
+                        else:
+                            yf_tk = yf_tk + '.TW'
+                    else:
+                        if yf_tk in AI_STOCKS_DICT:
+                            name_s = AI_STOCKS_DICT[yf_tk]['name']
+                            group_s = AI_STOCKS_DICT[yf_tk]['group']
+
+                    try:
+                        # 即時去雲端抓取這檔股票的 60 分鐘與日線最新數據
+                        df_h_search = yf.download(yf_tk, period="2mo", interval="1h", progress=False)
+                        df_d_search = yf.download(yf_tk, period="8mo", interval="1d", progress=False)
+                        
+                        # 如果找不到，試著把 .TW 換成 .TWO (上櫃)
+                        if df_h_search.empty or df_d_search.empty:
+                            alt_tk = yf_tk.replace(".TW", ".TWO") if ".TW" in yf_tk else yf_tk.replace(".TWO", ".TW")
+                            df_h_search = yf.download(alt_tk, period="2mo", interval="1h", progress=False)
+                            df_d_search = yf.download(alt_tk, period="8mo", interval="1d", progress=False)
+                            if not df_h_search.empty: yf_tk = alt_tk
+
+                        if df_h_search.empty:
+                            st.error(f"❌ 找不到 {search_tk_60} 的資料，請確認代號是否正確。")
+                        else:
+                            # 處理 yfinance 可能的多層索引問題
+                            if isinstance(df_h_search.columns, pd.MultiIndex):
+                                df_h_search.columns = [col[0] for col in df_h_search.columns]
+                            if isinstance(df_d_search.columns, pd.MultiIndex):
+                                df_d_search.columns = [col[0] for col in df_d_search.columns]
+
+                            # 進行 60 分 K 運算
+                            price_h = float(df_h_search['Close'].iloc[-1])
+                            ma60_h = float(df_h_search['Close'].rolling(60).mean().iloc[-1])
+                            
+                            low_60 = df_h_search['Low'].rolling(window=60).min()
+                            high_60 = df_h_search['High'].rolling(window=60).max()
+                            df_h_search['RSV'] = (((df_h_search['Close'] - low_60) / (high_60 - low_60)) * 100).fillna(50)
+                            df_h_search['K'] = df_h_search['RSV'].ewm(alpha=1/3, adjust=False).mean()
+                            
+                            tod_h = df_h_search.iloc[-1]
+                            yes_h = df_h_search.iloc[-2]
+                            
+                            is_above_ma60 = price_h >= ma60_h
+                            curr_k = float(tod_h['K'])
+                            # 使用持股監控的標準 (K>=50即進入強勢區)
+                            is_k_turning_up = (curr_k > float(yes_h['K'])) and (curr_k >= 50)
+                            
+                            drop_reasons = []
+                            if not is_above_ma60: 
+                                drop_reasons.append(f"📉 **未站上防線**：股價目前低於 60MA ({ma60_h:.2f})。")
+                            if not is_k_turning_up:
+                                if curr_k < 50: 
+                                    drop_reasons.append(f"⏳ **動能不足**：目前 K值 ({curr_k:.1f}) 小於 50，尚未進入強勢區。")
+                                elif curr_k <= float(yes_h['K']): 
+                                    drop_reasons.append(f"🌀 **動能下彎**：目前 K值 ({curr_k:.1f}) 失去向上推力。")
+                                    
+                            reason_text = "\n\n**🔍 60分K策略監控：**\n" + "\n".join([f"{i+1}. {r}" for i, r in enumerate(drop_reasons)]) if drop_reasons else "\n\n**⚖️ 策略狀態**：條件完美吻合，主升段動能發動！"
+                            
+                            disp_title = f"{search_tk_60} {name_s}" if name_s != "自選標的" else yf_tk
+                            res_base = f"**{disp_title}** | 現價:{price_h:.2f} | (60MA:{ma60_h:.2f} , K值:{curr_k:.1f})"
+                            
+                            if is_above_ma60 and is_k_turning_up: 
+                                st.success(f"🔥 {res_base} ➔ **【黃金買點觸發】** (站穩 60MA 且 K值 50 轉上！){reason_text}")
+                            elif is_above_ma60: 
+                                st.info(f"🟢 {res_base} ➔ **安全整理區** (站在 60MA 之上，但 K值尚未發動){reason_text}")
+                            else: 
+                                st.error(f"🚨 {res_base} ➔ **空手觀望** (未站上 60MA 生命線，嚴禁進場){reason_text}")
+                            
+                            # 展開日 K 完整評語
+                            if len(df_d_search) > 60:
+                                render_unified_diagnosis_expander(yf_tk, df_d_search, name_s, group_s, expanded=True)
+                                
+                    except Exception as e:
+                        st.warning(f"⚠️ 查詢 {search_tk_60} 時發生網路延遲或錯誤，請稍後重試。")
+
